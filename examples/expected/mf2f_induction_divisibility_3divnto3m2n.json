@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "version": "0.1",
+    "id": "mf2f_induction_divisibility_3divnto3m2n",
+    "generator": "kingfisher-phase0"
+  },
+  "source": {
+    "text": "Show that for any natural number n, 3 divides n^3 + 2n."
+  },
+  "entities": [
+    {
+      "id": "n",
+      "kind": "variable",
+      "type": "Natural",
+      "properties": [],
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "goal": {
+    "kind": "prove",
+    "expr": {
+      "node": "Divides",
+      "lhs": {
+        "node": "Number",
+        "value": 3
+      },
+      "rhs": {
+        "node": "Add",
+        "args": [
+          {
+            "node": "Pow",
+            "base": {
+              "node": "Symbol",
+              "id": "n"
+            },
+            "exp": {
+              "node": "Number",
+              "value": 3
+            }
+          },
+          {
+            "node": "Mul",
+            "args": [
+              {
+                "node": "Number",
+                "value": 2
+              },
+              {
+                "node": "Symbol",
+                "id": "n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "trace": [
+      "s0"
+    ]
+  },
+  "concepts": [
+    {
+      "id": "domain_number_theory",
+      "role": "domain",
+      "trigger": "divisibility",
+      "confidence": 0.85,
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "tool_induction",
+      "role": "candidate_tool",
+      "trigger": "for all n in N",
+      "confidence": 0.7,
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "pattern_mod_arithmetic",
+      "role": "pattern",
+      "trigger": "divides expression",
+      "confidence": 0.7,
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "code": "AST_EXTENSION_NEEDED",
+      "message": "Divides is a boolean node not yet in core v0.1 AST; allowed as extension in Phase 0.",
+      "details": {
+        "node": "Divides"
+      },
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 55,
+      "text": "Show that for any natural number n, 3 divides n^3 + 2n."
+    }
+  ]
+}

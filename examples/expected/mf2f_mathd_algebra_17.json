@@ -1,0 +1,173 @@
+{
+  "meta": {
+    "version": "0.1",
+    "id": "mf2f_mathd_algebra_17",
+    "generator": "kingfisher-phase0"
+  },
+  "source": {
+    "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a."
+  },
+  "entities": [
+    {
+      "id": "a",
+      "kind": "variable",
+      "type": "Real",
+      "properties": [],
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "goal": {
+    "kind": "find",
+    "target": {
+      "node": "Symbol",
+      "id": "a"
+    },
+    "expr": {
+      "node": "Eq",
+      "lhs": {
+        "node": "Add",
+        "args": [
+          {
+            "node": "Call",
+            "fn": "sqrt",
+            "args": [
+              {
+                "node": "Add",
+                "args": [
+                  {
+                    "node": "Number",
+                    "value": 4
+                  },
+                  {
+                    "node": "Call",
+                    "fn": "sqrt",
+                    "args": [
+                      {
+                        "node": "Add",
+                        "args": [
+                          {
+                            "node": "Number",
+                            "value": 16
+                          },
+                          {
+                            "node": "Mul",
+                            "args": [
+                              {
+                                "node": "Number",
+                                "value": 16
+                              },
+                              {
+                                "node": "Symbol",
+                                "id": "a"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "node": "Call",
+            "fn": "sqrt",
+            "args": [
+              {
+                "node": "Add",
+                "args": [
+                  {
+                    "node": "Number",
+                    "value": 1
+                  },
+                  {
+                    "node": "Call",
+                    "fn": "sqrt",
+                    "args": [
+                      {
+                        "node": "Add",
+                        "args": [
+                          {
+                            "node": "Number",
+                            "value": 1
+                          },
+                          {
+                            "node": "Symbol",
+                            "id": "a"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "rhs": {
+        "node": "Number",
+        "value": 6
+      }
+    },
+    "trace": [
+      "s0"
+    ]
+  },
+  "concepts": [
+    {
+      "id": "domain_algebra",
+      "role": "domain",
+      "trigger": "nested radicals equation",
+      "confidence": 0.8,
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "pattern_nested_radicals",
+      "role": "pattern",
+      "trigger": "sqrt(sqrt(...))",
+      "confidence": 0.85,
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "hint_isolate_and_square",
+      "role": "representation_hint",
+      "trigger": "equation with radicals",
+      "confidence": 0.7,
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "code": "ASSUMPTION_DEBT",
+      "message": "Nested sqrt implies domain constraints (radicands >= 0) not yet extracted in Phase 0.",
+      "details": {
+        "suggestions": [
+          "1 + a >= 0",
+          "16 + 16a >= 0"
+        ]
+      },
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 74,
+      "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a."
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "meta": {
+    "version": "0.1",
+    "id": "mf2f_amc12a_2015_p10",
+    "generator": "kingfisher-phase0"
+  },
+  "source": {
+    "text": "Integers x > y > 0 satisfy x + y + xy = 80. Find x."
+  },
+  "entities": [
+    {
+      "id": "x",
+      "kind": "variable",
+      "type": "Integer",
+      "properties": [],
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "y",
+      "kind": "variable",
+      "type": "Integer",
+      "properties": [],
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "expr": {
+        "node": "Gt",
+        "lhs": {
+          "node": "Symbol",
+          "id": "x"
+        },
+        "rhs": {
+          "node": "Symbol",
+          "id": "y"
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "expr": {
+        "node": "Gt",
+        "lhs": {
+          "node": "Symbol",
+          "id": "y"
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 0
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "expr": {
+        "node": "Eq",
+        "lhs": {
+          "node": "Add",
+          "args": [
+            {
+              "node": "Symbol",
+              "id": "x"
+            },
+            {
+              "node": "Symbol",
+              "id": "y"
+            },
+            {
+              "node": "Mul",
+              "args": [
+                {
+                  "node": "Symbol",
+                  "id": "x"
+                },
+                {
+                  "node": "Symbol",
+                  "id": "y"
+                }
+              ]
+            }
+          ]
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 80
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "goal": {
+    "kind": "find",
+    "target": {
+      "node": "Symbol",
+      "id": "x"
+    },
+    "expr": {
+      "node": "True",
+      "value": true
+    },
+    "trace": [
+      "s0"
+    ]
+  },
+  "concepts": [
+    {
+      "id": "domain_algebra",
+      "role": "domain",
+      "trigger": "diophantine constraint",
+      "confidence": 0.75,
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "pattern_factorization",
+      "role": "pattern",
+      "trigger": "x+y+xy rearranges to (x+1)(y+1)",
+      "confidence": 0.7,
+      "trace": [
+        "s0"
+      ]
+    },
+    {
+      "id": "hint_substitution",
+      "role": "representation_hint",
+      "trigger": "try (x+1)(y+1)",
+      "confidence": 0.7,
+      "trace": [
+        "s0"
+      ]
+    }
+  ],
+  "warnings": [],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 51,
+      "text": "Integers x > y > 0 satisfy x + y + xy = 80. Find x."
+    }
+  ]
+}
