@@ -13,4 +13,5 @@
 - Pattern: modular/divisibility reasoning
 
 ### Warnings
-- AST_EXTENSION_NEEDED: uses Divides node (Phase 0 extension)
+- (none)
+

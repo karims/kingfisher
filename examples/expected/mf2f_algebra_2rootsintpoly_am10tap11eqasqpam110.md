@@ -10,3 +10,4 @@
 ### Concepts
 - Domain: Algebra
 - Candidate tool: distributive law / expansion
+

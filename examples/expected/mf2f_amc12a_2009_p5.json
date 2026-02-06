@@ -1,128 +1,130 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "mf2f_amc12a_2009_p5",
-    "generator": "kingfisher-phase0"
-  },
-  "source": {
-    "text": "A cube has side length s. One dimension is increased by 1, another decreased by 1, and the third is unchanged. The new volume is 5 less than the original. Find the original volume."
-  },
-  "entities": [
-    {
-      "id": "s",
-      "kind": "variable",
-      "type": "Real",
-      "properties": [
-        "positive"
-      ],
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "V",
-      "kind": "variable",
-      "type": "Real",
-      "properties": [],
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "assumptions": [
-    {
-      "expr": {
-        "node": "Gt",
-        "lhs": {
-          "node": "Symbol",
-          "id": "s"
-        },
-        "rhs": {
-          "node": "Number",
-          "value": 0
-        }
-      },
-      "kind": "given",
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "goal": {
-    "kind": "find",
-    "target": {
-      "node": "Symbol",
-      "id": "V"
-    },
-    "expr": {
-      "node": "Eq",
-      "lhs": {
-        "node": "Symbol",
-        "id": "V"
-      },
-      "rhs": {
-        "node": "Pow",
-        "base": {
-          "node": "Symbol",
-          "id": "s"
-        },
-        "exp": {
-          "node": "Number",
-          "value": 3
-        }
-      }
-    },
-    "trace": [
-      "s0"
-    ]
-  },
-  "concepts": [
-    {
-      "id": "domain_algebra",
-      "role": "domain",
-      "trigger": "volume equation",
-      "confidence": 0.7,
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "pattern_cubic_expansion",
-      "role": "pattern",
-      "trigger": "(s+1)(s-1)s",
-      "confidence": 0.75,
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "hint_expand_and_simplify",
-      "role": "representation_hint",
-      "trigger": "expand (s+1)(s-1)s",
-      "confidence": 0.7,
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "warnings": [
-    {
-      "code": "MISSING_CONSTRAINT",
-      "message": "Problem implies (s+1)(s-1)s = s^3 - 5, but Phase 0 keeps it as narrative; later phases should extract this equation.",
-      "details": {
-        "implied_equation": "(s+1)(s-1)s = s^3 - 5"
-      },
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "trace": [
-    {
-      "span_id": "s0",
-      "start": 0,
-      "end": 180,
-      "text": "A cube has side length s. One dimension is increased by 1, another decreased by 1, and the third is unchanged. The new volume is 5 less than the original. Find the original volume."
-    }
-  ]
+    "meta":  {
+                 "version":  "0.1",
+                 "id":  "mf2f_amc12a_2009_p5",
+                 "generator":  "kingfisher-phase0"
+             },
+    "source":  {
+                   "text":  "A cube has side length s. One dimension is increased by 1, another decreased by 1, and the third is unchanged. The new volume is 5 less than the original. Find the original volume."
+               },
+    "entities":  [
+                     {
+                         "id":  "s",
+                         "kind":  "variable",
+                         "type":  "Real",
+                         "properties":  [
+                                            "positive"
+                                        ],
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "V",
+                         "kind":  "variable",
+                         "type":  "Real",
+                         "properties":  [
+
+                                        ],
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "assumptions":  [
+                        {
+                            "expr":  {
+                                         "node":  "Gt",
+                                         "lhs":  {
+                                                     "node":  "Symbol",
+                                                     "id":  "s"
+                                                 },
+                                         "rhs":  {
+                                                     "node":  "Number",
+                                                     "value":  0
+                                                 }
+                                     },
+                            "kind":  "given",
+                            "trace":  [
+                                          "s0"
+                                      ]
+                        }
+                    ],
+    "goal":  {
+                 "kind":  "find",
+                 "target":  {
+                                "node":  "Symbol",
+                                "id":  "V"
+                            },
+                 "expr":  {
+                              "node":  "Eq",
+                              "lhs":  {
+                                          "node":  "Symbol",
+                                          "id":  "V"
+                                      },
+                              "rhs":  {
+                                          "node":  "Pow",
+                                          "base":  {
+                                                       "node":  "Symbol",
+                                                       "id":  "s"
+                                                   },
+                                          "exp":  {
+                                                      "node":  "Number",
+                                                      "value":  3
+                                                  }
+                                      }
+                          },
+                 "trace":  [
+                               "s0"
+                           ]
+             },
+    "concepts":  [
+                     {
+                         "id":  "domain_algebra",
+                         "role":  "domain",
+                         "trigger":  "volume equation",
+                         "confidence":  0.7,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "pattern_cubic_expansion",
+                         "role":  "pattern",
+                         "trigger":  "(s+1)(s-1)s",
+                         "confidence":  0.75,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "hint_expand_and_simplify",
+                         "role":  "representation_hint",
+                         "trigger":  "expand (s+1)(s-1)s",
+                         "confidence":  0.7,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "warnings":  [
+                     {
+                         "code":  "MISSING_CONSTRAINT",
+                         "message":  "Problem implies (s+1)(s-1)s = s^3 - 5, but Phase 0 keeps it as narrative; later phases should extract this equation.",
+                         "details":  {
+                                         "implied_equation":  "(s+1)(s-1)s = s^3 - 5"
+                                     },
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "trace":  [
+                  {
+                      "span_id":  "s0",
+                      "start":  0,
+                      "end":  180,
+                      "text":  "A cube has side length s. One dimension is increased by 1, another decreased by 1, and the third is unchanged. The new volume is 5 less than the original. Find the original volume."
+                  }
+              ]
 }

@@ -1,1 +1,2 @@
 Integers x > y > 0 satisfy x + y + xy = 80. Find x.
+

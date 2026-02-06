@@ -1,1 +1,2 @@
 Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.
+

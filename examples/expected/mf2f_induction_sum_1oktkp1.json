@@ -1,179 +1,176 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "mf2f_induction_sum_1oktkp1",
-    "generator": "kingfisher-phase0"
-  },
-  "source": {
-    "text": "Show that for any positive integer n, sum_{k=0}^{n-1} 1/((k+1)(k+2)) = n/(n+1)."
-  },
-  "entities": [
-    {
-      "id": "n",
-      "kind": "variable",
-      "type": "Integer",
-      "properties": [
-        "positive"
-      ],
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "assumptions": [
-    {
-      "expr": {
-        "node": "Gt",
-        "lhs": {
-          "node": "Symbol",
-          "id": "n"
-        },
-        "rhs": {
-          "node": "Number",
-          "value": 0
-        }
-      },
-      "kind": "given",
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "goal": {
-    "kind": "prove",
-    "expr": {
-      "node": "Eq",
-      "lhs": {
-        "node": "Sum",
-        "var": "k",
-        "from": {
-          "node": "Number",
-          "value": 0
-        },
-        "to": {
-          "node": "Add",
-          "args": [
-            {
-              "node": "Symbol",
-              "id": "n"
-            },
-            {
-              "node": "Number",
-              "value": -1
-            }
-          ]
-        },
-        "body": {
-          "node": "Div",
-          "num": {
-            "node": "Number",
-            "value": 1
-          },
-          "den": {
-            "node": "Mul",
-            "args": [
-              {
-                "node": "Add",
-                "args": [
+    "meta":  {
+                 "version":  "0.1",
+                 "id":  "mf2f_induction_sum_1oktkp1",
+                 "generator":  "kingfisher-phase0"
+             },
+    "source":  {
+                   "text":  "Show that for any positive integer n, sum_{k=0}^{n-1} 1/((k+1)(k+2)) = n/(n+1)."
+               },
+    "entities":  [
+                     {
+                         "id":  "n",
+                         "kind":  "variable",
+                         "type":  "Integer",
+                         "properties":  [
+                                            "positive"
+                                        ],
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "assumptions":  [
+                        {
+                            "expr":  {
+                                         "node":  "Gt",
+                                         "lhs":  {
+                                                     "node":  "Symbol",
+                                                     "id":  "n"
+                                                 },
+                                         "rhs":  {
+                                                     "node":  "Number",
+                                                     "value":  0
+                                                 }
+                                     },
+                            "kind":  "given",
+                            "trace":  [
+                                          "s0"
+                                      ]
+                        }
+                    ],
+    "goal":  {
+                 "kind":  "prove",
+                 "expr":  {
+                              "node":  "Eq",
+                              "lhs":  {
+                                          "node":  "Call",
+                                          "fn":  "sum",
+                                          "args":  [
+                                                       {
+                                                           "node":  "Symbol",
+                                                           "id":  "k"
+                                                       },
+                                                       {
+                                                           "node":  "Number",
+                                                           "value":  0
+                                                       },
+                                                       {
+                                                           "node":  "Add",
+                                                           "args":  [
+                                                                        {
+                                                                            "node":  "Symbol",
+                                                                            "id":  "n"
+                                                                        },
+                                                                        {
+                                                                            "node":  "Number",
+                                                                            "value":  -1
+                                                                        }
+                                                                    ]
+                                                       },
+                                                       {
+                                                           "node":  "Div",
+                                                           "num":  {
+                                                                       "node":  "Number",
+                                                                       "value":  1
+                                                                   },
+                                                           "den":  {
+                                                                       "node":  "Mul",
+                                                                       "args":  [
+                                                                                    {
+                                                                                        "node":  "Add",
+                                                                                        "args":  [
+                                                                                                     {
+                                                                                                         "node":  "Symbol",
+                                                                                                         "id":  "k"
+                                                                                                     },
+                                                                                                     {
+                                                                                                         "node":  "Number",
+                                                                                                         "value":  1
+                                                                                                     }
+                                                                                                 ]
+                                                                                    },
+                                                                                    {
+                                                                                        "node":  "Add",
+                                                                                        "args":  [
+                                                                                                     {
+                                                                                                         "node":  "Symbol",
+                                                                                                         "id":  "k"
+                                                                                                     },
+                                                                                                     {
+                                                                                                         "node":  "Number",
+                                                                                                         "value":  2
+                                                                                                     }
+                                                                                                 ]
+                                                                                    }
+                                                                                ]
+                                                                   }
+                                                       }
+                                                   ]
+                                      },
+                              "rhs":  {
+                                          "node":  "Div",
+                                          "num":  {
+                                                      "node":  "Symbol",
+                                                      "id":  "n"
+                                                  },
+                                          "den":  {
+                                                      "node":  "Add",
+                                                      "args":  [
+                                                                   {
+                                                                       "node":  "Symbol",
+                                                                       "id":  "n"
+                                                                   },
+                                                                   {
+                                                                       "node":  "Number",
+                                                                       "value":  1
+                                                                   }
+                                                               ]
+                                                  }
+                                      }
+                          },
+                 "trace":  [
+                               "s0"
+                           ]
+             },
+    "concepts":  [
+                     {
+                         "id":  "domain_algebra",
+                         "role":  "domain",
+                         "trigger":  "summation identity",
+                         "confidence":  0.7,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "tool_induction",
+                         "role":  "candidate_tool",
+                         "trigger":  "for all n",
+                         "confidence":  0.75,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "pattern_telescoping",
+                         "role":  "pattern",
+                         "trigger":  "rational sum resembles telescoping",
+                         "confidence":  0.65,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "warnings":  [
+
+                 ],
+    "trace":  [
                   {
-                    "node": "Symbol",
-                    "id": "k"
-                  },
-                  {
-                    "node": "Number",
-                    "value": 1
+                      "span_id":  "s0",
+                      "start":  0,
+                      "end":  79,
+                      "text":  "Show that for any positive integer n, sum_{k=0}^{n-1} 1/((k+1)(k+2)) = n/(n+1)."
                   }
-                ]
-              },
-              {
-                "node": "Add",
-                "args": [
-                  {
-                    "node": "Symbol",
-                    "id": "k"
-                  },
-                  {
-                    "node": "Number",
-                    "value": 2
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      },
-      "rhs": {
-        "node": "Div",
-        "num": {
-          "node": "Symbol",
-          "id": "n"
-        },
-        "den": {
-          "node": "Add",
-          "args": [
-            {
-              "node": "Symbol",
-              "id": "n"
-            },
-            {
-              "node": "Number",
-              "value": 1
-            }
-          ]
-        }
-      }
-    },
-    "trace": [
-      "s0"
-    ]
-  },
-  "concepts": [
-    {
-      "id": "domain_algebra",
-      "role": "domain",
-      "trigger": "summation identity",
-      "confidence": 0.7,
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "tool_induction",
-      "role": "candidate_tool",
-      "trigger": "for all n",
-      "confidence": 0.75,
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "pattern_telescoping",
-      "role": "pattern",
-      "trigger": "rational sum resembles telescoping",
-      "confidence": 0.65,
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "warnings": [
-    {
-      "code": "AST_EXTENSION_NEEDED",
-      "message": "Sum is a node not yet in core v0.1 AST; allowed as extension in Phase 0.",
-      "details": {
-        "node": "Sum"
-      },
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "trace": [
-    {
-      "span_id": "s0",
-      "start": 0,
-      "end": 79,
-      "text": "Show that for any positive integer n, sum_{k=0}^{n-1} 1/((k+1)(k+2)) = n/(n+1)."
-    }
-  ]
+              ]
 }

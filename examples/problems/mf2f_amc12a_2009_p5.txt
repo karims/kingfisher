@@ -1,1 +1,2 @@
 A cube has side length s. One dimension is increased by 1, another decreased by 1, and the third is unchanged. The new volume is 5 less than the original. Find the original volume.
+

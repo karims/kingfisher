@@ -5,7 +5,7 @@
 - n > 0
 
 ### Goal
-- Prove: Σ_{k=0}^{n-1} 1/((k+1)(k+2)) = n/(n+1)
+- Prove: S_{k=0}^{n-1} 1/((k+1)(k+2)) = n/(n+1)
 
 ### Concepts
 - Domain: Algebra
@@ -13,4 +13,5 @@
 - Pattern: telescoping sum
 
 ### Warnings
-- AST_EXTENSION_NEEDED: uses Sum node (Phase 0 extension)
+- (none)
+

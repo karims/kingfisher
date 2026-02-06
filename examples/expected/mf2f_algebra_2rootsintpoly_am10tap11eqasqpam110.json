@@ -1,126 +1,130 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110",
-    "generator": "kingfisher-phase0"
-  },
-  "source": {
-    "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
-  },
-  "entities": [
-    {
-      "id": "a",
-      "kind": "variable",
-      "type": "Complex",
-      "properties": [],
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "assumptions": [
-    {
-      "expr": {
-        "node": "True",
-        "value": true
-      },
-      "kind": "given",
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "goal": {
-    "kind": "prove",
-    "expr": {
-      "node": "Eq",
-      "lhs": {
-        "node": "Mul",
-        "args": [
-          {
-            "node": "Add",
-            "args": [
-              {
-                "node": "Symbol",
-                "id": "a"
-              },
-              {
-                "node": "Number",
-                "value": -10
-              }
-            ]
-          },
-          {
-            "node": "Add",
-            "args": [
-              {
-                "node": "Symbol",
-                "id": "a"
-              },
-              {
-                "node": "Number",
-                "value": 11
-              }
-            ]
-          }
-        ]
-      },
-      "rhs": {
-        "node": "Add",
-        "args": [
-          {
-            "node": "Pow",
-            "base": {
-              "node": "Symbol",
-              "id": "a"
-            },
-            "exp": {
-              "node": "Number",
-              "value": 2
-            }
-          },
-          {
-            "node": "Symbol",
-            "id": "a"
-          },
-          {
-            "node": "Number",
-            "value": -110
-          }
-        ]
-      }
-    },
-    "trace": [
-      "s0"
-    ]
-  },
-  "concepts": [
-    {
-      "id": "domain_algebra",
-      "role": "domain",
-      "trigger": "polynomial identity",
-      "confidence": 0.8,
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "tool_distributive_law",
-      "role": "candidate_tool",
-      "trigger": "expand product",
-      "confidence": 0.75,
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "warnings": [],
-  "trace": [
-    {
-      "span_id": "s0",
-      "start": 0,
-      "end": 69,
-      "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
-    }
-  ]
+    "meta":  {
+                 "version":  "0.1",
+                 "id":  "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110",
+                 "generator":  "kingfisher-phase0"
+             },
+    "source":  {
+                   "text":  "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
+               },
+    "entities":  [
+                     {
+                         "id":  "a",
+                         "kind":  "variable",
+                         "type":  "Complex",
+                         "properties":  [
+
+                                        ],
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "assumptions":  [
+                        {
+                            "expr":  {
+                                         "node":  "Bool",
+                                         "value":  true
+                                     },
+                            "kind":  "given",
+                            "trace":  [
+                                          "s0"
+                                      ]
+                        }
+                    ],
+    "goal":  {
+                 "kind":  "prove",
+                 "expr":  {
+                              "node":  "Eq",
+                              "lhs":  {
+                                          "node":  "Mul",
+                                          "args":  [
+                                                       {
+                                                           "node":  "Add",
+                                                           "args":  [
+                                                                        {
+                                                                            "node":  "Symbol",
+                                                                            "id":  "a"
+                                                                        },
+                                                                        {
+                                                                            "node":  "Number",
+                                                                            "value":  -10
+                                                                        }
+                                                                    ]
+                                                       },
+                                                       {
+                                                           "node":  "Add",
+                                                           "args":  [
+                                                                        {
+                                                                            "node":  "Symbol",
+                                                                            "id":  "a"
+                                                                        },
+                                                                        {
+                                                                            "node":  "Number",
+                                                                            "value":  11
+                                                                        }
+                                                                    ]
+                                                       }
+                                                   ]
+                                      },
+                              "rhs":  {
+                                          "node":  "Add",
+                                          "args":  [
+                                                       {
+                                                           "node":  "Pow",
+                                                           "base":  {
+                                                                        "node":  "Symbol",
+                                                                        "id":  "a"
+                                                                    },
+                                                           "exp":  {
+                                                                       "node":  "Number",
+                                                                       "value":  2
+                                                                   }
+                                                       },
+                                                       {
+                                                           "node":  "Symbol",
+                                                           "id":  "a"
+                                                       },
+                                                       {
+                                                           "node":  "Number",
+                                                           "value":  -110
+                                                       }
+                                                   ]
+                                      }
+                          },
+                 "trace":  [
+                               "s0"
+                           ]
+             },
+    "concepts":  [
+                     {
+                         "id":  "domain_algebra",
+                         "role":  "domain",
+                         "trigger":  "polynomial identity",
+                         "confidence":  0.8,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "tool_distributive_law",
+                         "role":  "candidate_tool",
+                         "trigger":  "expand product",
+                         "confidence":  0.75,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "warnings":  [
+
+                 ],
+    "trace":  [
+                  {
+                      "span_id":  "s0",
+                      "start":  0,
+                      "end":  69,
+                      "text":  "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
+                  }
+              ]
 }

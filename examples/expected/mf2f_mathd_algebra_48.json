@@ -1,131 +1,137 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "mf2f_mathd_algebra_48",
-    "generator": "kingfisher-phase0"
-  },
-  "source": {
-    "text": "Simplify (9 - 4i) - (-3 - 4i)."
-  },
-  "entities": [
-    {
-      "id": "i",
-      "kind": "constant",
-      "type": "Complex",
-      "properties": [
-        "imag_unit"
-      ],
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "expr",
-      "kind": "variable",
-      "type": "Complex",
-      "properties": [],
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "assumptions": [],
-  "goal": {
-    "kind": "compute",
-    "target": {
-      "node": "Symbol",
-      "id": "expr"
-    },
-    "expr": {
-      "node": "Eq",
-      "lhs": {
-        "node": "Symbol",
-        "id": "expr"
-      },
-      "rhs": {
-        "node": "Add",
-        "args": [
-          {
-            "node": "Add",
-            "args": [
-              {
-                "node": "Number",
-                "value": 9
-              },
-              {
-                "node": "Mul",
-                "args": [
+    "meta":  {
+                 "version":  "0.1",
+                 "id":  "mf2f_mathd_algebra_48",
+                 "generator":  "kingfisher-phase0"
+             },
+    "source":  {
+                   "text":  "Simplify (9 - 4i) - (-3 - 4i)."
+               },
+    "entities":  [
+                     {
+                         "id":  "i",
+                         "kind":  "constant",
+                         "type":  "Complex",
+                         "properties":  [
+                                            "imag_unit"
+                                        ],
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "expr",
+                         "kind":  "variable",
+                         "type":  "Complex",
+                         "properties":  [
+
+                                        ],
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "assumptions":  [
+
+                    ],
+    "goal":  {
+                 "kind":  "compute",
+                 "target":  {
+                                "node":  "Symbol",
+                                "id":  "expr"
+                            },
+                 "expr":  {
+                              "node":  "Eq",
+                              "lhs":  {
+                                          "node":  "Symbol",
+                                          "id":  "expr"
+                                      },
+                              "rhs":  {
+                                          "node":  "Add",
+                                          "args":  [
+                                                       {
+                                                           "node":  "Add",
+                                                           "args":  [
+                                                                        {
+                                                                            "node":  "Number",
+                                                                            "value":  9
+                                                                        },
+                                                                        {
+                                                                            "node":  "Mul",
+                                                                            "args":  [
+                                                                                         {
+                                                                                             "node":  "Number",
+                                                                                             "value":  -4
+                                                                                         },
+                                                                                         {
+                                                                                             "node":  "Symbol",
+                                                                                             "id":  "i"
+                                                                                         }
+                                                                                     ]
+                                                                        }
+                                                                    ]
+                                                       },
+                                                       {
+                                                           "node":  "Neg",
+                                                           "arg":  {
+                                                                       "node":  "Add",
+                                                                       "args":  [
+                                                                                    {
+                                                                                        "node":  "Number",
+                                                                                        "value":  -3
+                                                                                    },
+                                                                                    {
+                                                                                        "node":  "Mul",
+                                                                                        "args":  [
+                                                                                                     {
+                                                                                                         "node":  "Number",
+                                                                                                         "value":  -4
+                                                                                                     },
+                                                                                                     {
+                                                                                                         "node":  "Symbol",
+                                                                                                         "id":  "i"
+                                                                                                     }
+                                                                                                 ]
+                                                                                    }
+                                                                                ]
+                                                                   }
+                                                       }
+                                                   ]
+                                      }
+                          },
+                 "trace":  [
+                               "s0"
+                           ]
+             },
+    "concepts":  [
+                     {
+                         "id":  "domain_algebra",
+                         "role":  "domain",
+                         "trigger":  "simplify expression",
+                         "confidence":  0.7,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     },
+                     {
+                         "id":  "pattern_complex_arithmetic",
+                         "role":  "pattern",
+                         "trigger":  "contains i",
+                         "confidence":  0.85,
+                         "trace":  [
+                                       "s0"
+                                   ]
+                     }
+                 ],
+    "warnings":  [
+
+                 ],
+    "trace":  [
                   {
-                    "node": "Number",
-                    "value": -4
-                  },
-                  {
-                    "node": "Symbol",
-                    "id": "i"
+                      "span_id":  "s0",
+                      "start":  0,
+                      "end":  30,
+                      "text":  "Simplify (9 - 4i) - (-3 - 4i)."
                   }
-                ]
-              }
-            ]
-          },
-          {
-            "node": "Neg",
-            "arg": {
-              "node": "Add",
-              "args": [
-                {
-                  "node": "Number",
-                  "value": -3
-                },
-                {
-                  "node": "Mul",
-                  "args": [
-                    {
-                      "node": "Number",
-                      "value": -4
-                    },
-                    {
-                      "node": "Symbol",
-                      "id": "i"
-                    }
-                  ]
-                }
               ]
-            }
-          }
-        ]
-      }
-    },
-    "trace": [
-      "s0"
-    ]
-  },
-  "concepts": [
-    {
-      "id": "domain_algebra",
-      "role": "domain",
-      "trigger": "simplify expression",
-      "confidence": 0.7,
-      "trace": [
-        "s0"
-      ]
-    },
-    {
-      "id": "pattern_complex_arithmetic",
-      "role": "pattern",
-      "trigger": "contains i",
-      "confidence": 0.85,
-      "trace": [
-        "s0"
-      ]
-    }
-  ],
-  "warnings": [],
-  "trace": [
-    {
-      "span_id": "s0",
-      "start": 0,
-      "end": 30,
-      "text": "Simplify (9 - 4i) - (-3 - 4i)."
-    }
-  ]
 }
