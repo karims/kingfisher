@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Literal, Union
 
-from pydantic import BaseModel, Field, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 
 class Symbol(BaseModel):
@@ -24,7 +24,7 @@ class Number(BaseModel):
 class Bool(BaseModel):
     """Boolean literal."""
 
-    node: Literal["Bool"]
+    node: Literal["Bool", "True", "False"]
     value: bool
 
 
@@ -113,6 +113,26 @@ class Ge(BaseModel):
     rhs: "Expr"
 
 
+class Divides(BaseModel):
+    """Divisibility relation."""
+
+    node: Literal["Divides"]
+    lhs: "Expr"
+    rhs: "Expr"
+
+
+class Sum(BaseModel):
+    """Summation expression."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    node: Literal["Sum"]
+    var: str = Field(min_length=1)
+    from_: "Expr" = Field(alias="from")
+    to: "Expr"
+    body: "Expr"
+
+
 class Call(BaseModel):
     """Function call."""
 
@@ -137,6 +157,8 @@ Expr = Annotated[
         Le,
         Gt,
         Ge,
+        Divides,
+        Sum,
         Call,
     ],
     Field(discriminator="node"),
