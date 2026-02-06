@@ -18,6 +18,45 @@ Think of it as a compiler front-end for mathematical reasoning.
 - concept-aware representation
 - foundation for symbolic AI
 
-## Status
+## Why Kingfisher?
 
-Phase 0 – Spec & design
+Modern LLMs are strong at language but weak at maintaining precise symbolic state.
+Formal systems are precise but hard to connect to natural language.
+
+Kingfisher exists to bridge this gap.
+
+It provides:
+- a clean boundary between language understanding and symbolic reasoning
+- a debuggable representation (with traceability)
+- a common interface for multiple math solvers and AI systems
+
+Think of Kingfisher as a **compiler front-end for mathematical reasoning**.
+
+## What is MVIR?
+
+MVIR stands for **Mathematical Virtual Intermediate Representation**.
+
+MVIR is a compiler-style intermediate representation for mathematics.  
+It captures the *mathematical state* of a problem in a structured, solver-agnostic form.
+
+An MVIR instance includes:
+- mathematical entities (variables, functions, sets)
+- assumptions and constraints
+- the goal (prove, find, compute, etc.)
+- expression trees (AST)
+- high-level mathematical concepts (e.g. inequalities, induction, AM–GM)
+- trace information linking every object back to the source text
+
+MVIR is not a proof.  
+It is the **front-end representation** that downstream symbolic systems, theorem provers,
+or hybrid AI models can operate on.
+
+## Non-goals (early versions)
+
+Kingfisher does NOT aim to:
+- generate full formal proofs
+- replace theorem provers
+- solve math problems end-to-end
+
+Its job is to **formalize**, not to **prove**.
+

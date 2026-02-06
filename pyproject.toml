@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mvir"
+version = "0.0.0"
+description = "MVIR schema + AST scaffolding"
+requires-python = ">=3.10"
+dependencies = [
+  "pydantic>=2.0",
+  "pytest>=7.0",
+]
