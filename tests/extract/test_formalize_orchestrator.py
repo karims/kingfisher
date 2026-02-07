@@ -23,7 +23,10 @@ def _valid_mvir_payload() -> dict:
         },
         "concepts": [],
         "warnings": [],
-        "trace": [{"span_id": "s0", "start": 0, "end": 1, "text": "x"}],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 1, "text": "x"},
+            {"span_id": "s1", "start": 0, "end": 1, "text": "x"},
+        ],
     }
 
 

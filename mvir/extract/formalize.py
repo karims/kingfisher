@@ -13,6 +13,7 @@ from pydantic import ValidationError
 
 from mvir.core.models import MVIR
 from mvir.extract.context import build_prompt_context
+from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.prompts import build_mvir_prompt
 from mvir.extract.provider_base import LLMProvider, Provider, ProviderResult
 from mvir.preprocess.context import build_preprocess_output
@@ -54,6 +55,12 @@ def formalize_text_to_mvir(
         ) from exc
 
     try:
-        return MVIR.model_validate(payload)
+        mvir = MVIR.model_validate(payload)
     except ValidationError as exc:
         raise ValueError(f"MVIR validation failed: {exc}") from exc
+
+    errors = validate_grounding_contract(mvir)
+    if errors:
+        raise ValueError("Grounding contract failed: " + "; ".join(errors))
+
+    return mvir
