@@ -28,3 +28,20 @@ class Provider(Protocol):
         """Extract MVIR using a provider implementation."""
 
         raise NotImplementedError
+
+
+class LLMProvider(Protocol):
+    """LLM provider abstraction for prompt completion."""
+
+    name: str
+
+    def complete(
+        self,
+        prompt: str,
+        *,
+        temperature: float = 0.0,
+        max_tokens: int = 2000,
+    ) -> str:
+        """Complete the given prompt and return raw text."""
+
+        raise NotImplementedError

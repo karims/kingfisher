@@ -7,11 +7,39 @@ Providers must not modify MVIR schema.
 
 from __future__ import annotations
 
-from mvir.core.models import MVIR
-from mvir.extract.provider_base import ProviderResult
+from dataclasses import dataclass
+
+from mvir.extract.provider_base import LLMProvider
 
 
-def extract(prompt_context: dict) -> ProviderResult:
-    """Placeholder extraction implementation."""
+@dataclass(frozen=True)
+class MockProvider(LLMProvider):
+    """Mock provider that maps PROBLEM_ID to canned responses."""
 
-    raise NotImplementedError("Mock provider not implemented.")
+    mapping: dict[str, str]
+    name: str = "mock"
+
+    def complete(
+        self,
+        prompt: str,
+        *,
+        temperature: float = 0.0,
+        max_tokens: int = 2000,
+    ) -> str:
+        """Return a canned response for a known PROBLEM_ID."""
+
+        _ = temperature
+        _ = max_tokens
+        problem_id = None
+        for line in prompt.splitlines():
+            if line.startswith("PROBLEM_ID="):
+                problem_id = line.split("=", 1)[1].strip()
+                break
+        if not problem_id:
+            raise ValueError("Missing PROBLEM_ID in prompt.")
+        if problem_id not in self.mapping:
+            keys = ", ".join(sorted(self.mapping.keys()))
+            raise ValueError(
+                f"Unknown PROBLEM_ID '{problem_id}'. Available keys: {keys}"
+            )
+        return self.mapping[problem_id]
