@@ -201,6 +201,22 @@ When in doubt: **this document overrides convenience fixes.**
 
 ---
 
+## 12. Phase 3 Extraction
+
+**Decision**
+- Phase 3 uses an LLM to extract MVIR semantics from prompt context.
+- Unknown or context spans are allowed and must not be forced into goal or assumption slots.
+
+**Rationale**
+- Some spans are ambiguous or incomplete without downstream reasoning.
+- Forcing a semantic label too early produces brittle MVIR.
+
+**Implication**
+- Providers must preserve ambiguity and avoid schema drift.
+- MVIR schema remains unchanged across Phase 1/2/3.
+
+---
+
 ## Closing Note
 
 Kingfisher is infrastructure.
