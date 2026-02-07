@@ -1,36 +1,59 @@
-"""Batch reporting scaffolding for Phase 4 extraction runs.
-
-Reports summarize pipeline outcomes without changing MVIR schema.
-"""
+"""Failure classification and run reporting utilities."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
+from enum import Enum
+
+from pydantic import ValidationError
+
+from mvir.extract.provider_base import ProviderError
 
 
-@dataclass(frozen=True)
-class FormalizeItemReport:
-    """Per-problem report entry for directory formalization."""
+class FailureKind(str, Enum):
+    """Standardized failure kinds for extraction runs."""
 
-    problem_id: str
-    status: str
-    output_path: str | None = None
-    error: str | None = None
-    cache_hit: bool = False
-
-
-@dataclass(frozen=True)
-class FormalizeBatchReport:
-    """Aggregate report for a directory formalization run."""
-
-    items: list[FormalizeItemReport] = field(default_factory=list)
+    JSON_PARSE = "json_parse"
+    SCHEMA_VALIDATION = "schema_validation"
+    GROUNDING_CONTRACT = "grounding_contract"
+    PROVIDER = "provider"
+    UNKNOWN = "unknown"
 
 
-def write_batch_report(report: FormalizeBatchReport, path: Path) -> Path:
-    """Write a batch report to disk and return output path."""
+_MAX_MESSAGE_LEN = 240
 
-    _ = report
-    _ = path
-    raise NotImplementedError("Batch report serialization is deferred in Phase 4 scaffolding.")
 
+def _truncate_message(message: str, limit: int = _MAX_MESSAGE_LEN) -> str:
+    if len(message) <= limit:
+        return message
+    return message[:limit] + "..."
+
+
+def classify_exception(exc: Exception) -> tuple[FailureKind, str]:
+    """Classify an exception into a failure kind and normalized message."""
+
+    message = str(exc)
+
+    if isinstance(exc, ProviderError):
+        return FailureKind.PROVIDER, _truncate_message(message)
+
+    if isinstance(exc, ValidationError):
+        return FailureKind.SCHEMA_VALIDATION, _truncate_message(message)
+
+    if isinstance(exc, ValueError):
+        if "JSON parse failed" in message:
+            return FailureKind.JSON_PARSE, _truncate_message(message)
+        if "MVIR validation failed" in message:
+            return FailureKind.SCHEMA_VALIDATION, _truncate_message(message)
+        if "Grounding contract failed" in message:
+            return FailureKind.GROUNDING_CONTRACT, _truncate_message(message)
+
+    return FailureKind.UNKNOWN, _truncate_message(message)
+
+
+@dataclass
+class RunReport:
+    """Aggregated run report for batch formalization."""
+
+    ok: list[str] = field(default_factory=list)
+    failed: list[dict] = field(default_factory=list)

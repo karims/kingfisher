@@ -68,8 +68,8 @@ def test_cli_formalize_dir_success_and_report(tmp_path: Path) -> None:
     assert (out_dir / "a.json").exists()
     assert (out_dir / "b.json").exists()
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    assert sorted(report["ok_ids"]) == ["a", "b"]
-    assert report["failures"] == []
+    assert sorted(report["ok"]) == ["a", "b"]
+    assert report["failed"] == []
 
 
 def test_cli_formalize_dir_continues_on_failure(tmp_path: Path) -> None:
@@ -114,11 +114,11 @@ def test_cli_formalize_dir_continues_on_failure(tmp_path: Path) -> None:
     assert (out_dir / "ok2.json").exists()
     assert not (out_dir / "missing.json").exists()
     report = json.loads(report_path.read_text(encoding="utf-8"))
-    assert sorted(report["ok_ids"]) == ["ok1", "ok2"]
-    assert len(report["failures"]) == 1
-    assert report["failures"][0]["id"] == "missing"
-    assert report["failures"][0]["kind"] == "bad_response"
-    assert "Unknown PROBLEM_ID" in report["failures"][0]["message"]
+    assert sorted(report["ok"]) == ["ok1", "ok2"]
+    assert len(report["failed"]) == 1
+    assert report["failed"][0]["id"] == "missing"
+    assert report["failed"][0]["kind"] == "provider"
+    assert "Unknown PROBLEM_ID" in report["failed"][0]["message"]
 
 
 def test_cli_formalize_dir_fail_fast_returns_non_zero(tmp_path: Path) -> None:
