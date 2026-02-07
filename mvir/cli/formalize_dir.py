@@ -8,6 +8,7 @@ from collections import Counter
 from pathlib import Path
 
 from mvir.extract.cache import ResponseCache
+from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.provider_base import LLMProvider
 from mvir.extract.providers.mock import MockProvider
@@ -62,6 +63,13 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Stop after first failure and return non-zero.",
     )
+    parser.add_argument(
+        "--strict",
+        dest="strict",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Enforce grounding-contract failures as errors (default: true).",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -89,6 +97,7 @@ def main(argv: list[str] | None = None) -> int:
                 problem_id=problem_id,
                 cache=cache,
                 use_cache=True,
+                strict=args.strict,
             )
             payload = mvir.model_dump(by_alias=False, exclude_none=True)
             (out_dir / f"{problem_id}.json").write_text(
@@ -96,6 +105,18 @@ def main(argv: list[str] | None = None) -> int:
                 encoding="utf-8",
             )
             run_report.ok.append(problem_id)
+            if not args.strict:
+                grounding_errors = validate_grounding_contract(mvir)
+                if grounding_errors:
+                    run_report.failed.append(
+                        {
+                            "id": problem_id,
+                            "kind": "grounding_contract",
+                            "message": "; ".join(grounding_errors),
+                        }
+                    )
+                    if args.fail_fast:
+                        break
         except Exception as exc:  # noqa: BLE001 - per-item fault isolation
             kind, message = classify_exception(exc)
             run_report.failed.append(

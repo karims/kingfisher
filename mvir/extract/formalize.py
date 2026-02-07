@@ -35,6 +35,7 @@ def formalize_text_to_mvir(
     max_tokens: int = 2000,
     cache: ResponseCache | None = None,
     use_cache: bool = True,
+    strict: bool = True,
 ) -> MVIR:
     """Run preprocess + prompt + provider completion and return MVIR."""
 
@@ -82,7 +83,7 @@ def formalize_text_to_mvir(
         raise ValueError(f"MVIR validation failed: {exc}") from exc
 
     errors = validate_grounding_contract(mvir)
-    if errors:
+    if strict and errors:
         raise ValueError("Grounding contract failed: " + "; ".join(errors))
 
     return mvir

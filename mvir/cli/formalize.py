@@ -11,6 +11,7 @@ import argparse
 import json
 from pathlib import Path
 
+from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.providers.mock import MockProvider
 
@@ -31,6 +32,13 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print MVIR JSON to stdout.",
     )
+    parser.add_argument(
+        "--strict",
+        dest="strict",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Enforce grounding-contract failures as errors (default: true).",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -50,7 +58,12 @@ def main(argv: list[str] | None = None) -> int:
             text,
             provider,
             problem_id=problem_id,
+            strict=args.strict,
         )
+        if not args.strict:
+            grounding_errors = validate_grounding_contract(mvir)
+            if grounding_errors:
+                print("WARNING: Grounding contract failed: " + "; ".join(grounding_errors))
 
         payload = mvir.model_dump(by_alias=False, exclude_none=True)
 
