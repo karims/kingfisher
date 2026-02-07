@@ -2,4 +2,4 @@
 
 from __future__ import annotations
 
-__all__ = ["mock"]
+__all__ = ["mock", "openai_provider", "ollama_provider"]

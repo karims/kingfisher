@@ -217,6 +217,24 @@ When in doubt: **this document overrides convenience fixes.**
 
 ---
 
+## 13. Phase 4 Providers and Batch Pipeline
+
+**Decision**
+- Phase 4 adds real provider scaffolding and a directory-level batch formalization pipeline.
+- Network calls are optional; the default test posture remains offline.
+- Caching is allowed only to skip recomputation and must not change MVIR content.
+
+**Rationale**
+- Keeps local and CI runs deterministic while enabling optional online integrations.
+- Separates performance concerns (cache reuse) from representation semantics.
+
+**Implication**
+- MVIR schema remains unchanged in Phase 4.
+- Preprocess remains non-semantic and offset-focused.
+- Cache hits and cache misses must produce equivalent MVIR payloads.
+
+---
+
 ## Closing Note
 
 Kingfisher is infrastructure.
