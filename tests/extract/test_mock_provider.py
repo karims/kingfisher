@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from mvir.extract.provider_base import ProviderError
 from mvir.extract.providers.mock import MockProvider
 
 
@@ -18,7 +19,7 @@ def test_mock_provider_missing_key() -> None:
     provider = MockProvider({"abc": "OK"})
     prompt = "PROBLEM_ID=missing\nINPUT=..."
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(ProviderError) as excinfo:
         provider.complete(prompt)
 
     message = str(excinfo.value)

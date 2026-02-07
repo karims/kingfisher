@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from mvir.extract.provider_base import LLMProvider
+from mvir.extract.provider_base import LLMProvider, ProviderError
 
 
 @dataclass(frozen=True)
@@ -35,5 +35,9 @@ class OpenAIProvider(LLMProvider):
         _ = prompt
         _ = temperature
         _ = max_tokens
-        raise NotImplementedError("OpenAI provider wiring is not implemented in Phase 4 scaffolding.")
-
+        raise ProviderError(
+            provider=self.name,
+            kind="bad_response",
+            message="OpenAI provider wiring is not implemented in Phase 4 scaffolding.",
+            retryable=False,
+        )
