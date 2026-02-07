@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import re
 
+from mvir.preprocess.spans import detect_math_spans
+
 
 @dataclass(frozen=True)
 class CandidateSpan:
@@ -51,8 +53,6 @@ _PHRASE_ASSUME_RE = re.compile(r"\b(assume|given)\b", re.IGNORECASE)
 _PHRASE_LET_RE = re.compile(r"\b(let)\b", re.IGNORECASE)
 _PHRASE_QUANTIFIER_RE = re.compile(r"\b(for all|for any)\b", re.IGNORECASE)
 _PHRASE_CONSTRAINT_RE = re.compile(r"\b(such that|satisfy)\b", re.IGNORECASE)
-_NUMBER_RE = re.compile(r"\b\d+(?:\.\d+)?\b")
-_SYMBOL_RE = re.compile(r"\b[a-zA-Z]\b")
 
 
 def _find_candidates(text: str, pattern: re.Pattern[str], category: str) -> list[CandidateSpan]:
@@ -82,12 +82,10 @@ def build_preprocess_output(text: str) -> PreprocessOutput:
     cue_candidates.extend(_find_candidates(text, _PHRASE_CONSTRAINT_RE, "PHRASE_CONSTRAINT"))
     cue_candidates = sorted(cue_candidates, key=lambda span: (span.start, span.end))
 
-    math_candidates = []
-    for span in _find_candidates(text, _NUMBER_RE, "MATH_TOKEN"):
-        math_candidates.append(MathSpan(start=span.start, end=span.end, text=span.text))
-    for span in _find_candidates(text, _SYMBOL_RE, "MATH_TOKEN"):
-        math_candidates.append(MathSpan(start=span.start, end=span.end, text=span.text))
-    math_candidates = sorted(math_candidates, key=lambda span: (span.start, span.end))
+    math_candidates = [
+        MathSpan(start=span["start"], end=span["end"], text=span["text"])
+        for span in detect_math_spans(text)
+    ]
 
     return PreprocessOutput(
         text=text,

@@ -20,13 +20,7 @@ def test_preprocess_output_candidates() -> None:
     ]
 
     math = [(c.kind, c.start, c.end, c.text) for c in output.math_candidates]
-    assert math == [
-        ("inline_math", 23, 24, "x"),
-        ("inline_math", 26, 27, "x"),
-        ("inline_math", 30, 31, "1"),
-        ("inline_math", 32, 33, "x"),
-        ("inline_math", 37, 38, "2"),
-    ]
+    assert math == [("inline_math", 26, 38, "x + 1/x >= 2")]
 
     for candidate in output.cue_candidates:
         assert text[candidate.start : candidate.end] == candidate.text
