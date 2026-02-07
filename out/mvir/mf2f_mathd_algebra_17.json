@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "version": "0.1",
+    "id": "mf2f_mathd_algebra_17",
+    "generator": "mock-llm"
+  },
+  "source": {
+    "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
+  },
+  "entities": [
+    {
+      "id": "a",
+      "kind": "variable",
+      "type": "Real",
+      "properties": [],
+      "trace": [
+        "s1",
+        "s2"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "expr": {
+        "node": "Eq",
+        "lhs": {
+          "node": "Add",
+          "args": [
+            {
+              "node": "Call",
+              "fn": "sqrt",
+              "args": [
+                {
+                  "node": "Add",
+                  "args": [
+                    {
+                      "node": "Number",
+                      "value": 4
+                    },
+                    {
+                      "node": "Call",
+                      "fn": "sqrt",
+                      "args": [
+                        {
+                          "node": "Add",
+                          "args": [
+                            {
+                              "node": "Number",
+                              "value": 16
+                            },
+                            {
+                              "node": "Mul",
+                              "args": [
+                                {
+                                  "node": "Number",
+                                  "value": 16
+                                },
+                                {
+                                  "node": "Symbol",
+                                  "id": "a"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "node": "Call",
+              "fn": "sqrt",
+              "args": [
+                {
+                  "node": "Add",
+                  "args": [
+                    {
+                      "node": "Number",
+                      "value": 1
+                    },
+                    {
+                      "node": "Call",
+                      "fn": "sqrt",
+                      "args": [
+                        {
+                          "node": "Add",
+                          "args": [
+                            {
+                              "node": "Number",
+                              "value": 1
+                            },
+                            {
+                              "node": "Symbol",
+                              "id": "a"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 6
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s1"
+      ]
+    }
+  ],
+  "goal": {
+    "kind": "find",
+    "expr": {
+      "node": "Bool",
+      "value": true
+    },
+    "trace": [
+      "s2"
+    ],
+    "target": {
+      "node": "Symbol",
+      "id": "a"
+    }
+  },
+  "concepts": [],
+  "warnings": [],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 77,
+      "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
+    },
+    {
+      "span_id": "s1",
+      "start": 0,
+      "end": 66,
+      "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6."
+    },
+    {
+      "span_id": "s2",
+      "start": 66,
+      "end": 74,
+      "text": " Find a."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "ok": [
+    "latex_smoke_01",
+    "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110",
+    "mf2f_amc12a_2015_p10",
+    "mf2f_mathd_algebra_17"
+  ],
+  "failed": [
+    {
+      "id": "mf2f_amc12a_2009_p5",
+      "kind": "provider",
+      "message": "ProviderError(provider='mock', kind='bad_response', retryable=False): Unknown PROBLEM_ID 'mf2f_amc12a_2009_p5'. Available keys: latex_smoke_01, mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110, mf2f_amc12a_2015_p10, mf2f_mathd_algebra_17"
+    },
+    {
+      "id": "mf2f_induction_divisibility_3divnto3m2n",
+      "kind": "provider",
+      "message": "ProviderError(provider='mock', kind='bad_response', retryable=False): Unknown PROBLEM_ID 'mf2f_induction_divisibility_3divnto3m2n'. Available keys: latex_smoke_01, mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110, mf2f_amc12a_2015_p10, mf2f_..."
+    },
+    {
+      "id": "mf2f_induction_sum_1oktkp1",
+      "kind": "provider",
+      "message": "ProviderError(provider='mock', kind='bad_response', retryable=False): Unknown PROBLEM_ID 'mf2f_induction_sum_1oktkp1'. Available keys: latex_smoke_01, mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110, mf2f_amc12a_2015_p10, mf2f_mathd_algebra..."
+    },
+    {
+      "id": "mf2f_mathd_algebra_48",
+      "kind": "provider",
+      "message": "ProviderError(provider='mock', kind='bad_response', retryable=False): Unknown PROBLEM_ID 'mf2f_mathd_algebra_48'. Available keys: latex_smoke_01, mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110, mf2f_amc12a_2015_p10, mf2f_mathd_algebra_17"
+    }
+  ]
+}

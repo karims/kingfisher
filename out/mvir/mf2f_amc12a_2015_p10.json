@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "version": "0.1",
+    "id": "mf2f_amc12a_2015_p10",
+    "generator": "mock-llm"
+  },
+  "source": {
+    "text": "Integers x > y > 0 satisfy x + y + xy = 80. Find x.\n\r\n"
+  },
+  "entities": [
+    {
+      "id": "x",
+      "kind": "variable",
+      "type": "Integer",
+      "properties": [],
+      "trace": [
+        "s1",
+        "s2"
+      ]
+    },
+    {
+      "id": "y",
+      "kind": "variable",
+      "type": "Integer",
+      "properties": [],
+      "trace": [
+        "s1"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "expr": {
+        "node": "Gt",
+        "lhs": {
+          "node": "Symbol",
+          "id": "x"
+        },
+        "rhs": {
+          "node": "Symbol",
+          "id": "y"
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
+      "expr": {
+        "node": "Gt",
+        "lhs": {
+          "node": "Symbol",
+          "id": "y"
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 0
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
+      "expr": {
+        "node": "Eq",
+        "lhs": {
+          "node": "Add",
+          "args": [
+            {
+              "node": "Symbol",
+              "id": "x"
+            },
+            {
+              "node": "Symbol",
+              "id": "y"
+            },
+            {
+              "node": "Mul",
+              "args": [
+                {
+                  "node": "Symbol",
+                  "id": "x"
+                },
+                {
+                  "node": "Symbol",
+                  "id": "y"
+                }
+              ]
+            }
+          ]
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 80
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s1"
+      ]
+    }
+  ],
+  "goal": {
+    "kind": "find",
+    "expr": {
+      "node": "Bool",
+      "value": true
+    },
+    "trace": [
+      "s2"
+    ],
+    "target": {
+      "node": "Symbol",
+      "id": "x"
+    }
+  },
+  "concepts": [],
+  "warnings": [],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 54,
+      "text": "Integers x > y > 0 satisfy x + y + xy = 80. Find x.\n\r\n"
+    },
+    {
+      "span_id": "s1",
+      "start": 0,
+      "end": 43,
+      "text": "Integers x > y > 0 satisfy x + y + xy = 80."
+    },
+    {
+      "span_id": "s2",
+      "start": 43,
+      "end": 51,
+      "text": " Find x."
+    }
+  ]
+}

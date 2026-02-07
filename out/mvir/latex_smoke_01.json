@@ -1,0 +1,171 @@
+{
+  "meta": {
+    "version": "0.1",
+    "id": "latex_smoke_01",
+    "generator": "mock-llm"
+  },
+  "source": {
+    "text": "Compute $x^2 + 1$.\r\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\r\n"
+  },
+  "entities": [
+    {
+      "id": "x",
+      "kind": "variable",
+      "type": "Real",
+      "properties": [],
+      "trace": [
+        "s2",
+        "s3"
+      ]
+    },
+    {
+      "id": "n",
+      "kind": "variable",
+      "type": "Integer",
+      "properties": [],
+      "trace": [
+        "s4"
+      ]
+    },
+    {
+      "id": "k",
+      "kind": "variable",
+      "type": "Integer",
+      "properties": [],
+      "trace": [
+        "s4"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "expr": {
+        "node": "Gt",
+        "lhs": {
+          "node": "Symbol",
+          "id": "x"
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 0
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s2"
+      ]
+    },
+    {
+      "expr": {
+        "node": "Eq",
+        "lhs": {
+          "node": "Sum",
+          "var": "k",
+          "from_": {
+            "node": "Number",
+            "value": 1
+          },
+          "to": {
+            "node": "Symbol",
+            "id": "n"
+          },
+          "body": {
+            "node": "Symbol",
+            "id": "k"
+          }
+        },
+        "rhs": {
+          "node": "Div",
+          "num": {
+            "node": "Mul",
+            "args": [
+              {
+                "node": "Symbol",
+                "id": "n"
+              },
+              {
+                "node": "Add",
+                "args": [
+                  {
+                    "node": "Symbol",
+                    "id": "n"
+                  },
+                  {
+                    "node": "Number",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "den": {
+            "node": "Number",
+            "value": 2
+          }
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s4"
+      ]
+    }
+  ],
+  "goal": {
+    "kind": "prove",
+    "expr": {
+      "node": "Ge",
+      "lhs": {
+        "node": "Pow",
+        "base": {
+          "node": "Symbol",
+          "id": "x"
+        },
+        "exp": {
+          "node": "Number",
+          "value": 2
+        }
+      },
+      "rhs": {
+        "node": "Number",
+        "value": 0
+      }
+    },
+    "trace": [
+      "s3"
+    ]
+  },
+  "concepts": [],
+  "warnings": [],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 106,
+      "text": "Compute $x^2 + 1$.\r\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\r\n"
+    },
+    {
+      "span_id": "s1",
+      "start": 0,
+      "end": 18,
+      "text": "Compute $x^2 + 1$."
+    },
+    {
+      "span_id": "s2",
+      "start": 18,
+      "end": 34,
+      "text": "\r\nLet \\(x > 0\\)."
+    },
+    {
+      "span_id": "s3",
+      "start": 34,
+      "end": 59,
+      "text": " Show that \\[x^2 \\ge 0\\]."
+    },
+    {
+      "span_id": "s4",
+      "start": 59,
+      "end": 104,
+      "text": "\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
+    }
+  ]
+}
