@@ -16,6 +16,7 @@ from pydantic import ValidationError
 from mvir.core.ast_normalize import normalize_expr
 from mvir.core.models import MVIR
 from mvir.extract.cache import ResponseCache
+from mvir.extract.ast_repair import repair_expr
 from mvir.extract.context import build_prompt_context
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.normalize import normalize_llm_payload
@@ -248,17 +249,57 @@ def formalize_text_to_mvir(
 def _normalize_payload_expr_fields(payload: dict) -> dict:
     """Normalize assumptions/goal expression dicts before MVIR validation."""
 
+    span_texts = _span_text_map(payload)
+    entities = payload.get("entities")
+    if not isinstance(entities, list):
+        entities = []
+
     assumptions = payload.get("assumptions")
     if isinstance(assumptions, list):
         for item in assumptions:
             if isinstance(item, dict) and isinstance(item.get("expr"), dict):
                 item["expr"] = normalize_expr(item["expr"])
+                item["expr"] = repair_expr(
+                    item["expr"],
+                    span_text=_first_trace_text(item, span_texts),
+                    entities=entities,
+                )
 
     goal = payload.get("goal")
     if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
         goal["expr"] = normalize_expr(goal["expr"])
+        goal["expr"] = repair_expr(
+            goal["expr"],
+            span_text=_first_trace_text(goal, span_texts),
+            entities=entities,
+        )
 
     return payload
+
+
+def _span_text_map(payload: dict) -> dict[str, str]:
+    out: dict[str, str] = {}
+    trace = payload.get("trace")
+    if not isinstance(trace, list):
+        return out
+    for span in trace:
+        if not isinstance(span, dict):
+            continue
+        span_id = span.get("span_id")
+        text = span.get("text")
+        if isinstance(span_id, str) and span_id:
+            out[span_id] = text if isinstance(text, str) else ""
+    return out
+
+
+def _first_trace_text(node: dict, span_texts: dict[str, str]) -> str:
+    trace = node.get("trace")
+    if not isinstance(trace, list) or not trace:
+        return ""
+    first = trace[0]
+    if not isinstance(first, str):
+        return ""
+    return span_texts.get(first, "")
 
 
 def _write_debug_bundle(
