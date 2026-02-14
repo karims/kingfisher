@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from mvir.extract.openai_json_schema import get_mvir_v01_openai_json_schema
+from mvir.extract.openai_json_schema import (
+    get_mvir_v01_openai_json_schema,
+    sanitize_openai_strict_schema,
+)
 
 
 def _walk_schema_nodes(node):
@@ -39,3 +42,22 @@ def test_openai_schema_object_required_matches_properties_exactly() -> None:
             assert isinstance(required, list)
             assert set(required) == set(properties.keys())
 
+
+def test_sanitize_openai_strict_schema_repairs_broken_object_schema() -> None:
+    broken = {
+        "type": "object",
+        "properties": {
+            "a": {"type": "string"},
+            "b": {
+                "type": "object",
+                "properties": {"x": {"type": "integer"}},
+            },
+        },
+        "required": ["a"],
+    }
+    fixed = sanitize_openai_strict_schema(broken)
+
+    assert fixed["additionalProperties"] is False
+    assert fixed["required"] == ["a", "b"]
+    assert fixed["properties"]["b"]["additionalProperties"] is False
+    assert fixed["properties"]["b"]["required"] == ["x"]
