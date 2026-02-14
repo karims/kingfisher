@@ -79,7 +79,10 @@ class OpenAIProvider(LLMProvider):
 
         while response.status_code == 400:
             error_message, error_param, error_code = _extract_error_details(response)
-            if error_code == "invalid_json_schema" or error_param == "text.format.schema":
+            if (
+                error_code == "invalid_json_schema"
+                or "Invalid schema for response_format" in error_message
+            ):
                 raise ProviderError(
                     provider=self.name,
                     kind="bad_schema",
@@ -318,6 +321,8 @@ def _format_http_error_message(
 
 def _is_json_schema_unsupported(*, error_message: str, error_param: str | None) -> bool:
     msg = error_message.lower()
+    if "invalid schema for response_format" in msg or "invalid_json_schema" in msg:
+        return False
     references_schema_feature = (
         "json_schema" in msg
         or "response_format" in msg
