@@ -46,11 +46,9 @@ def test_mvir_json_schema_assumptions_require_kind() -> None:
     assert "kind" in assumptions_required
 
 
-def test_mvir_json_schema_expr_uses_node_discriminator_and_forbids_op() -> None:
+def test_mvir_json_schema_expr_uses_openai_compatible_object_shape() -> None:
     schema = get_mvir_v01_json_schema()
-    expr_schema = schema["$defs"]["Expr"]
-    assert expr_schema["discriminator"]["propertyName"] == "node"
-    symbol_schema = schema["$defs"]["Symbol"]
-    assert "node" in symbol_schema["required"]
-    assert symbol_schema["additionalProperties"] is False
-    assert "op" not in symbol_schema["properties"]
+    assumptions_expr = schema["properties"]["assumptions"]["items"]["properties"]["expr"]
+    goal_expr = schema["properties"]["goal"]["properties"]["expr"]
+    assert assumptions_expr == {"type": "object"}
+    assert goal_expr == {"type": "object"}
