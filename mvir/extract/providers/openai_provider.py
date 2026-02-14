@@ -9,7 +9,7 @@ import os
 from copy import deepcopy
 from typing import Literal
 
-from mvir.extract.mvir_json_schema import get_mvir_v01_json_schema
+from mvir.extract.openai_json_schema import get_mvir_v01_openai_json_schema
 from mvir.extract.provider_base import LLMProvider, ProviderError
 
 
@@ -344,6 +344,6 @@ def _build_format_payload(format_mode: Literal["json_schema", "json_object"]) ->
     return {
         "type": "json_schema",
         "name": "mvir_v01",
-        "schema": get_mvir_v01_json_schema(),
+        "schema": get_mvir_v01_openai_json_schema(),
         "strict": True,
     }

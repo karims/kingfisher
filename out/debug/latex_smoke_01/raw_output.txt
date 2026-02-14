@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant"
+    "generator": "mvir_generator_v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -19,51 +19,17 @@
       ]
     },
     {
-      "id": "k",
-      "kind": "variable",
-      "type": "Integer",
-      "trace": [
-        "s4"
-      ]
-    },
-    {
       "id": "n",
       "kind": "variable",
-      "type": "Integer",
+      "type": "Natural",
       "trace": [
         "s4"
       ]
     },
     {
-      "id": "0",
-      "kind": "constant",
-      "type": "Number",
-      "trace": [
-        "s2",
-        "s3"
-      ]
-    },
-    {
-      "id": "1",
-      "kind": "constant",
-      "type": "Number",
-      "trace": [
-        "s1",
-        "s4"
-      ]
-    },
-    {
-      "id": "2",
-      "kind": "constant",
-      "type": "Number",
-      "trace": [
-        "s4"
-      ]
-    },
-    {
-      "id": "sum",
-      "kind": "function",
-      "type": "Operator",
+      "id": "k",
+      "kind": "variable",
+      "type": "Natural",
       "trace": [
         "s4"
       ]
@@ -71,6 +37,7 @@
   ],
   "assumptions": [
     {
+      "kind": "assumption",
       "expr": {
         "node": "Gt",
         "lhs": {
@@ -88,6 +55,7 @@
     }
   ],
   "goal": {
+    "kind": "goal",
     "expr": {
       "node": "Ge",
       "lhs": {
@@ -112,22 +80,17 @@
   },
   "concepts": [
     {
-      "id": "compute_polynomial",
-      "name": "Computation of simple polynomial expression (x^2 + 1)",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "id": "nonnegativity_of_square",
-      "name": "Nonnegativity of a square (x^2 >= 0)",
+      "id": "square_nonnegativity",
+      "description": "Nonnegativity of a square (x^2 >= 0)",
+      "role": "theorem",
       "trace": [
         "s3"
       ]
     },
     {
-      "id": "sum_first_n",
-      "name": "Formula for the sum of the first n positive integers",
+      "id": "sum_first_n_integers",
+      "description": "Formula for the sum of the first n integers",
+      "role": "formula",
       "trace": [
         "s4"
       ]
@@ -135,7 +98,8 @@
   ],
   "warnings": [
     {
-      "message": "Multiple tasks present. Primary goal chosen: show x^2 >= 0 (from 'Show that ...'). Secondary tasks retained as warnings: (1) Compute x^2 + 1 (s1). (2) Prove the sum formula for sum_{k=1}^n k (s4).",
+      "code": "multiple_tasks",
+      "message": "Multiple tasks present; primary goal chosen as 'Show that x^2 >= 0'. Other tasks (compute x^2 + 1, state/prove sum formula) are noted as secondary.",
       "trace": [
         "s1",
         "s4"

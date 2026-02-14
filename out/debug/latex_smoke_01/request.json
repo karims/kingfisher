@@ -9,422 +9,6 @@
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "MVIR v0.1",
         "type": "object",
-        "$defs": {
-          "Expr": {
-            "oneOf": [
-              {
-                "$ref": "#/$defs/Symbol"
-              },
-              {
-                "$ref": "#/$defs/Number"
-              },
-              {
-                "$ref": "#/$defs/Bool"
-              },
-              {
-                "$ref": "#/$defs/Add"
-              },
-              {
-                "$ref": "#/$defs/Mul"
-              },
-              {
-                "$ref": "#/$defs/Div"
-              },
-              {
-                "$ref": "#/$defs/Pow"
-              },
-              {
-                "$ref": "#/$defs/Neg"
-              },
-              {
-                "$ref": "#/$defs/Eq"
-              },
-              {
-                "$ref": "#/$defs/Neq"
-              },
-              {
-                "$ref": "#/$defs/Lt"
-              },
-              {
-                "$ref": "#/$defs/Le"
-              },
-              {
-                "$ref": "#/$defs/Gt"
-              },
-              {
-                "$ref": "#/$defs/Ge"
-              },
-              {
-                "$ref": "#/$defs/Divides"
-              },
-              {
-                "$ref": "#/$defs/Sum"
-              },
-              {
-                "$ref": "#/$defs/Call"
-              }
-            ],
-            "discriminator": {
-              "propertyName": "node"
-            }
-          },
-          "Symbol": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "id"
-            ],
-            "properties": {
-              "node": {
-                "const": "Symbol",
-                "type": "string"
-              },
-              "id": {
-                "type": "string"
-              }
-            }
-          },
-          "Number": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "value"
-            ],
-            "properties": {
-              "node": {
-                "const": "Number",
-                "type": "string"
-              },
-              "value": {
-                "type": "number"
-              }
-            }
-          },
-          "Bool": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "value"
-            ],
-            "properties": {
-              "node": {
-                "type": "string",
-                "enum": [
-                  "Bool",
-                  "True",
-                  "False"
-                ]
-              },
-              "value": {
-                "type": "boolean"
-              }
-            }
-          },
-          "Add": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "args"
-            ],
-            "properties": {
-              "node": {
-                "const": "Add",
-                "type": "string"
-              },
-              "args": {
-                "type": "array",
-                "minItems": 1,
-                "items": {
-                  "$ref": "#/$defs/Expr"
-                }
-              }
-            }
-          },
-          "Mul": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "args"
-            ],
-            "properties": {
-              "node": {
-                "const": "Mul",
-                "type": "string"
-              },
-              "args": {
-                "type": "array",
-                "minItems": 1,
-                "items": {
-                  "$ref": "#/$defs/Expr"
-                }
-              }
-            }
-          },
-          "Div": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "num",
-              "den"
-            ],
-            "properties": {
-              "node": {
-                "const": "Div",
-                "type": "string"
-              },
-              "num": {
-                "$ref": "#/$defs/Expr"
-              },
-              "den": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Pow": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "base",
-              "exp"
-            ],
-            "properties": {
-              "node": {
-                "const": "Pow",
-                "type": "string"
-              },
-              "base": {
-                "$ref": "#/$defs/Expr"
-              },
-              "exp": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Neg": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "arg"
-            ],
-            "properties": {
-              "node": {
-                "const": "Neg",
-                "type": "string"
-              },
-              "arg": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Eq": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Eq",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Neq": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Neq",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Lt": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Lt",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Le": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Le",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Gt": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Gt",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Ge": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Ge",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Divides": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "lhs",
-              "rhs"
-            ],
-            "properties": {
-              "node": {
-                "const": "Divides",
-                "type": "string"
-              },
-              "lhs": {
-                "$ref": "#/$defs/Expr"
-              },
-              "rhs": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Sum": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "var",
-              "from",
-              "to",
-              "body"
-            ],
-            "properties": {
-              "node": {
-                "const": "Sum",
-                "type": "string"
-              },
-              "var": {
-                "type": "string"
-              },
-              "from": {
-                "$ref": "#/$defs/Expr"
-              },
-              "to": {
-                "$ref": "#/$defs/Expr"
-              },
-              "body": {
-                "$ref": "#/$defs/Expr"
-              }
-            }
-          },
-          "Call": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "node",
-              "fn",
-              "args"
-            ],
-            "properties": {
-              "node": {
-                "const": "Call",
-                "type": "string"
-              },
-              "fn": {
-                "type": "string"
-              },
-              "args": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/$defs/Expr"
-                }
-              }
-            }
-          }
-        },
         "additionalProperties": false,
         "required": [
           "meta",
@@ -442,7 +26,9 @@
             "additionalProperties": false,
             "required": [
               "version",
-              "id"
+              "id",
+              "generator",
+              "created_at"
             ],
             "properties": {
               "version": {
@@ -470,7 +56,9 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "text"
+              "text",
+              "normalized_text",
+              "spans"
             ],
             "properties": {
               "text": {
@@ -548,11 +136,12 @@
               "required": [
                 "expr",
                 "kind",
-                "trace"
+                "trace",
+                "id"
               ],
               "properties": {
                 "expr": {
-                  "$ref": "#/$defs/Expr"
+                  "type": "object"
                 },
                 "kind": {
                   "type": "string",
@@ -583,6 +172,7 @@
             "required": [
               "kind",
               "expr",
+              "target",
               "trace"
             ],
             "properties": {
@@ -599,7 +189,7 @@
                 ]
               },
               "expr": {
-                "$ref": "#/$defs/Expr"
+                "type": "object"
               },
               "target": {
                 "type": [
@@ -623,7 +213,10 @@
               "required": [
                 "id",
                 "role",
-                "trace"
+                "trigger",
+                "confidence",
+                "trace",
+                "name"
               ],
               "properties": {
                 "id": {
@@ -674,7 +267,8 @@
               "required": [
                 "code",
                 "message",
-                "trace"
+                "trace",
+                "details"
               ],
               "properties": {
                 "code": {
@@ -706,7 +300,8 @@
               "required": [
                 "span_id",
                 "start",
-                "end"
+                "end",
+                "text"
               ],
               "properties": {
                 "span_id": {

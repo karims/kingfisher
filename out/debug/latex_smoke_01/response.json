@@ -1,6 +1,6 @@
 {
   "error": {
-    "message": "Invalid schema for response_format 'mvir_v01': In context=(), 'oneOf' is not permitted.",
+    "message": "Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be supplied and to be false.",
     "type": "invalid_request_error",
     "param": "text.format.schema",
     "code": "invalid_json_schema"

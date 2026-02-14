@@ -1,12 +1,12 @@
 kind: provider
-message: ProviderError(provider='openai', kind='bad_response', retryable=False): Model does not support json_schema enforcement; rerun with --openai-allow-fallback or choose another model.
-exception: ProviderError("ProviderError(provider='openai', kind='bad_response', retryable=False): Model does not support json_schema enforcement; rerun with --openai-allow-fallback or choose another model.")
+message: ProviderError(provider='openai', kind='bad_schema', retryable=False): Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be ...
+exception: ProviderError("ProviderError(provider='openai', kind='bad_schema', retryable=False): Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be supplied and to be false.")
 
 traceback:
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 95, in formalize_text_to_mvir
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 116, in formalize_text_to_mvir
     response = provider.complete(
                ^^^^^^^^^^^^^^^^^^
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\providers\openai_provider.py", line 115, in complete
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\providers\openai_provider.py", line 83, in complete
     raise ProviderError(
-mvir.extract.provider_base.ProviderError: ProviderError(provider='openai', kind='bad_response', retryable=False): Model does not support json_schema enforcement; rerun with --openai-allow-fallback or choose another model.
+mvir.extract.provider_base.ProviderError: ProviderError(provider='openai', kind='bad_schema', retryable=False): Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be supplied and to be false.
