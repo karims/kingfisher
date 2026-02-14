@@ -1,13 +1,13 @@
 {
-  "id": "resp_0945b84ef94a2804006990c5e333048195a98f497ffc2e895d",
+  "id": "resp_0ddcc34167023d2f006990c89ef47c8192a5ca412cb3d8f84e",
   "object": "response",
-  "created_at": 1771095523,
+  "created_at": 1771096222,
   "status": "completed",
   "background": false,
   "billing": {
     "payer": "developer"
   },
-  "completed_at": 1771095533,
+  "completed_at": 1771096237,
   "error": null,
   "frequency_penalty": 0.0,
   "incomplete_details": null,
@@ -17,12 +17,12 @@
   "model": "gpt-5-mini-2025-08-07",
   "output": [
     {
-      "id": "rs_0945b84ef94a2804006990c5e3bdf48195ab8b17045a39f18a",
+      "id": "rs_0ddcc34167023d2f006990c89fbf7881928621df7839ea7a29",
       "type": "reasoning",
       "summary": []
     },
     {
-      "id": "msg_0945b84ef94a2804006990c5e8e8348195b05b898b78cfd3ee",
+      "id": "msg_0ddcc34167023d2f006990c8a808b08192aeacb7c1a4499df7",
       "type": "message",
       "status": "completed",
       "content": [
@@ -30,7 +30,7 @@
           "type": "output_text",
           "annotations": [],
           "logprobs": [],
-          "text": "{\"meta\":{\"version\":\"0.1\",\"id\":\"latex_smoke_01\",\"generator\":\"assistant\",\"created_at\":null},\"source\":{\"text\":\"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\",\"normalized_text\":null,\"spans\":null},\"entities\":[{\"id\":\"x\",\"kind\":\"variable\",\"type\":\"Real\",\"properties\":[],\"trace\":[\"s1\",\"s2\",\"s3\"]},{\"id\":\"k\",\"kind\":\"variable\",\"type\":\"Integer\",\"properties\":[],\"trace\":[\"s4\"]},{\"id\":\"n\",\"kind\":\"variable\",\"type\":\"Integer\",\"properties\":[],\"trace\":[\"s4\"]}],\"assumptions\":[{\"expr\":{\"node\":\"Gt','args\\\":[{\\\"node\\\":\\\"Symbol\\\",\\\"name\\\":\\\"x\\\"},{\\\"node\\\":\\\"Number\\\",\\\"value\\\":0}\"},\"kind\":\"given\",\"trace\":[\"s2\"],\"id\":null}],\"goal\":{\"kind\":\"prove\",\"expr\":{\"node\":\"Ge','args\\\":[{\\\"node\\\":\\\"Pow\\\",\\\"args\\\":[{\\\"node\\\":\\\"Symbol\\\",\\\"name\\\":\\\"x\\\"},{\\\"node\\\":\\\"Number\\\",\\\"value\\\":2}]},{\\\"node\\\":\\\"Number\\\",\\\"value\\\":0}\"},\"trace\":[\"s3\"],\"target\":null},\"concepts\":[{\"id\":\"square_nonnegativity\",\"role\":\"domain\",\"trigger\":null,\"confidence\":null,\"trace\":[\"s3\"],\"name\":\"nonnegativity of a square\"},{\"id\":\"arithmetic_series_formula\",\"role\":\"domain\",\"trigger\":null,\"confidence\":null,\"trace\":[\"s4\"],\"name\":\"sum of first n integers formula\"}],\"warnings\":[{\"code\":\"multiple_tasks\",\"message\":\"Multiple tasks present. Primary goal chosen: 'Show that x^2 >= 0' (s3). Secondary tasks: 'Compute x^2 + 1' (s1) and the arithmetic sum formula (s4).\",\"trace\":[\"s1\",\"s4\"],\"details\":{}}],\"trace\":[{\"span_id\":\"s0\",\"start\":0,\"end\":103,\"text\":\"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\"},{\"span_id\":\"s1\",\"start\":0,\"end\":18,\"text\":\"Compute $x^2 + 1$.\"},{\"span_id\":\"s2\",\"start\":18,\"end\":33,\"text\":\"\\nLet \\\\(x > 0\\\\).\"},{\"span_id\":\"s3\",\"start\":33,\"end\":58,\"text\":\" Show that \\\\[x^2 \\\\ge 0\\\\].\"},{\"span_id\":\"s4\",\"start\":58,\"end\":102,\"text\":\"\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\"}]}"
+          "text": "{\"meta\":{\"version\":\"0.1\",\"id\":\"latex_smoke_01\",\"generator\":\"assistant\",\"created_at\":null},\"source\":{\"text\":\"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\",\"normalized_text\":null,\"spans\":null},\"entities\":[{\"id\":\"x\",\"kind\":\"variable\",\"type\":\"Real\",\"properties\":[\"positive\"],\"trace\":[\"s2\"]},{\"id\":\"n\",\"kind\":\"variable\",\"type\":\"Natural\",\"properties\":[],\"trace\":[\"s4\"]},{\"id\":\"k\",\"kind\":\"variable\",\"type\":\"Integer\",\"properties\":[],\"trace\":[\"s4\"]}],\"assumptions\":[{\"expr\":{\"node\":\"Gt\",\"id\":null,\"value\":null,\"lhs\":{\"node\":\"Symbol\" },\"rhs\":{\"node\":\"Number\"},\"args\":null,\"base\":null,\"exp\":null,\"num\":null,\"den\":null,\"arg\":null,\"var\":null,\"from\":null,\"to\":null,\"body\":null,\"fn\":null},\"kind\":\"given\",\"trace\":[\"s2\"],\"id\":null}],\"goal\":{\"kind\":\"prove\",\"expr\":{\"node\":\"Ge\",\"id\":null,\"value\":null,\"lhs\":{\"node\":\"Pow\"},\"rhs\":{\"node\":\"Number\"},\"args\":null,\"base\":null,\"exp\":null,\"num\":null,\"den\":null,\"arg\":null,\"var\":null,\"from\":null,\"to\":null,\"body\":null,\"fn\":null},\"trace\":[\"s3\"],\"target\":null},\"concepts\":[{\"id\":\"square_nonnegativity\",\"role\":\"domain\",\"trigger\":\"x^2 >= 0\",\"confidence\":null,\"trace\":[\"s3\"],\"name\":\"square_of_real_is_nonnegative\"},{\"id\":\"arithmetic_series_formula\",\"role\":\"pattern\",\"trigger\":\"sum_{k=1}^n k = n(n+1)/2\",\"confidence\":null,\"trace\":[\"s4\"],\"name\":\"arithmetic_series\"}],\"warnings\":[{\"code\":\"multiple_tasks\",\"message\":\"The input contains multiple tasks. Primary goal selected: prove x^2 >= 0. Secondary tasks not addressed as primary: compute x^2 + 1 (s1), verify the sum formula (s4).\",\"trace\":[\"s1\",\"s4\"],\"details\":{}}],\"trace\":[{\"span_id\":\"s0\",\"start\":0,\"end\":103,\"text\":\"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\"},{\"span_id\":\"s1\",\"start\":0,\"end\":18,\"text\":\"Compute $x^2 + 1$.\"},{\"span_id\":\"s2\",\"start\":18,\"end\":33,\"text\":\"\\nLet \\\\(x > 0\\\\).\"},{\"span_id\":\"s3\",\"start\":33,\"end\":58,\"text\":\" Show that \\\\[x^2 \\\\ge 0\\\\].\"},{\"span_id\":\"s4\",\"start\":58,\"end\":102,\"text\":\"\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\"}]}"
         }
       ],
       "role": "assistant"
@@ -194,14 +194,474 @@
                 "expr": {
                   "type": "object",
                   "additionalProperties": false,
-                  "required": [
-                    "node"
-                  ],
                   "properties": {
                     "node": {
-                      "type": "string"
+                      "type": "string",
+                      "enum": [
+                        "Symbol",
+                        "Number",
+                        "Bool",
+                        "True",
+                        "False",
+                        "Add",
+                        "Mul",
+                        "Div",
+                        "Pow",
+                        "Neg",
+                        "Eq",
+                        "Neq",
+                        "Lt",
+                        "Le",
+                        "Gt",
+                        "Ge",
+                        "Divides",
+                        "Sum",
+                        "Call"
+                      ]
+                    },
+                    "id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "value": {
+                      "type": [
+                        "number",
+                        "boolean",
+                        "null"
+                      ]
+                    },
+                    "lhs": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "rhs": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "args": {
+                      "type": [
+                        "array",
+                        "null"
+                      ],
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "node": {
+                            "type": "string",
+                            "enum": [
+                              "Symbol",
+                              "Number",
+                              "Bool",
+                              "True",
+                              "False",
+                              "Add",
+                              "Mul",
+                              "Div",
+                              "Pow",
+                              "Neg",
+                              "Eq",
+                              "Neq",
+                              "Lt",
+                              "Le",
+                              "Gt",
+                              "Ge",
+                              "Divides",
+                              "Sum",
+                              "Call"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "node"
+                        ]
+                      }
+                    },
+                    "base": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "exp": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "num": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "den": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "arg": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "var": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "from": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "to": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "body": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    },
+                    "fn": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
                     }
-                  }
+                  },
+                  "required": [
+                    "node",
+                    "id",
+                    "value",
+                    "lhs",
+                    "rhs",
+                    "args",
+                    "base",
+                    "exp",
+                    "num",
+                    "den",
+                    "arg",
+                    "var",
+                    "from",
+                    "to",
+                    "body",
+                    "fn"
+                  ]
                 },
                 "kind": {
                   "type": "string",
@@ -251,14 +711,474 @@
               "expr": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                  "node"
-                ],
                 "properties": {
                   "node": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "Symbol",
+                      "Number",
+                      "Bool",
+                      "True",
+                      "False",
+                      "Add",
+                      "Mul",
+                      "Div",
+                      "Pow",
+                      "Neg",
+                      "Eq",
+                      "Neq",
+                      "Lt",
+                      "Le",
+                      "Gt",
+                      "Ge",
+                      "Divides",
+                      "Sum",
+                      "Call"
+                    ]
+                  },
+                  "id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "value": {
+                    "type": [
+                      "number",
+                      "boolean",
+                      "null"
+                    ]
+                  },
+                  "lhs": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "rhs": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "args": {
+                    "type": [
+                      "array",
+                      "null"
+                    ],
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "node": {
+                          "type": "string",
+                          "enum": [
+                            "Symbol",
+                            "Number",
+                            "Bool",
+                            "True",
+                            "False",
+                            "Add",
+                            "Mul",
+                            "Div",
+                            "Pow",
+                            "Neg",
+                            "Eq",
+                            "Neq",
+                            "Lt",
+                            "Le",
+                            "Gt",
+                            "Ge",
+                            "Divides",
+                            "Sum",
+                            "Call"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "node"
+                      ]
+                    }
+                  },
+                  "base": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "exp": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "num": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "den": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "arg": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "var": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "from": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "to": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "body": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                      "node": {
+                        "type": "string",
+                        "enum": [
+                          "Symbol",
+                          "Number",
+                          "Bool",
+                          "True",
+                          "False",
+                          "Add",
+                          "Mul",
+                          "Div",
+                          "Pow",
+                          "Neg",
+                          "Eq",
+                          "Neq",
+                          "Lt",
+                          "Le",
+                          "Gt",
+                          "Ge",
+                          "Divides",
+                          "Sum",
+                          "Call"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "node"
+                    ]
+                  },
+                  "fn": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
-                }
+                },
+                "required": [
+                  "node",
+                  "id",
+                  "value",
+                  "lhs",
+                  "rhs",
+                  "args",
+                  "base",
+                  "exp",
+                  "num",
+                  "den",
+                  "arg",
+                  "var",
+                  "from",
+                  "to",
+                  "body",
+                  "fn"
+                ]
               },
               "trace": {
                 "type": "array",
@@ -272,14 +1192,35 @@
                   "null"
                 ],
                 "additionalProperties": false,
-                "required": [
-                  "node"
-                ],
                 "properties": {
                   "node": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "Symbol",
+                      "Number",
+                      "Bool",
+                      "True",
+                      "False",
+                      "Add",
+                      "Mul",
+                      "Div",
+                      "Pow",
+                      "Neg",
+                      "Eq",
+                      "Neq",
+                      "Lt",
+                      "Le",
+                      "Gt",
+                      "Ge",
+                      "Divides",
+                      "Sum",
+                      "Call"
+                    ]
                   }
-                }
+                },
+                "required": [
+                  "node"
+                ]
               }
             }
           },
@@ -418,15 +1359,15 @@
   "top_p": 1.0,
   "truncation": "disabled",
   "usage": {
-    "input_tokens": 1965,
+    "input_tokens": 3668,
     "input_tokens_details": {
-      "cached_tokens": 0
+      "cached_tokens": 1792
     },
-    "output_tokens": 1411,
+    "output_tokens": 1932,
     "output_tokens_details": {
-      "reasoning_tokens": 704
+      "reasoning_tokens": 1152
     },
-    "total_tokens": 3376
+    "total_tokens": 5600
   },
   "user": null,
   "metadata": {}

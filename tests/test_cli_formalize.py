@@ -175,3 +175,42 @@ def test_cli_formalize_unsupported_json_schema_message(
     out = capsys.readouterr().out
     assert rc == 1
     assert "OpenAI model does not support json_schema enforcement." in out
+
+
+def test_cli_formalize_passes_temperature_zero_by_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    problem_path = tmp_path / "sample.txt"
+    problem_path.write_text("x", encoding="utf-8")
+    captured: dict = {}
+
+    class _DummyMVIR:
+        def model_dump(self, by_alias: bool = False, exclude_none: bool = True) -> dict:
+            _ = by_alias
+            _ = exclude_none
+            return {
+                "meta": {"version": "0.1", "id": "sample", "generator": "test"},
+                "source": {"text": "x"},
+                "entities": [],
+                "assumptions": [],
+                "goal": {"kind": "prove", "expr": {"node": "Bool", "value": True}, "trace": ["s0"]},
+                "concepts": [],
+                "warnings": [],
+                "trace": [{"span_id": "s0", "start": 0, "end": 1, "text": "x"}],
+            }
+
+    monkeypatch.setattr(
+        cli_formalize,
+        "build_provider",
+        lambda *args, **kwargs: object(),
+    )
+
+    def _fake_formalize_text_to_mvir(*args, **kwargs):
+        captured["temperature"] = kwargs.get("temperature")
+        return _DummyMVIR()
+
+    monkeypatch.setattr(cli_formalize, "formalize_text_to_mvir", _fake_formalize_text_to_mvir)
+
+    rc = cli_formalize.main([str(problem_path)])
+    assert rc == 0
+    assert captured["temperature"] == 0.0

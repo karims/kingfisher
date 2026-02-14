@@ -75,6 +75,12 @@ def main(argv: list[str] | None = None) -> int:
             "JSON-only instruction."
         ),
     )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Sampling temperature for provider calls (default: 0.0).",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -105,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
                 text,
                 provider,
                 problem_id=problem_id,
-                temperature=0.0,
+                temperature=args.temperature,
                 cache=cache,
                 use_cache=True,
                 strict=args.strict,

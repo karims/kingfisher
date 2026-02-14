@@ -116,6 +116,12 @@ def main(argv: list[str] | None = None) -> int:
         "--debug-dir",
         help="Optional directory to write debug bundles for failed extractions.",
     )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Sampling temperature for provider calls (default: 0.0).",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -134,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
             text,
             provider,
             problem_id=problem_id,
-            temperature=0.0,
+            temperature=args.temperature,
             strict=args.strict,
             debug_dir=args.debug_dir,
         )

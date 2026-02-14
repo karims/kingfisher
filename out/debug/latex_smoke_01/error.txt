@@ -1,34 +1,53 @@
 kind: schema_validation
-message: MVIR validation failed after repair retry: 2 validation errors for MVIR
-assumptions.0.expr
-  Input tag 'Gt','args":[{"node":"Symbol","name":"x"},{"node":"Number","value":0}' found using 'node' does not match any of the expected tags: 'Symbo...
-exception: ValueError('MVIR validation failed after repair retry: 2 validation errors for MVIR\nassumptions.0.expr\n  Input tag \'Gt\',\'args":[{"node":"Symbol","name":"x"},{"node":"Number","value":0}\' found using \'node\' does not match any of the expected tags: \'Symbol\', \'Number\', \'Bool\', \'True\', \'False\', \'Add\', \'Mul\', \'Div\', \'Pow\', \'Neg\', \'Eq\', \'Neq\', \'Lt\', \'Le\', \'Gt\', \'Ge\', \'Divides\', \'Sum\', \'Call\' [type=union_tag_invalid, input_value={\'node\': \'Gt\\\',\\\'args":[{...e":"Number","value":0}\'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/union_tag_invalid\ngoal.expr\n  Input tag \'Ge\',\'args":[{"node":"Pow","args":[{"node":"Symbol","name":"x"},{"node":"Number","value":2}]},{"node":"Number","value":0}\' found using \'node\' does not match any of the expected tags: \'Symbol\', \'Number\', \'Bool\', \'True\', \'False\', \'Add\', \'Mul\', \'Div\', \'Pow\', \'Neg\', \'Eq\', \'Neq\', \'Lt\', \'Le\', \'Gt\', \'Ge\', \'Divides\', \'Sum\', \'Call\' [type=union_tag_invalid, input_value={\'node\': \'Ge\\\',\\\'args":[{...e":"Number","value":0}\'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/union_tag_invalid')
+message: MVIR validation failed after repair retry: 5 validation errors for MVIR
+assumptions.0.expr.Gt.lhs.Symbol.id
+  Field required [type=missing, input_value={'node': 'Symbol'}, input_type=dict]
+    For further information visit https://errors.py...
+exception: ValueError("MVIR validation failed after repair retry: 5 validation errors for MVIR\nassumptions.0.expr.Gt.lhs.Symbol.id\n  Field required [type=missing, input_value={'node': 'Symbol'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nassumptions.0.expr.Gt.rhs.Number.value\n  Field required [type=missing, input_value={'node': 'Number'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ngoal.expr.Ge.lhs.Pow.base\n  Field required [type=missing, input_value={'node': 'Pow'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ngoal.expr.Ge.lhs.Pow.exp\n  Field required [type=missing, input_value={'node': 'Pow'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ngoal.expr.Ge.rhs.Number.value\n  Field required [type=missing, input_value={'node': 'Number'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing")
 
 traceback:
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 218, in formalize_text_to_mvir
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 221, in formalize_text_to_mvir
     mvir = MVIR.model_validate(payload)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\karim\studioprojects\sydes\.venv\Lib\site-packages\pydantic\main.py", line 716, in model_validate
     return cls.__pydantic_validator__.validate_python(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 2 validation errors for MVIR
-assumptions.0.expr
-  Input tag 'Gt','args":[{"node":"Symbol","name":"x"},{"node":"Number","value":0}' found using 'node' does not match any of the expected tags: 'Symbol', 'Number', 'Bool', 'True', 'False', 'Add', 'Mul', 'Div', 'Pow', 'Neg', 'Eq', 'Neq', 'Lt', 'Le', 'Gt', 'Ge', 'Divides', 'Sum', 'Call' [type=union_tag_invalid, input_value={'node': 'Gt\',\'args":[{...e":"Number","value":0}'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/union_tag_invalid
-goal.expr
-  Input tag 'Ge','args":[{"node":"Pow","args":[{"node":"Symbol","name":"x"},{"node":"Number","value":2}]},{"node":"Number","value":0}' found using 'node' does not match any of the expected tags: 'Symbol', 'Number', 'Bool', 'True', 'False', 'Add', 'Mul', 'Div', 'Pow', 'Neg', 'Eq', 'Neq', 'Lt', 'Le', 'Gt', 'Ge', 'Divides', 'Sum', 'Call' [type=union_tag_invalid, input_value={'node': 'Ge\',\'args":[{...e":"Number","value":0}'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/union_tag_invalid
+pydantic_core._pydantic_core.ValidationError: 5 validation errors for MVIR
+assumptions.0.expr.Gt.lhs.Symbol.id
+  Field required [type=missing, input_value={'node': 'Symbol'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+assumptions.0.expr.Gt.rhs.Number.value
+  Field required [type=missing, input_value={'node': 'Number'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+goal.expr.Ge.lhs.Pow.base
+  Field required [type=missing, input_value={'node': 'Pow'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+goal.expr.Ge.lhs.Pow.exp
+  Field required [type=missing, input_value={'node': 'Pow'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+goal.expr.Ge.rhs.Number.value
+  Field required [type=missing, input_value={'node': 'Number'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
 
 The above exception was the direct cause of the following exception:
 
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 220, in formalize_text_to_mvir
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 223, in formalize_text_to_mvir
     raise ValueError(
-ValueError: MVIR validation failed after repair retry: 2 validation errors for MVIR
-assumptions.0.expr
-  Input tag 'Gt','args":[{"node":"Symbol","name":"x"},{"node":"Number","value":0}' found using 'node' does not match any of the expected tags: 'Symbol', 'Number', 'Bool', 'True', 'False', 'Add', 'Mul', 'Div', 'Pow', 'Neg', 'Eq', 'Neq', 'Lt', 'Le', 'Gt', 'Ge', 'Divides', 'Sum', 'Call' [type=union_tag_invalid, input_value={'node': 'Gt\',\'args":[{...e":"Number","value":0}'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/union_tag_invalid
-goal.expr
-  Input tag 'Ge','args":[{"node":"Pow","args":[{"node":"Symbol","name":"x"},{"node":"Number","value":2}]},{"node":"Number","value":0}' found using 'node' does not match any of the expected tags: 'Symbol', 'Number', 'Bool', 'True', 'False', 'Add', 'Mul', 'Div', 'Pow', 'Neg', 'Eq', 'Neq', 'Lt', 'Le', 'Gt', 'Ge', 'Divides', 'Sum', 'Call' [type=union_tag_invalid, input_value={'node': 'Ge\',\'args":[{...e":"Number","value":0}'}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/union_tag_invalid
+ValueError: MVIR validation failed after repair retry: 5 validation errors for MVIR
+assumptions.0.expr.Gt.lhs.Symbol.id
+  Field required [type=missing, input_value={'node': 'Symbol'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+assumptions.0.expr.Gt.rhs.Number.value
+  Field required [type=missing, input_value={'node': 'Number'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+goal.expr.Ge.lhs.Pow.base
+  Field required [type=missing, input_value={'node': 'Pow'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+goal.expr.Ge.lhs.Pow.exp
+  Field required [type=missing, input_value={'node': 'Pow'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+goal.expr.Ge.rhs.Number.value
+  Field required [type=missing, input_value={'node': 'Number'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
