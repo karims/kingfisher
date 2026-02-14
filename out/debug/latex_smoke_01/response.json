@@ -1,0 +1,76 @@
+{
+  "id": "resp_056db484e7571769006990930160fc8194ad5d2901dac10d1f",
+  "object": "response",
+  "created_at": 1771082497,
+  "status": "completed",
+  "background": false,
+  "billing": {
+    "payer": "developer"
+  },
+  "completed_at": 1771082517,
+  "error": null,
+  "frequency_penalty": 0.0,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": null,
+  "max_tool_calls": null,
+  "model": "gpt-5-mini-2025-08-07",
+  "output": [
+    {
+      "id": "rs_056db484e75717690069909301d490819491f4a54ca3f4f434",
+      "type": "reasoning",
+      "summary": []
+    },
+    {
+      "id": "msg_056db484e7571769006990931002b88194bff6635e6e432f01",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "{\n  \"meta\": {\n    \"version\": \"0.1\",\n    \"id\": \"latex_smoke_01\",\n    \"generator\": \"assistant\"\n  },\n  \"source\": {\n    \"text\": \"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\"\n  },\n  \"entities\": [\n    {\n      \"id\": \"x\",\n      \"kind\": \"variable\",\n      \"type\": \"Real\",\n      \"trace\": [\n        \"s1\",\n        \"s2\",\n        \"s3\"\n      ]\n    },\n    {\n      \"id\": \"k\",\n      \"kind\": \"variable\",\n      \"trace\": [\n        \"s4\"\n      ]\n    },\n    {\n      \"id\": \"n\",\n      \"kind\": \"variable\",\n      \"trace\": [\n        \"s4\"\n      ]\n    }\n  ],\n  \"assumptions\": [\n    {\n      \"expr\": {\n        \"node\": \"Gt\",\n        \"lhs\": {\n          \"node\": \"Symbol\",\n          \"id\": \"x\"\n        },\n        \"rhs\": {\n          \"node\": \"Number\",\n          \"value\": 0\n        }\n      },\n      \"trace\": [\n        \"s2\"\n      ]\n    }\n  ],\n  \"goal\": {\n    \"expr\": {\n      \"node\": \"Ge\",\n      \"lhs\": {\n        \"node\": \"Pow\",\n        \"base\": {\n          \"node\": \"Symbol\",\n          \"id\": \"x\"\n        },\n        \"exp\": {\n          \"node\": \"Number\",\n          \"value\": 2\n        }\n      },\n      \"rhs\": {\n        \"node\": \"Number\",\n        \"value\": 0\n      }\n    },\n    \"trace\": [\n      \"s3\"\n    ]\n  },\n  \"concepts\": [\n    {\n      \"id\": \"square_nonnegativity\",\n      \"title\": \"Square of a real number is nonnegative\",\n      \"trace\": [\n        \"s2\",\n        \"s3\"\n      ]\n    }\n  ],\n  \"warnings\": [\n    {\n      \"message\": \"Multiple tasks present. Primary goal is to show x^2 >= 0. Secondary tasks were: 'Compute x^2 + 1.' and 'State/evaluate the summation formula'.\",\n      \"trace\": [\n        \"s1\",\n        \"s4\"\n      ]\n    }\n  ],\n  \"trace\": [\n    {\n      \"span_id\": \"s0\",\n      \"start\": 0,\n      \"end\": 103,\n      \"text\": \"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\"\n    },\n    {\n      \"span_id\": \"s1\",\n      \"start\": 0,\n      \"end\": 18,\n      \"text\": \"Compute $x^2 + 1$.\"\n    },\n    {\n      \"span_id\": \"s2\",\n      \"start\": 18,\n      \"end\": 33,\n      \"text\": \"\\nLet \\\\(x > 0\\\\).\"\n    },\n    {\n      \"span_id\": \"s3\",\n      \"start\": 33,\n      \"end\": 58,\n      \"text\": \" Show that \\\\[x^2 \\\\ge 0\\\\].\"\n    },\n    {\n      \"span_id\": \"s4\",\n      \"start\": 58,\n      \"end\": 102,\n      \"text\": \"\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\"\n    }\n  ]\n}"
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "presence_penalty": 0.0,
+  "previous_response_id": null,
+  "prompt_cache_key": null,
+  "prompt_cache_retention": null,
+  "reasoning": {
+    "effort": "medium",
+    "summary": null
+  },
+  "safety_identifier": null,
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "json_object"
+    },
+    "verbosity": "medium"
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 876,
+    "input_tokens_details": {
+      "cached_tokens": 0
+    },
+    "output_tokens": 2764,
+    "output_tokens_details": {
+      "reasoning_tokens": 1920
+    },
+    "total_tokens": 3640
+  },
+  "user": null,
+  "metadata": {}
+}

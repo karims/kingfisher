@@ -11,7 +11,7 @@
     {
       "id": "x",
       "kind": "variable",
-      "type": "Unknown",
+      "type": "Real",
       "trace": [
         "s1",
         "s2",
@@ -21,7 +21,6 @@
     {
       "id": "k",
       "kind": "variable",
-      "type": "Unknown",
       "trace": [
         "s4"
       ]
@@ -29,15 +28,6 @@
     {
       "id": "n",
       "kind": "variable",
-      "type": "Unknown",
-      "trace": [
-        "s4"
-      ]
-    },
-    {
-      "id": "sum",
-      "kind": "function",
-      "type": "summation",
       "trace": [
         "s4"
       ]
@@ -45,15 +35,14 @@
   ],
   "assumptions": [
     {
-      "id": "a1",
       "expr": {
-        "op": ">",
-        "left": {
-          "node": "var",
-          "name": "x"
+        "node": "Gt",
+        "lhs": {
+          "node": "Symbol",
+          "id": "x"
         },
-        "right": {
-          "node": "const",
+        "rhs": {
+          "node": "Number",
           "value": 0
         }
       },
@@ -62,75 +51,45 @@
       ]
     }
   ],
-  "goal": [
-    {
-      "id": "g1",
-      "role": "compute",
-      "expr": {
-        "op": "+",
-        "left": {
-          "op": "^",
-          "base": {
-            "node": "var",
-            "name": "x"
-          },
-          "exp": {
-            "node": "const",
-            "value": 2
-          }
+  "goal": {
+    "expr": {
+      "node": "Ge",
+      "lhs": {
+        "node": "Pow",
+        "base": {
+          "node": "Symbol",
+          "id": "x"
         },
-        "right": {
-          "node": "const",
-          "value": 1
+        "exp": {
+          "node": "Number",
+          "value": 2
         }
       },
-      "trace": [
-        "s1"
-      ]
+      "rhs": {
+        "node": "Number",
+        "value": 0
+      }
     },
-    {
-      "id": "g2",
-      "role": "prove",
-      "expr": {
-        "op": ">=",
-        "left": {
-          "op": "^",
-          "base": {
-            "node": "var",
-            "name": "x"
-          },
-          "exp": {
-            "node": "const",
-            "value": 2
-          }
-        },
-        "right": {
-          "node": "const",
-          "value": 0
-        }
-      },
-      "trace": [
-        "s3"
-      ]
-    }
-  ],
+    "trace": [
+      "s3"
+    ]
+  },
   "concepts": [
     {
-      "id": "c1",
-      "name": "summation formula",
-      "description": "Formula for the sum of the first n positive integers",
+      "id": "square_nonnegativity",
+      "title": "Square of a real number is nonnegative",
       "trace": [
-        "s4"
+        "s2",
+        "s3"
       ]
     }
   ],
   "warnings": [
     {
-      "id": "w1",
-      "message": "The domain/type of the variable x is not specified (e.g. real, integer). The assumption x > 0 is given but the underlying domain is not stated.",
+      "message": "Multiple tasks present. Primary goal is to show x^2 >= 0. Secondary tasks were: 'Compute x^2 + 1.' and 'State/evaluate the summation formula'.",
       "trace": [
-        "s2",
-        "s3"
+        "s1",
+        "s4"
       ]
     }
   ],

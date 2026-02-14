@@ -142,6 +142,7 @@ def formalize_text_to_mvir(
             preprocess_result=preprocess_result,
             prompt=prompt,
             raw_output=response,
+            provider=provider,
             exc=exc,
         )
         raise
@@ -155,6 +156,7 @@ def _write_debug_bundle(
     preprocess_result: dict,
     prompt: str,
     raw_output: str | None,
+    provider: LLMProvider,
     exc: Exception,
 ) -> None:
     """Best-effort debug bundle writer; never raises."""
@@ -172,6 +174,18 @@ def _write_debug_bundle(
         (base / "prompt.txt").write_text(prompt, encoding="utf-8")
         if raw_output is not None:
             (base / "raw_output.txt").write_text(raw_output, encoding="utf-8")
+        request_json = getattr(provider, "last_request_json", None)
+        if request_json is not None:
+            (base / "request.json").write_text(
+                json.dumps(request_json, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        response_json = getattr(provider, "last_response_json", None)
+        if response_json is not None:
+            (base / "response.json").write_text(
+                json.dumps(response_json, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
         kind, message = classify_exception(exc)
         error_text = "\n".join(
             [

@@ -6,6 +6,7 @@ This module keeps all HTTP wiring local to the provider implementation.
 from __future__ import annotations
 
 import os
+from copy import deepcopy
 
 from mvir.extract.mvir_json_schema import get_mvir_v01_json_schema
 from mvir.extract.provider_base import LLMProvider, ProviderError
@@ -28,6 +29,8 @@ class OpenAIProvider(LLMProvider):
         self.model = model or os.getenv("OPENAI_MODEL") or "gpt-4.1-mini"
         self.base_url = base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com"
         self.timeout_s = timeout_s
+        self.last_request_json: dict | None = None
+        self.last_response_json: dict | None = None
 
     def complete(
         self,
@@ -155,8 +158,10 @@ class OpenAIProvider(LLMProvider):
         return text
 
     def _safe_post(self, url: str, *, headers: dict, payload: dict):
+        self.last_request_json = deepcopy(payload)
+        self.last_response_json = None
         try:
-            return _requests_post(url, headers=headers, json=payload, timeout=self.timeout_s)
+            response = _requests_post(url, headers=headers, json=payload, timeout=self.timeout_s)
         except Exception as exc:  # requests may be unavailable
             if exc.__class__.__name__ == "Timeout":
                 raise ProviderError(
@@ -180,6 +185,15 @@ class OpenAIProvider(LLMProvider):
                     retryable=True,
                 ) from exc
             raise
+        try:
+            parsed = response.json()
+            if isinstance(parsed, dict):
+                self.last_response_json = parsed
+            else:
+                self.last_response_json = {"_raw": parsed}
+        except Exception:
+            self.last_response_json = None
+        return response
 
 
 def _requests_post(url: str, *, headers: dict, json: dict, timeout: float):
