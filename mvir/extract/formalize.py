@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from mvir.core.ast_normalize import normalize_expr
 from mvir.core.models import MVIR
 from mvir.extract.cache import ResponseCache
 from mvir.extract.context import build_prompt_context
@@ -160,6 +161,7 @@ def formalize_text_to_mvir(
                 payload = normalize_llm_payload(payload)
         if isinstance(payload, dict):
             payload = sanitize_mvir_payload(payload)
+            payload = _normalize_payload_expr_fields(payload)
 
         try:
             mvir = MVIR.model_validate(payload)
@@ -213,6 +215,7 @@ def formalize_text_to_mvir(
                     payload = normalize_llm_payload(payload)
                 if isinstance(payload, dict):
                     payload = sanitize_mvir_payload(payload)
+                    payload = _normalize_payload_expr_fields(payload)
 
                 try:
                     mvir = MVIR.model_validate(payload)
@@ -240,6 +243,22 @@ def formalize_text_to_mvir(
             exc=exc,
         )
         raise
+
+
+def _normalize_payload_expr_fields(payload: dict) -> dict:
+    """Normalize assumptions/goal expression dicts before MVIR validation."""
+
+    assumptions = payload.get("assumptions")
+    if isinstance(assumptions, list):
+        for item in assumptions:
+            if isinstance(item, dict) and isinstance(item.get("expr"), dict):
+                item["expr"] = normalize_expr(item["expr"])
+
+    goal = payload.get("goal")
+    if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
+        goal["expr"] = normalize_expr(goal["expr"])
+
+    return payload
 
 
 def _write_debug_bundle(
