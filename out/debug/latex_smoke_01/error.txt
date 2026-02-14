@@ -1,12 +1,19 @@
-kind: provider
-message: ProviderError(provider='openai', kind='bad_schema', retryable=False): Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be ...
-exception: ProviderError("ProviderError(provider='openai', kind='bad_schema', retryable=False): Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be supplied and to be false.")
+kind: schema_validation
+message: MVIR validation failed: 1 validation error for MVIR
+warnings.0.message
+  Field required [type=missing, input_value={'text': "Multiple tasks ..., 'code': 'unspecified'}, input_type=dict]
+    For further information visit https://errors.pydan...
+exception: ValueError('MVIR validation failed: 1 validation error for MVIR\nwarnings.0.message\n  Field required [type=missing, input_value={\'text\': "Multiple tasks ..., \'code\': \'unspecified\'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing')
 
 traceback:
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 116, in formalize_text_to_mvir
-    response = provider.complete(
-               ^^^^^^^^^^^^^^^^^^
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\providers\openai_provider.py", line 83, in complete
-    raise ProviderError(
-mvir.extract.provider_base.ProviderError: ProviderError(provider='openai', kind='bad_schema', retryable=False): Invalid schema for response_format 'mvir_v01': In context=('properties', 'source', 'properties', 'spans', 'type', '0', 'items'), 'additionalProperties' is required to be supplied and to be false.
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 165, in formalize_text_to_mvir
+    mvir = MVIR.model_validate(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\karim\studioprojects\sydes\.venv\Lib\site-packages\pydantic\main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for MVIR
+warnings.0.message
+  Field required [type=missing, input_value={'text': "Multiple tasks ..., 'code': 'unspecified'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing

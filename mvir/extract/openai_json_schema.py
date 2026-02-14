@@ -43,7 +43,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
             "meta": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["version", "id"],
+                "required": ["version", "id", "generator", "created_at"],
                 "properties": {
                     "version": {"type": "string", "const": "0.1"},
                     "id": {"type": "string"},
@@ -54,7 +54,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
             "source": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["text"],
+                "required": ["text", "normalized_text", "spans"],
                 "properties": {
                     "text": {"type": "string"},
                     "normalized_text": {"type": ["string", "null"]},
@@ -74,7 +74,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["id", "kind", "type"],
+                    "required": ["id", "kind", "type", "properties", "trace"],
                     "properties": {
                         "id": {"type": "string"},
                         "kind": {
@@ -101,7 +101,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["expr", "kind"],
+                    "required": ["expr", "kind", "trace", "id"],
                     "properties": {
                         "expr": _expr_schema(),
                         "kind": {"type": "string", "enum": ["given", "derived", "wlog"]},
@@ -113,7 +113,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
             "goal": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["kind", "expr"],
+                "required": ["kind", "expr", "trace", "target"],
                 "properties": {
                     "kind": {
                         "type": "string",
@@ -144,7 +144,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["id", "role"],
+                    "required": ["id", "role", "trigger", "confidence", "trace", "name"],
                     "properties": {
                         "id": {"type": "string"},
                         "role": {
@@ -169,7 +169,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["code", "message"],
+                    "required": ["code", "message", "trace", "details"],
                     "properties": {
                         "code": {"type": "string"},
                         "message": {"type": "string"},
@@ -189,7 +189,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["span_id", "start", "end"],
+                    "required": ["span_id", "start", "end", "text"],
                     "properties": {
                         "span_id": {"type": "string"},
                         "start": {"type": "integer", "minimum": 0},
@@ -200,4 +200,3 @@ def get_mvir_v01_openai_json_schema() -> dict:
             },
         },
     }
-

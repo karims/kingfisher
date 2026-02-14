@@ -12,6 +12,7 @@
       "id": "x",
       "kind": "variable",
       "type": "Real",
+      "properties": [],
       "trace": [
         "s1",
         "s2",
@@ -21,6 +22,8 @@
     {
       "id": "n",
       "kind": "variable",
+      "type": "Integer",
+      "properties": [],
       "trace": [
         "s4"
       ]
@@ -28,6 +31,8 @@
     {
       "id": "k",
       "kind": "variable",
+      "type": "Integer",
+      "properties": [],
       "trace": [
         "s4"
       ]
@@ -35,6 +40,8 @@
     {
       "id": "0",
       "kind": "constant",
+      "type": "Integer",
+      "properties": [],
       "trace": [
         "s1",
         "s3",
@@ -44,6 +51,8 @@
     {
       "id": "1",
       "kind": "constant",
+      "type": "Integer",
+      "properties": [],
       "trace": [
         "s1",
         "s4"
@@ -63,12 +72,14 @@
           "value": 0
         }
       },
+      "kind": "given",
       "trace": [
         "s2"
       ]
     }
   ],
   "goal": {
+    "kind": "prove",
     "expr": {
       "node": "Ge",
       "lhs": {
@@ -94,14 +105,14 @@
   "concepts": [
     {
       "id": "nonnegativity_of_square",
-      "description": "Statement that the square of a real number is nonnegative.",
+      "role": "pattern",
       "trace": [
         "s3"
       ]
     },
     {
       "id": "summation_formula",
-      "description": "The formula for the sum of the first n positive integers.",
+      "role": "pattern",
       "trace": [
         "s4"
       ]
@@ -109,7 +120,8 @@
   ],
   "warnings": [
     {
-      "text": "Multiple tasks present. Primary goal chosen: 'Show that x^2 >= 0'. Secondary tasks not solved here: 'Compute x^2 + 1' (s1) and the summation identity (s4).",
+      "code": "multiple_tasks",
+      "message": "Multiple tasks present. Primary goal chosen: 'Show that x^2 >= 0'. Secondary tasks not solved here: 'Compute x^2 + 1' (s1) and the summation identity (s4).",
       "trace": [
         "s1",
         "s4"
