@@ -18,6 +18,10 @@ class OpenAIProvider(LLMProvider):
 
     name = "openai"
     _supports_json_schema: dict[str, bool] = {}
+    _SCHEMA_HINT = (
+        "Your OpenAI strict schema likely violates required/properties rules. "
+        "Run: pytest -q tests/extract/test_openai_schema_strict_rules.py"
+    )
 
     def __init__(
         self,
@@ -96,22 +100,16 @@ class OpenAIProvider(LLMProvider):
 
         while response.status_code == 400:
             error_message, error_param, error_code = _extract_error_details(response)
-            if (
-                error_code == "invalid_json_schema"
-                or "Invalid schema for response_format" in error_message
+            if _is_schema_rejection(
+                error_message=error_message,
+                error_param=error_param,
+                error_code=error_code,
             ):
                 self._supports_json_schema[self.model] = False
-                if self.allow_fallback and not retried_format and using_json_schema:
-                    payload["text"] = {"format": {"type": "json_object"}}
-                    payload["input"] = _append_json_only_instruction(prompt)
-                    retried_format = True
-                    using_json_schema = False
-                    response = self._safe_post(url, headers=headers, payload=payload)
-                    continue
                 raise ProviderError(
                     provider=self.name,
                     kind="bad_schema",
-                    message=error_message,
+                    message=f"{error_message} | {self._SCHEMA_HINT}",
                     retryable=False,
                 )
             if (
@@ -365,6 +363,19 @@ def _is_json_schema_unsupported(*, error_message: str, error_param: str | None) 
         or "does not support" in msg
     )
     return references_schema_feature and indicates_unsupported
+
+
+def _is_schema_rejection(
+    *,
+    error_message: str,
+    error_param: str | None,
+    error_code: str | None,
+) -> bool:
+    if error_code == "invalid_json_schema":
+        return True
+    if error_param == "text.format.schema":
+        return True
+    return "Invalid schema for response_format" in error_message
 
 
 def _append_json_only_instruction(prompt: str) -> str:

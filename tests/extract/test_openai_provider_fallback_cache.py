@@ -18,7 +18,7 @@ class _FakeResponse:
         return self._payload
 
 
-def test_openai_invalid_schema_falls_back_to_json_object_when_enabled(
+def test_openai_unsupported_schema_feature_falls_back_to_json_object_when_enabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     provider = mod.OpenAIProvider(
@@ -39,9 +39,8 @@ def test_openai_invalid_schema_falls_back_to_json_object_when_enabled(
                 400,
                 {
                     "error": {
-                        "message": "Invalid schema for response_format 'mvir_v01': oneOf is not permitted",
-                        "param": "text.format.schema",
-                        "code": "invalid_json_schema",
+                        "message": "text.format json_schema is not supported for this model",
+                        "param": "text.format",
                     }
                 },
                 text="bad request",
@@ -89,4 +88,3 @@ def test_openai_invalid_schema_raises_when_fallback_disabled(
         provider.complete("hello")
     assert excinfo.value.kind == "bad_schema"
     assert mod.OpenAIProvider._supports_json_schema.get("test-model") is False
-

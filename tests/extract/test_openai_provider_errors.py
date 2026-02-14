@@ -50,9 +50,10 @@ def test_openai_invalid_json_schema_maps_to_bad_schema(
         provider.complete("hello")
     assert excinfo.value.kind == "bad_schema"
     assert "Invalid schema for response_format" in excinfo.value.message
+    assert "required/properties rules" in excinfo.value.message
 
 
-def test_openai_json_schema_unsupported_maps_to_bad_response(
+def test_openai_text_format_schema_param_maps_to_bad_schema(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     provider = mod.OpenAIProvider(api_key="test-key", model="test-model")
@@ -76,4 +77,24 @@ def test_openai_json_schema_unsupported_maps_to_bad_response(
     monkeypatch.setattr(mod, "_requests_post", _fake_post)
     with pytest.raises(ProviderError) as excinfo:
         provider.complete("hello")
-    assert excinfo.value.kind == "bad_response"
+    assert excinfo.value.kind == "bad_schema"
+    assert "json_schema is not supported for this model" in excinfo.value.message
+    assert "tests/extract/test_openai_schema_strict_rules.py" in excinfo.value.message
+
+
+def test_extract_error_details_reads_message_param_and_code() -> None:
+    response = _FakeResponse(
+        400,
+        {
+            "error": {
+                "message": "schema fail",
+                "param": "text.format.schema",
+                "code": "invalid_json_schema",
+            }
+        },
+        text="raw",
+    )
+    message, param, code = mod._extract_error_details(response)
+    assert message == "schema fail"
+    assert param == "text.format.schema"
+    assert code == "invalid_json_schema"

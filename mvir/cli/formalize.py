@@ -99,12 +99,18 @@ def main(argv: list[str] | None = None) -> int:
         "--openai-format",
         choices=["json_schema", "json_object"],
         default="json_schema",
-        help="OpenAI output format mode (default: json_schema).",
+        help=(
+            "OpenAI output format mode: json_schema = strict enforcement (may be rejected), "
+            "json_object = JSON-only output (recommended)."
+        ),
     )
     parser.add_argument(
         "--openai-allow-fallback",
         action="store_true",
-        help="Allow one retry fallback from json_schema to json_object.",
+        help=(
+            "If strict schema is rejected, automatically retry with json_object + "
+            "JSON-only instruction."
+        ),
     )
     parser.add_argument(
         "--debug-dir",

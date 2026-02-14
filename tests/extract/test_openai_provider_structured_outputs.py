@@ -89,7 +89,7 @@ def test_openai_falls_back_to_json_object_when_json_schema_unsupported(
     assert "JSON only" in seen_payloads[1]["input"]
 
 
-def test_openai_schema_invalid_falls_back_when_allowed(
+def test_openai_schema_invalid_raises_bad_schema_even_when_fallback_enabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     provider = mod.OpenAIProvider(
@@ -118,11 +118,12 @@ def test_openai_schema_invalid_falls_back_when_allowed(
         return _FakeResponse(200, {"output_text": "schema-fallback-ok"})
 
     monkeypatch.setattr(mod, "_requests_post", _fake_post)
-    out = provider.complete("hello")
-    assert out == "schema-fallback-ok"
-    assert len(seen_payloads) == 2
+    with pytest.raises(ProviderError) as excinfo:
+        provider.complete("hello")
+    assert excinfo.value.kind == "bad_schema"
+    assert len(seen_payloads) == 1
     assert seen_payloads[0]["text"]["format"]["type"] == "json_schema"
-    assert seen_payloads[1]["text"]["format"]["type"] == "json_object"
+    assert "required/properties rules" in str(excinfo.value)
 
 
 def test_openai_no_fallback_by_default_raises_on_unsupported_json_schema(
