@@ -4,7 +4,7 @@ from __future__ import annotations
 
 
 def get_mvir_v01_json_schema() -> dict:
-    """Return a conservative JSON Schema for MVIR v0.1."""
+    """Return a strict JSON Schema aligned with current MVIR v0.1 models."""
 
     entity_kinds = [
         "variable",
@@ -34,15 +34,210 @@ def get_mvir_v01_json_schema() -> dict:
         "representation_hint",
     ]
 
-    span_ref_array = {
-        "type": "array",
-        "items": {"type": "string"},
+    span_ref_array = {"type": "array", "items": {"type": "string"}}
+
+    expr_ref = {"$ref": "#/$defs/Expr"}
+
+    expr_defs = {
+        "Symbol": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "id"],
+            "properties": {
+                "node": {"const": "Symbol", "type": "string"},
+                "id": {"type": "string"},
+            },
+        },
+        "Number": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "value"],
+            "properties": {
+                "node": {"const": "Number", "type": "string"},
+                "value": {"type": "number"},
+            },
+        },
+        "Bool": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "value"],
+            "properties": {
+                "node": {"type": "string", "enum": ["Bool", "True", "False"]},
+                "value": {"type": "boolean"},
+            },
+        },
+        "Add": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "args"],
+            "properties": {
+                "node": {"const": "Add", "type": "string"},
+                "args": {"type": "array", "minItems": 1, "items": expr_ref},
+            },
+        },
+        "Mul": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "args"],
+            "properties": {
+                "node": {"const": "Mul", "type": "string"},
+                "args": {"type": "array", "minItems": 1, "items": expr_ref},
+            },
+        },
+        "Div": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "num", "den"],
+            "properties": {
+                "node": {"const": "Div", "type": "string"},
+                "num": expr_ref,
+                "den": expr_ref,
+            },
+        },
+        "Pow": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "base", "exp"],
+            "properties": {
+                "node": {"const": "Pow", "type": "string"},
+                "base": expr_ref,
+                "exp": expr_ref,
+            },
+        },
+        "Neg": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "arg"],
+            "properties": {
+                "node": {"const": "Neg", "type": "string"},
+                "arg": expr_ref,
+            },
+        },
+        "Eq": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Eq", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Neq": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Neq", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Lt": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Lt", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Le": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Le", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Gt": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Gt", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Ge": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Ge", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Divides": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "lhs", "rhs"],
+            "properties": {
+                "node": {"const": "Divides", "type": "string"},
+                "lhs": expr_ref,
+                "rhs": expr_ref,
+            },
+        },
+        "Sum": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "var", "from", "to", "body"],
+            "properties": {
+                "node": {"const": "Sum", "type": "string"},
+                "var": {"type": "string"},
+                "from": expr_ref,
+                "to": expr_ref,
+                "body": expr_ref,
+            },
+        },
+        "Call": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["node", "fn", "args"],
+            "properties": {
+                "node": {"const": "Call", "type": "string"},
+                "fn": {"type": "string"},
+                "args": {"type": "array", "items": expr_ref},
+            },
+        },
     }
+
+    expr_one_of = [
+        {"$ref": "#/$defs/Symbol"},
+        {"$ref": "#/$defs/Number"},
+        {"$ref": "#/$defs/Bool"},
+        {"$ref": "#/$defs/Add"},
+        {"$ref": "#/$defs/Mul"},
+        {"$ref": "#/$defs/Div"},
+        {"$ref": "#/$defs/Pow"},
+        {"$ref": "#/$defs/Neg"},
+        {"$ref": "#/$defs/Eq"},
+        {"$ref": "#/$defs/Neq"},
+        {"$ref": "#/$defs/Lt"},
+        {"$ref": "#/$defs/Le"},
+        {"$ref": "#/$defs/Gt"},
+        {"$ref": "#/$defs/Ge"},
+        {"$ref": "#/$defs/Divides"},
+        {"$ref": "#/$defs/Sum"},
+        {"$ref": "#/$defs/Call"},
+    ]
 
     schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "title": "MVIR v0.1",
         "type": "object",
+        "$defs": {
+            "Expr": {
+                "oneOf": expr_one_of,
+                "discriminator": {"propertyName": "node"},
+            },
+            **expr_defs,
+        },
         "additionalProperties": False,
         "required": [
             "meta",
@@ -58,7 +253,7 @@ def get_mvir_v01_json_schema() -> dict:
             "meta": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["version", "id", "generator", "created_at"],
+                "required": ["version", "id"],
                 "properties": {
                     "version": {"type": "string", "const": "0.1"},
                     "id": {"type": "string"},
@@ -69,7 +264,7 @@ def get_mvir_v01_json_schema() -> dict:
             "source": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["text", "normalized_text", "spans"],
+                "required": ["text"],
                 "properties": {
                     "text": {"type": "string"},
                     "normalized_text": {"type": ["string", "null"]},
@@ -102,9 +297,9 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["expr", "kind", "trace", "id"],
+                    "required": ["expr", "kind", "trace"],
                     "properties": {
-                        "expr": {"type": "object"},
+                        "expr": expr_ref,
                         "kind": {"type": "string", "enum": assumption_kinds},
                         "trace": span_ref_array,
                         "id": {"type": ["string", "null"]},
@@ -114,10 +309,10 @@ def get_mvir_v01_json_schema() -> dict:
             "goal": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["kind", "expr", "trace", "target"],
+                "required": ["kind", "expr", "trace"],
                 "properties": {
                     "kind": {"type": "string", "enum": goal_kinds},
-                    "expr": {"type": "object"},
+                    "expr": expr_ref,
                     "target": {"type": ["object", "null"]},
                     "trace": span_ref_array,
                 },
@@ -127,7 +322,7 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["id", "role", "trace", "trigger", "confidence", "name"],
+                    "required": ["id", "role", "trace"],
                     "properties": {
                         "id": {"type": "string"},
                         "role": {"type": "string", "enum": concept_roles},
@@ -143,7 +338,7 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["code", "message", "trace", "details"],
+                    "required": ["code", "message", "trace"],
                     "properties": {
                         "code": {"type": "string"},
                         "message": {"type": "string"},
@@ -157,12 +352,12 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["span_id", "start", "end", "text"],
+                    "required": ["span_id", "start", "end"],
                     "properties": {
                         "span_id": {"type": "string"},
                         "start": {"type": "integer", "minimum": 0},
                         "end": {"type": "integer", "minimum": 0},
-                        "text": {"type": "string"},
+                        "text": {"type": ["string", "null"]},
                     },
                 },
             },
