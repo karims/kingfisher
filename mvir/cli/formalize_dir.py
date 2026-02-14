@@ -58,10 +58,26 @@ def main(argv: list[str] | None = None) -> int:
         "--debug-dir",
         help="Optional directory to write per-problem debug bundles on failure.",
     )
+    parser.add_argument(
+        "--openai-format",
+        choices=["json_schema", "json_object"],
+        default="json_schema",
+        help="OpenAI output format mode (default: json_schema).",
+    )
+    parser.add_argument(
+        "--openai-allow-fallback",
+        action="store_true",
+        help="Allow one retry fallback from json_schema to json_object.",
+    )
     args = parser.parse_args(argv)
 
     try:
-        provider = build_provider(args.provider, mock_path=args.mock_path)
+        provider = build_provider(
+            args.provider,
+            mock_path=args.mock_path,
+            openai_format=args.openai_format,
+            openai_allow_fallback=args.openai_allow_fallback,
+        )
     except Exception as exc:  # noqa: BLE001 - CLI boundary
         print(f"ERROR: {exc}")
         return 1

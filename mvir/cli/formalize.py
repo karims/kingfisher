@@ -22,6 +22,8 @@ def build_provider(
     provider_name: str,
     *,
     mock_path: str | None = None,
+    openai_format: str = "json_schema",
+    openai_allow_fallback: bool = False,
 ) -> LLMProvider:
     """Construct a provider instance from CLI arguments."""
 
@@ -31,7 +33,10 @@ def build_provider(
         mapping = json.loads(Path(mock_path).read_text(encoding="utf-8"))
         return MockProvider(mapping)
     if provider_name == "openai":
-        return OpenAIProvider()
+        return OpenAIProvider(
+            format_mode=openai_format,
+            allow_fallback=openai_allow_fallback,
+        )
     raise ValueError(f"Unsupported provider: {provider_name}")
 
 
@@ -64,6 +69,17 @@ def main(argv: list[str] | None = None) -> int:
         help="Enforce grounding-contract failures as errors (default: true).",
     )
     parser.add_argument(
+        "--openai-format",
+        choices=["json_schema", "json_object"],
+        default="json_schema",
+        help="OpenAI output format mode (default: json_schema).",
+    )
+    parser.add_argument(
+        "--openai-allow-fallback",
+        action="store_true",
+        help="Allow one retry fallback from json_schema to json_object.",
+    )
+    parser.add_argument(
         "--debug-dir",
         help="Optional directory to write debug bundles for failed extractions.",
     )
@@ -74,7 +90,12 @@ def main(argv: list[str] | None = None) -> int:
         text = text_path.read_text(encoding="utf-8")
         problem_id = text_path.stem
 
-        provider = build_provider(args.provider, mock_path=args.mock_path)
+        provider = build_provider(
+            args.provider,
+            mock_path=args.mock_path,
+            openai_format=args.openai_format,
+            openai_allow_fallback=args.openai_allow_fallback,
+        )
 
         mvir = formalize_text_to_mvir(
             text,

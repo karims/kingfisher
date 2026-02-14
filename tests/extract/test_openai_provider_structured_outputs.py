@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 
+from mvir.extract.provider_base import ProviderError
 from mvir.extract.providers import openai_provider as mod
 
 
@@ -46,7 +47,11 @@ def test_openai_uses_json_schema_response_format(
 def test_openai_falls_back_to_json_object_when_json_schema_unsupported(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    provider = mod.OpenAIProvider(api_key="test-key", model="test-model")
+    provider = mod.OpenAIProvider(
+        api_key="test-key",
+        model="test-model",
+        allow_fallback=True,
+    )
     seen_payloads: list[dict] = []
 
     def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
@@ -82,7 +87,11 @@ def test_openai_falls_back_to_json_object_when_json_schema_unsupported(
 def test_openai_falls_back_when_schema_is_invalid(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    provider = mod.OpenAIProvider(api_key="test-key", model="test-model")
+    provider = mod.OpenAIProvider(
+        api_key="test-key",
+        model="test-model",
+        allow_fallback=True,
+    )
     seen_payloads: list[dict] = []
 
     def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
@@ -109,3 +118,32 @@ def test_openai_falls_back_when_schema_is_invalid(
     assert len(seen_payloads) == 2
     assert seen_payloads[0]["text"]["format"]["type"] == "json_schema"
     assert seen_payloads[1]["text"]["format"]["type"] == "json_object"
+
+
+def test_openai_no_fallback_by_default_raises_on_unsupported_json_schema(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider = mod.OpenAIProvider(api_key="test-key", model="test-model")
+    seen_payloads: list[dict] = []
+
+    def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
+        _ = url
+        _ = headers
+        _ = timeout
+        seen_payloads.append(dict(json))
+        return _FakeResponse(
+            400,
+            {
+                "error": {
+                    "message": "text.format json_schema is not supported for this model",
+                    "param": "text.format",
+                }
+            },
+            text="bad request",
+        )
+
+    monkeypatch.setattr(mod, "_requests_post", _fake_post)
+    with pytest.raises(ProviderError) as excinfo:
+        provider.complete("hello")
+    assert "Model does not support json_schema enforcement" in str(excinfo.value)
+    assert len(seen_payloads) == 1

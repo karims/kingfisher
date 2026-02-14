@@ -8,6 +8,8 @@ from pathlib import Path
 import pytest
 
 from mvir.extract.formalize import formalize_text_to_mvir
+from mvir.extract.provider_base import ProviderError
+from mvir.extract.providers import openai_provider as openai_mod
 
 
 class _FakeProvider:
@@ -55,3 +57,50 @@ def test_debug_bundle_writes_request_and_response_json(tmp_path: Path) -> None:
     assert request_payload["model"] == "fake-model"
     assert response_payload["id"] == "resp_123"
 
+
+class _FakeResponse:
+    def __init__(self, status_code: int, payload: dict, text: str = "") -> None:
+        self.status_code = status_code
+        self._payload = payload
+        self.text = text
+
+    def json(self) -> dict:
+        return self._payload
+
+
+def test_debug_bundle_openai_request_logs_json_schema_by_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    provider = openai_mod.OpenAIProvider(api_key="test-key", model="test-model")
+    debug_dir = tmp_path / "debug"
+
+    def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
+        _ = url
+        _ = headers
+        _ = timeout
+        return _FakeResponse(
+            400,
+            {
+                "error": {
+                    "message": "text.format json_schema is not supported for this model",
+                    "param": "text.format",
+                }
+            },
+            text="bad request",
+        )
+
+    monkeypatch.setattr(openai_mod, "_requests_post", _fake_post)
+
+    with pytest.raises(ProviderError):
+        formalize_text_to_mvir(
+            "x",
+            provider,
+            problem_id="debug_openai_schema_case",
+            strict=True,
+            debug_dir=str(debug_dir),
+        )
+
+    request_path = debug_dir / "debug_openai_schema_case" / "request.json"
+    assert request_path.exists()
+    request_payload = json.loads(request_path.read_text(encoding="utf-8"))
+    assert request_payload["text"]["format"]["type"] == "json_schema"

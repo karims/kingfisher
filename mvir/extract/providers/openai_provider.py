@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 from copy import deepcopy
+from typing import Literal
 
 from mvir.extract.mvir_json_schema import get_mvir_v01_json_schema
 from mvir.extract.provider_base import LLMProvider, ProviderError
@@ -24,11 +25,15 @@ class OpenAIProvider(LLMProvider):
         model: str | None = None,
         base_url: str | None = None,
         timeout_s: float = 30.0,
+        format_mode: Literal["json_schema", "json_object"] = "json_schema",
+        allow_fallback: bool = False,
     ) -> None:
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.model = model or os.getenv("OPENAI_MODEL") or "gpt-4.1-mini"
         self.base_url = base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com"
         self.timeout_s = timeout_s
+        self.format_mode = format_mode
+        self.allow_fallback = allow_fallback
         self.last_request_json: dict | None = None
         self.last_response_json: dict | None = None
 
@@ -62,15 +67,7 @@ class OpenAIProvider(LLMProvider):
             "model": self.model,
             "input": prompt,
             "max_tokens": max_tokens,
-            "text": {
-                "format": {
-                    "type": "json_schema",
-                    "name": "mvir_v01",
-                    "description": "Kingfisher MVIR v0.1",
-                    "schema": get_mvir_v01_json_schema(),
-                    "strict": True,
-                }
-            },
+            "text": {"format": _build_format_payload(self.format_mode)},
         }
         if temperature != 0.0:
             payload["temperature"] = temperature
@@ -101,7 +98,8 @@ class OpenAIProvider(LLMProvider):
                 response = self._safe_post(url, headers=headers, payload=payload)
                 continue
             if (
-                not retried_format
+                self.allow_fallback
+                and not retried_format
                 and _is_json_schema_unsupported(error_message=error_message, error_param=error_param)
             ):
                 payload["text"] = {"format": {"type": "json_object"}}
@@ -109,6 +107,20 @@ class OpenAIProvider(LLMProvider):
                 retried_format = True
                 response = self._safe_post(url, headers=headers, payload=payload)
                 continue
+            if (
+                not self.allow_fallback
+                and self.format_mode == "json_schema"
+                and _is_json_schema_unsupported(error_message=error_message, error_param=error_param)
+            ):
+                raise ProviderError(
+                    provider=self.name,
+                    kind="bad_response",
+                    message=(
+                        "Model does not support json_schema enforcement; "
+                        "rerun with --openai-allow-fallback or choose another model."
+                    ),
+                    retryable=False,
+                )
             break
 
         if response.status_code != 200:
@@ -320,3 +332,14 @@ def _append_json_only_instruction(prompt: str) -> str:
     if instruction in prompt:
         return prompt
     return prompt + "\n\n" + instruction
+
+
+def _build_format_payload(format_mode: Literal["json_schema", "json_object"]) -> dict:
+    if format_mode == "json_object":
+        return {"type": "json_object"}
+    return {
+        "type": "json_schema",
+        "name": "mvir_v01",
+        "schema": get_mvir_v01_json_schema(),
+        "strict": True,
+    }
