@@ -7,7 +7,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from mvir.cli.formalize import build_provider
+from mvir.cli.formalize import build_provider, format_cli_exception
 from mvir.extract.cache import ResponseCache
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
@@ -79,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
             openai_allow_fallback=args.openai_allow_fallback,
         )
     except Exception as exc:  # noqa: BLE001 - CLI boundary
-        print(f"ERROR: {exc}")
+        print(f"ERROR: {format_cli_exception(exc)}")
         return 1
 
     input_dir = Path(args.input_dir)
@@ -124,6 +124,7 @@ def main(argv: list[str] | None = None) -> int:
                     if args.fail_fast:
                         break
         except Exception as exc:  # noqa: BLE001 - per-item fault isolation
+            print(f"ERROR [{problem_id}]: {format_cli_exception(exc)}")
             kind, message = classify_exception(exc)
             failure = {"id": problem_id, "kind": kind.value, "message": message}
             if args.debug_dir:

@@ -7,6 +7,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
+from mvir.cli import formalize_dir as cli_formalize_dir
+
 
 def _mvir_payload(problem_id: str, text: str) -> dict:
     return {
@@ -150,3 +154,61 @@ def test_cli_formalize_dir_fail_fast_returns_non_zero(tmp_path: Path) -> None:
     )
 
     assert result.returncode == 1
+
+
+def test_cli_formalize_dir_openai_flags_passed_to_provider(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    input_dir = tmp_path / "problems"
+    input_dir.mkdir()
+    (input_dir / "a.txt").write_text("x", encoding="utf-8")
+    out_dir = tmp_path / "out"
+
+    captured: dict = {}
+
+    class _FakeProvider:
+        name = "openai"
+
+    class _DummyMVIR:
+        def model_dump(self, by_alias: bool = False, exclude_none: bool = True) -> dict:
+            _ = by_alias
+            _ = exclude_none
+            return _mvir_payload("a", "x")
+
+    def _fake_build_provider(
+        provider_name: str,
+        *,
+        mock_path: str | None = None,
+        openai_format: str = "json_schema",
+        openai_allow_fallback: bool = False,
+    ):
+        captured["provider_name"] = provider_name
+        captured["mock_path"] = mock_path
+        captured["openai_format"] = openai_format
+        captured["openai_allow_fallback"] = openai_allow_fallback
+        return _FakeProvider()
+
+    monkeypatch.setattr(cli_formalize_dir, "build_provider", _fake_build_provider)
+    monkeypatch.setattr(
+        cli_formalize_dir,
+        "formalize_text_to_mvir",
+        lambda *args, **kwargs: _DummyMVIR(),
+    )
+
+    rc = cli_formalize_dir.main(
+        [
+            str(input_dir),
+            "--provider",
+            "openai",
+            "--out-dir",
+            str(out_dir),
+            "--openai-format",
+            "json_object",
+            "--openai-allow-fallback",
+        ]
+    )
+
+    assert rc == 0
+    assert captured["provider_name"] == "openai"
+    assert captured["openai_format"] == "json_object"
+    assert captured["openai_allow_fallback"] is True

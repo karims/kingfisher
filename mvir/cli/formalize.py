@@ -13,7 +13,7 @@ from pathlib import Path
 
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
-from mvir.extract.provider_base import LLMProvider
+from mvir.extract.provider_base import LLMProvider, ProviderError
 from mvir.extract.providers.mock import MockProvider
 from mvir.extract.providers.openai_provider import OpenAIProvider
 
@@ -38,6 +38,33 @@ def build_provider(
             allow_fallback=openai_allow_fallback,
         )
     raise ValueError(f"Unsupported provider: {provider_name}")
+
+
+def format_cli_exception(exc: Exception) -> str:
+    """Return a user-facing CLI error message."""
+
+    if isinstance(exc, ProviderError):
+        if exc.kind == "bad_schema":
+            return (
+                "OpenAI rejected the json_schema (unsupported schema feature). "
+                "Use skeleton schema or --openai-format json_object."
+            )
+
+        msg = str(exc)
+        lower = msg.lower()
+        if (
+            "json_schema" in lower
+            and (
+                "not supported" in lower
+                or "unsupported" in lower
+                or "does not support" in lower
+            )
+        ):
+            return (
+                "OpenAI model does not support json_schema enforcement. "
+                "Use --openai-format json_object or --openai-allow-fallback."
+            )
+    return str(exc)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -121,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"OK: {problem_id}")
         return 0
     except Exception as exc:  # noqa: BLE001 - CLI boundary
-        print(f"ERROR: {exc}")
+        print(f"ERROR: {format_cli_exception(exc)}")
         return 1
 
 
