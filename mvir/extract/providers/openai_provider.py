@@ -78,7 +78,14 @@ class OpenAIProvider(LLMProvider):
         response = self._safe_post(url, headers=headers, payload=payload)
 
         while response.status_code == 400:
-            error_message, error_param = _extract_error_details(response)
+            error_message, error_param, error_code = _extract_error_details(response)
+            if error_code == "invalid_json_schema" or error_param == "text.format.schema":
+                raise ProviderError(
+                    provider=self.name,
+                    kind="bad_schema",
+                    message=error_message,
+                    retryable=False,
+                )
             if (
                 error_param == "temperature"
                 and "temperature" in payload
@@ -116,15 +123,15 @@ class OpenAIProvider(LLMProvider):
                     provider=self.name,
                     kind="bad_response",
                     message=(
-                        "Model does not support json_schema enforcement; "
-                        "rerun with --openai-allow-fallback or choose another model."
+                        "OpenAI rejected the provided json_schema; see response.json for details. "
+                        "Consider using skeleton schema or allow fallback."
                     ),
                     retryable=False,
                 )
             break
 
         if response.status_code != 200:
-            error_message, error_param = _extract_error_details(response)
+            error_message, error_param, _ = _extract_error_details(response)
             kind = "bad_response"
             retryable = False
             if response.status_code in (401, 403):
@@ -274,7 +281,7 @@ def _extract_text_from_openai_response(json_obj) -> str:
     return ""
 
 
-def _extract_error_details(response) -> tuple[str, str | None]:
+def _extract_error_details(response) -> tuple[str, str | None, str | None]:
     """Extract short error message and param from error response body."""
 
     try:
@@ -287,11 +294,13 @@ def _extract_error_details(response) -> tuple[str, str | None]:
     if isinstance(err, dict):
         message = err.get("message")
         param = err.get("param")
+        code = err.get("code")
         return (
             message if isinstance(message, str) and message else response.text,
             param if isinstance(param, str) and param else None,
+            code if isinstance(code, str) and code else None,
         )
-    return (response.text, None)
+    return (response.text, None, None)
 
 
 def _format_http_error_message(
@@ -308,23 +317,18 @@ def _format_http_error_message(
 
 
 def _is_json_schema_unsupported(*, error_message: str, error_param: str | None) -> bool:
-    if error_param in {
-        "response_format",
-        "response_format.type",
-        "text.format",
-        "text.format.type",
-        "text.format.schema",
-    }:
-        lowered = error_message.lower()
-        return (
-            "json_schema" in lowered
-            or "invalid schema for response_format" in lowered
-            or "invalid schema" in lowered
-        )
     msg = error_message.lower()
-    if "invalid schema for response_format" in msg:
-        return True
-    return "json_schema" in msg and ("unsupported" in msg or "not supported" in msg)
+    references_schema_feature = (
+        "json_schema" in msg
+        or "response_format" in msg
+        or (error_param in {"response_format", "response_format.type", "text.format", "text.format.type"})
+    )
+    indicates_unsupported = (
+        "not supported" in msg
+        or "unsupported" in msg
+        or "does not support" in msg
+    )
+    return references_schema_feature and indicates_unsupported
 
 
 def _append_json_only_instruction(prompt: str) -> str:

@@ -21,6 +21,7 @@
     {
       "id": "k",
       "kind": "variable",
+      "type": "Integer",
       "trace": [
         "s4"
       ]
@@ -28,6 +29,41 @@
     {
       "id": "n",
       "kind": "variable",
+      "type": "Integer",
+      "trace": [
+        "s4"
+      ]
+    },
+    {
+      "id": "0",
+      "kind": "constant",
+      "type": "Number",
+      "trace": [
+        "s2",
+        "s3"
+      ]
+    },
+    {
+      "id": "1",
+      "kind": "constant",
+      "type": "Number",
+      "trace": [
+        "s1",
+        "s4"
+      ]
+    },
+    {
+      "id": "2",
+      "kind": "constant",
+      "type": "Number",
+      "trace": [
+        "s4"
+      ]
+    },
+    {
+      "id": "sum",
+      "kind": "function",
+      "type": "Operator",
       "trace": [
         "s4"
       ]
@@ -76,17 +112,30 @@
   },
   "concepts": [
     {
-      "id": "square_nonnegativity",
-      "title": "Square of a real number is nonnegative",
+      "id": "compute_polynomial",
+      "name": "Computation of simple polynomial expression (x^2 + 1)",
       "trace": [
-        "s2",
+        "s1"
+      ]
+    },
+    {
+      "id": "nonnegativity_of_square",
+      "name": "Nonnegativity of a square (x^2 >= 0)",
+      "trace": [
         "s3"
+      ]
+    },
+    {
+      "id": "sum_first_n",
+      "name": "Formula for the sum of the first n positive integers",
+      "trace": [
+        "s4"
       ]
     }
   ],
   "warnings": [
     {
-      "message": "Multiple tasks present. Primary goal is to show x^2 >= 0. Secondary tasks were: 'Compute x^2 + 1.' and 'State/evaluate the summation formula'.",
+      "message": "Multiple tasks present. Primary goal chosen: show x^2 >= 0 (from 'Show that ...'). Secondary tasks retained as warnings: (1) Compute x^2 + 1 (s1). (2) Prove the sum formula for sum_{k=1}^n k (s4).",
       "trace": [
         "s1",
         "s4"

@@ -1,59 +1,12 @@
-kind: schema_validation
-message: MVIR validation failed: 6 validation errors for MVIR
-entities.1.type
-  Field required [type=missing, input_value={'id': 'k', 'kind': 'variable', 'trace': ['s4']}, input_type=dict]
-    For further information visit https://errors.pydantic.de...
-exception: ValueError('MVIR validation failed: 6 validation errors for MVIR\nentities.1.type\n  Field required [type=missing, input_value={\'id\': \'k\', \'kind\': \'variable\', \'trace\': [\'s4\']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nentities.2.type\n  Field required [type=missing, input_value={\'id\': \'n\', \'kind\': \'variable\', \'trace\': [\'s4\']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nassumptions.0.kind\n  Field required [type=missing, input_value={\'expr\': {\'node\': \'Gt\', \'...\': 0}}, \'trace\': [\'s2\']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ngoal.kind\n  Field required [type=missing, input_value={\'expr\': {\'node\': \'Ge\', \'...\': 0}}, \'trace\': [\'s3\']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.0.role\n  Field required [type=missing, input_value={\'id\': \'square_nonnegativ..., \'trace\': [\'s2\', \'s3\']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nwarnings.0.code\n  Field required [type=missing, input_value={\'message\': "Multiple tas..., \'trace\': [\'s1\', \'s4\']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing')
+kind: provider
+message: ProviderError(provider='openai', kind='bad_response', retryable=False): Model does not support json_schema enforcement; rerun with --openai-allow-fallback or choose another model.
+exception: ProviderError("ProviderError(provider='openai', kind='bad_response', retryable=False): Model does not support json_schema enforcement; rerun with --openai-allow-fallback or choose another model.")
 
 traceback:
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 128, in formalize_text_to_mvir
-    mvir = MVIR.model_validate(payload)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\karim\studioprojects\sydes\.venv\Lib\site-packages\pydantic\main.py", line 716, in model_validate
-    return cls.__pydantic_validator__.validate_python(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 6 validation errors for MVIR
-entities.1.type
-  Field required [type=missing, input_value={'id': 'k', 'kind': 'variable', 'trace': ['s4']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-entities.2.type
-  Field required [type=missing, input_value={'id': 'n', 'kind': 'variable', 'trace': ['s4']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-assumptions.0.kind
-  Field required [type=missing, input_value={'expr': {'node': 'Gt', '...': 0}}, 'trace': ['s2']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-goal.kind
-  Field required [type=missing, input_value={'expr': {'node': 'Ge', '...': 0}}, 'trace': ['s3']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-concepts.0.role
-  Field required [type=missing, input_value={'id': 'square_nonnegativ..., 'trace': ['s2', 's3']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-warnings.0.code
-  Field required [type=missing, input_value={'message': "Multiple tas..., 'trace': ['s1', 's4']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 130, in formalize_text_to_mvir
-    raise ValueError(f"MVIR validation failed: {exc}") from exc
-ValueError: MVIR validation failed: 6 validation errors for MVIR
-entities.1.type
-  Field required [type=missing, input_value={'id': 'k', 'kind': 'variable', 'trace': ['s4']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-entities.2.type
-  Field required [type=missing, input_value={'id': 'n', 'kind': 'variable', 'trace': ['s4']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-assumptions.0.kind
-  Field required [type=missing, input_value={'expr': {'node': 'Gt', '...': 0}}, 'trace': ['s2']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-goal.kind
-  Field required [type=missing, input_value={'expr': {'node': 'Ge', '...': 0}}, 'trace': ['s3']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-concepts.0.role
-  Field required [type=missing, input_value={'id': 'square_nonnegativ..., 'trace': ['s2', 's3']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-warnings.0.code
-  Field required [type=missing, input_value={'message': "Multiple tas..., 'trace': ['s1', 's4']}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 95, in formalize_text_to_mvir
+    response = provider.complete(
+               ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\providers\openai_provider.py", line 115, in complete
+    raise ProviderError(
+mvir.extract.provider_base.ProviderError: ProviderError(provider='openai', kind='bad_response', retryable=False): Model does not support json_schema enforcement; rerun with --openai-allow-fallback or choose another model.

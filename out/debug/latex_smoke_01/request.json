@@ -1,9 +1,737 @@
 {
   "model": "gpt-5-mini",
-  "input": "SYSTEM INSTRUCTIONS:\nOutput MUST be valid JSON only (no markdown, no prose).\nOutput MUST conform to MVIR v0.1 schema.\nTop-level object MUST contain keys: meta, source, entities, assumptions, goal, concepts, warnings, trace.\nmeta must include version=\"0.1\", id=PROBLEM_ID, and generator.\nsource must include text equal to the exact full input text.\nentities.kind MUST be one of: variable, constant, function, set, sequence, point, vector, object.\nDo NOT use entity kinds like expression, equation, or inequality.\nPut equations/inequalities in assumptions.expr or goal.expr as AST nodes, not entities.kind.\nExpr MUST be node-based with discriminator key \"node\".\nDO NOT output {op,left,right} style trees.\nx > 0 => {\"node\":\"Gt\",\"lhs\":{\"node\":\"Symbol\",\"id\":\"x\"},\"rhs\":{\"node\":\"Number\",\"value\":0}}\nx^2 + 1 => {\"node\":\"Add\",\"args\":[{\"node\":\"Pow\",\"base\":{\"node\":\"Symbol\",\"id\":\"x\"},\"exp\":{\"node\":\"Number\",\"value\":2}},{\"node\":\"Number\",\"value\":1}]}\nEvery entity, assumption, goal, concept, and warning MUST include trace referencing existing span_ids.\nentities[].trace / assumptions[].trace / goal.trace / concepts[].trace / warnings[].trace must be arrays of span_id strings ONLY, e.g. [\"s2\",\"s3\"].\nThe span objects with start/end/text must exist ONLY in top-level trace.\ngoal is ONE object. If multiple tasks appear, choose the primary goal and add a warning listing secondary tasks.\nTrace spans must include start/end offsets.\nIf unsure about a sentence, DO NOT invent meaning.\nDo not invent assumptions or goals.\nKeep such sentences only as context via trace.\nPreserve original meaning; do not introduce new variables silently.\n\nJSON TRACE EXAMPLE:\n{\n  \"trace\": [\n    {\"span_id\":\"s2\",\"start\":10,\"end\":18,\"text\":\"x > 0.00\"}\n  ],\n  \"entities\": [\n    {\"id\":\"x\",\"kind\":\"variable\",\"type\":\"Real\",\"trace\":[\"s2\"]}\n  ]\n}\n\nPROBLEM_ID=latex_smoke_01\n\nPROMPT_CONTEXT_JSON:\n{\"source_text\": \"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\", \"s0\": {\"span_id\": \"s0\", \"start\": 0, \"end\": 103, \"text\": \"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\"}, \"sentences\": [{\"span_id\": \"s1\", \"start\": 0, \"end\": 18, \"text\": \"Compute $x^2 + 1$.\", \"starts_with\": \"compute\", \"has_math\": true, \"has_question_mark\": false}, {\"span_id\": \"s2\", \"start\": 18, \"end\": 33, \"text\": \"\\nLet \\\\(x > 0\\\\).\", \"starts_with\": \"let\", \"has_math\": true, \"has_question_mark\": false}, {\"span_id\": \"s3\", \"start\": 33, \"end\": 58, \"text\": \" Show that \\\\[x^2 \\\\ge 0\\\\].\", \"starts_with\": \"show\", \"has_math\": true, \"has_question_mark\": false}, {\"span_id\": \"s4\", \"start\": 58, \"end\": 102, \"text\": \"\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\", \"starts_with\": \"also\", \"has_math\": true, \"has_question_mark\": false}]}\n\nOutput MUST be valid JSON only.",
+  "input": "SYSTEM INSTRUCTIONS:\nOutput MUST be valid JSON only (no markdown, no prose).\nOutput MUST conform to MVIR v0.1 schema.\nTop-level object MUST contain keys: meta, source, entities, assumptions, goal, concepts, warnings, trace.\nmeta must include version=\"0.1\", id=PROBLEM_ID, and generator.\nsource must include text equal to the exact full input text.\nentities.kind MUST be one of: variable, constant, function, set, sequence, point, vector, object.\nDo NOT use entity kinds like expression, equation, or inequality.\nPut equations/inequalities in assumptions.expr or goal.expr as AST nodes, not entities.kind.\nExpr MUST be node-based with discriminator key \"node\".\nDO NOT output {op,left,right} style trees.\nx > 0 => {\"node\":\"Gt\",\"lhs\":{\"node\":\"Symbol\",\"id\":\"x\"},\"rhs\":{\"node\":\"Number\",\"value\":0}}\nx^2 + 1 => {\"node\":\"Add\",\"args\":[{\"node\":\"Pow\",\"base\":{\"node\":\"Symbol\",\"id\":\"x\"},\"exp\":{\"node\":\"Number\",\"value\":2}},{\"node\":\"Number\",\"value\":1}]}\nEvery entity, assumption, goal, concept, and warning MUST include trace referencing existing span_ids.\nentities[].trace / assumptions[].trace / goal.trace / concepts[].trace / warnings[].trace must be arrays of span_id strings ONLY, e.g. [\"s2\",\"s3\"].\nThe span objects with start/end/text must exist ONLY in top-level trace.\ngoal is ONE object. If multiple tasks appear, choose the primary goal and add a warning listing secondary tasks.\nTrace spans must include start/end offsets.\nIf unsure about a sentence, DO NOT invent meaning.\nDo not invent assumptions or goals.\nKeep such sentences only as context via trace.\nPreserve original meaning; do not introduce new variables silently.\n\nJSON TRACE EXAMPLE:\n{\n  \"trace\": [\n    {\"span_id\":\"s2\",\"start\":10,\"end\":18,\"text\":\"x > 0.00\"}\n  ],\n  \"entities\": [\n    {\"id\":\"x\",\"kind\":\"variable\",\"type\":\"Real\",\"trace\":[\"s2\"]}\n  ]\n}\n\nPROBLEM_ID=latex_smoke_01\n\nPROMPT_CONTEXT_JSON:\n{\"source_text\": \"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\", \"s0\": {\"span_id\": \"s0\", \"start\": 0, \"end\": 103, \"text\": \"Compute $x^2 + 1$.\\nLet \\\\(x > 0\\\\). Show that \\\\[x^2 \\\\ge 0\\\\].\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\\n\"}, \"sentences\": [{\"span_id\": \"s1\", \"start\": 0, \"end\": 18, \"text\": \"Compute $x^2 + 1$.\", \"starts_with\": \"compute\", \"has_math\": true, \"has_question_mark\": false}, {\"span_id\": \"s2\", \"start\": 18, \"end\": 33, \"text\": \"\\nLet \\\\(x > 0\\\\).\", \"starts_with\": \"let\", \"has_math\": true, \"has_question_mark\": false}, {\"span_id\": \"s3\", \"start\": 33, \"end\": 58, \"text\": \" Show that \\\\[x^2 \\\\ge 0\\\\].\", \"starts_with\": \"show\", \"has_math\": true, \"has_question_mark\": false}, {\"span_id\": \"s4\", \"start\": 58, \"end\": 102, \"text\": \"\\nAlso $$\\\\sum_{k=1}^n k = \\\\frac{n(n+1)}{2}$$.\", \"starts_with\": \"also\", \"has_math\": true, \"has_question_mark\": false}]}",
   "text": {
     "format": {
-      "type": "json_object"
+      "type": "json_schema",
+      "name": "mvir_v01",
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "MVIR v0.1",
+        "type": "object",
+        "$defs": {
+          "Expr": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Symbol"
+              },
+              {
+                "$ref": "#/$defs/Number"
+              },
+              {
+                "$ref": "#/$defs/Bool"
+              },
+              {
+                "$ref": "#/$defs/Add"
+              },
+              {
+                "$ref": "#/$defs/Mul"
+              },
+              {
+                "$ref": "#/$defs/Div"
+              },
+              {
+                "$ref": "#/$defs/Pow"
+              },
+              {
+                "$ref": "#/$defs/Neg"
+              },
+              {
+                "$ref": "#/$defs/Eq"
+              },
+              {
+                "$ref": "#/$defs/Neq"
+              },
+              {
+                "$ref": "#/$defs/Lt"
+              },
+              {
+                "$ref": "#/$defs/Le"
+              },
+              {
+                "$ref": "#/$defs/Gt"
+              },
+              {
+                "$ref": "#/$defs/Ge"
+              },
+              {
+                "$ref": "#/$defs/Divides"
+              },
+              {
+                "$ref": "#/$defs/Sum"
+              },
+              {
+                "$ref": "#/$defs/Call"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "node"
+            }
+          },
+          "Symbol": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "id"
+            ],
+            "properties": {
+              "node": {
+                "const": "Symbol",
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          },
+          "Number": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "value"
+            ],
+            "properties": {
+              "node": {
+                "const": "Number",
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              }
+            }
+          },
+          "Bool": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "value"
+            ],
+            "properties": {
+              "node": {
+                "type": "string",
+                "enum": [
+                  "Bool",
+                  "True",
+                  "False"
+                ]
+              },
+              "value": {
+                "type": "boolean"
+              }
+            }
+          },
+          "Add": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "args"
+            ],
+            "properties": {
+              "node": {
+                "const": "Add",
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/Expr"
+                }
+              }
+            }
+          },
+          "Mul": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "args"
+            ],
+            "properties": {
+              "node": {
+                "const": "Mul",
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/Expr"
+                }
+              }
+            }
+          },
+          "Div": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "num",
+              "den"
+            ],
+            "properties": {
+              "node": {
+                "const": "Div",
+                "type": "string"
+              },
+              "num": {
+                "$ref": "#/$defs/Expr"
+              },
+              "den": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Pow": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "base",
+              "exp"
+            ],
+            "properties": {
+              "node": {
+                "const": "Pow",
+                "type": "string"
+              },
+              "base": {
+                "$ref": "#/$defs/Expr"
+              },
+              "exp": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Neg": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "arg"
+            ],
+            "properties": {
+              "node": {
+                "const": "Neg",
+                "type": "string"
+              },
+              "arg": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Eq": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Eq",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Neq": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Neq",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Lt": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Lt",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Le": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Le",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Gt": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Gt",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Ge": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Ge",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Divides": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "lhs",
+              "rhs"
+            ],
+            "properties": {
+              "node": {
+                "const": "Divides",
+                "type": "string"
+              },
+              "lhs": {
+                "$ref": "#/$defs/Expr"
+              },
+              "rhs": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Sum": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "var",
+              "from",
+              "to",
+              "body"
+            ],
+            "properties": {
+              "node": {
+                "const": "Sum",
+                "type": "string"
+              },
+              "var": {
+                "type": "string"
+              },
+              "from": {
+                "$ref": "#/$defs/Expr"
+              },
+              "to": {
+                "$ref": "#/$defs/Expr"
+              },
+              "body": {
+                "$ref": "#/$defs/Expr"
+              }
+            }
+          },
+          "Call": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node",
+              "fn",
+              "args"
+            ],
+            "properties": {
+              "node": {
+                "const": "Call",
+                "type": "string"
+              },
+              "fn": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Expr"
+                }
+              }
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "meta",
+          "source",
+          "entities",
+          "assumptions",
+          "goal",
+          "concepts",
+          "warnings",
+          "trace"
+        ],
+        "properties": {
+          "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "version",
+              "id"
+            ],
+            "properties": {
+              "version": {
+                "type": "string",
+                "const": "0.1"
+              },
+              "id": {
+                "type": "string"
+              },
+              "generator": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "created_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "text"
+            ],
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "normalized_text": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "spans": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "entities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "kind",
+                "type",
+                "properties",
+                "trace"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "variable",
+                    "constant",
+                    "function",
+                    "set",
+                    "sequence",
+                    "point",
+                    "vector",
+                    "object"
+                  ]
+                },
+                "type": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "trace": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "expr",
+                "kind",
+                "trace"
+              ],
+              "properties": {
+                "expr": {
+                  "$ref": "#/$defs/Expr"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "given",
+                    "derived",
+                    "wlog"
+                  ]
+                },
+                "trace": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "goal": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "expr",
+              "trace"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "prove",
+                  "find",
+                  "compute",
+                  "maximize",
+                  "minimize",
+                  "exists",
+                  "counterexample"
+                ]
+              },
+              "expr": {
+                "$ref": "#/$defs/Expr"
+              },
+              "target": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "trace": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "concepts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "role",
+                "trace"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "domain",
+                    "pattern",
+                    "candidate_tool",
+                    "definition",
+                    "representation_hint"
+                  ]
+                },
+                "trigger": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "confidence": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "trace": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "code",
+                "message",
+                "trace"
+              ],
+              "properties": {
+                "code": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "trace": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "details": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "trace": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "span_id",
+                "start",
+                "end"
+              ],
+              "properties": {
+                "span_id": {
+                  "type": "string"
+                },
+                "start": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "end": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "text": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "strict": true
     }
   }
 }
