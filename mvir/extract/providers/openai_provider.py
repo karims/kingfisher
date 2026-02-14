@@ -59,14 +59,14 @@ class OpenAIProvider(LLMProvider):
             "model": self.model,
             "input": prompt,
             "max_tokens": max_tokens,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
+            "text": {
+                "format": {
+                    "type": "json_schema",
                     "name": "mvir_v01",
                     "description": "Kingfisher MVIR v0.1",
                     "schema": get_mvir_v01_json_schema(),
                     "strict": True,
-                },
+                }
             },
         }
         if temperature != 0.0:
@@ -101,7 +101,7 @@ class OpenAIProvider(LLMProvider):
                 not retried_format
                 and _is_json_schema_unsupported(error_message=error_message, error_param=error_param)
             ):
-                payload["response_format"] = {"type": "json_object"}
+                payload["text"] = {"format": {"type": "json_object"}}
                 payload["input"] = _append_json_only_instruction(prompt)
                 retried_format = True
                 response = self._safe_post(url, headers=headers, payload=payload)
@@ -282,9 +282,22 @@ def _format_http_error_message(
 
 
 def _is_json_schema_unsupported(*, error_message: str, error_param: str | None) -> bool:
-    if error_param in {"response_format", "response_format.type"}:
-        return "json_schema" in error_message.lower()
+    if error_param in {
+        "response_format",
+        "response_format.type",
+        "text.format",
+        "text.format.type",
+        "text.format.schema",
+    }:
+        lowered = error_message.lower()
+        return (
+            "json_schema" in lowered
+            or "invalid schema for response_format" in lowered
+            or "invalid schema" in lowered
+        )
     msg = error_message.lower()
+    if "invalid schema for response_format" in msg:
+        return True
     return "json_schema" in msg and ("unsupported" in msg or "not supported" in msg)
 
 

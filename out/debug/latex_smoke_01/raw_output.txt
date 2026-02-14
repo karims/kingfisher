@@ -1,30 +1,21 @@
 {
-  "mvir_version": "0.1",
-  "problem_id": "latex_smoke_01",
-  "trace": [
-    {"span_id": "s0", "start": 0, "end": 103},
-    {"span_id": "s1", "start": 0, "end": 18},
-    {"span_id": "s2", "start": 18, "end": 33},
-    {"span_id": "s3", "start": 33, "end": 58},
-    {"span_id": "s4", "start": 58, "end": 102}
-  ],
+  "meta": {
+    "version": "0.1",
+    "id": "latex_smoke_01",
+    "generator": "assistant"
+  },
+  "source": {
+    "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
+  },
   "entities": [
     {
       "id": "x",
       "kind": "variable",
       "type": "Unknown",
       "trace": [
-        {"span_id": "s2", "start": 18, "end": 33},
-        {"span_id": "s1", "start": 0, "end": 18},
-        {"span_id": "s3", "start": 33, "end": 58}
-      ]
-    },
-    {
-      "id": "n",
-      "kind": "variable",
-      "type": "Unknown",
-      "trace": [
-        {"span_id": "s4", "start": 58, "end": 102}
+        "s1",
+        "s2",
+        "s3"
       ]
     },
     {
@@ -32,77 +23,147 @@
       "kind": "variable",
       "type": "Unknown",
       "trace": [
-        {"span_id": "s4", "start": 58, "end": 102}
+        "s4"
       ]
     },
     {
-      "id": "expr_x2_plus_1",
-      "kind": "expression",
-      "type": "algebraic",
-      "representation": "x^2 + 1",
+      "id": "n",
+      "kind": "variable",
+      "type": "Unknown",
       "trace": [
-        {"span_id": "s1", "start": 0, "end": 18}
+        "s4"
       ]
     },
     {
-      "id": "ineq_x2_ge_0",
-      "kind": "inequality",
-      "type": "algebraic",
-      "representation": "x^2 \\ge 0",
+      "id": "sum",
+      "kind": "function",
+      "type": "summation",
       "trace": [
-        {"span_id": "s3", "start": 33, "end": 58}
-      ]
-    },
-    {
-      "id": "sum_formula",
-      "kind": "equation",
-      "type": "algebraic",
-      "representation": "\\\\sum_{k=1}^n k = \\frac{n(n+1)}{2}",
-      "trace": [
-        {"span_id": "s4", "start": 58, "end": 102}
+        "s4"
       ]
     }
   ],
   "assumptions": [
     {
-      "id": "assump_x_positive",
-      "text": "x > 0",
+      "id": "a1",
+      "expr": {
+        "op": ">",
+        "left": {
+          "node": "var",
+          "name": "x"
+        },
+        "right": {
+          "node": "const",
+          "value": 0
+        }
+      },
       "trace": [
-        {"span_id": "s2", "start": 18, "end": 33}
+        "s2"
       ]
     }
   ],
-  "goals": [
+  "goal": [
     {
-      "id": "goal_compute_expr",
-      "text": "Compute x^2 + 1.",
+      "id": "g1",
+      "role": "compute",
+      "expr": {
+        "op": "+",
+        "left": {
+          "op": "^",
+          "base": {
+            "node": "var",
+            "name": "x"
+          },
+          "exp": {
+            "node": "const",
+            "value": 2
+          }
+        },
+        "right": {
+          "node": "const",
+          "value": 1
+        }
+      },
       "trace": [
-        {"span_id": "s1", "start": 0, "end": 18}
+        "s1"
       ]
     },
     {
-      "id": "goal_show_ineq",
-      "text": "Show that x^2 \\ge 0.",
+      "id": "g2",
+      "role": "prove",
+      "expr": {
+        "op": ">=",
+        "left": {
+          "op": "^",
+          "base": {
+            "node": "var",
+            "name": "x"
+          },
+          "exp": {
+            "node": "const",
+            "value": 2
+          }
+        },
+        "right": {
+          "node": "const",
+          "value": 0
+        }
+      },
       "trace": [
-        {"span_id": "s3", "start": 33, "end": 58}
+        "s3"
       ]
     }
   ],
   "concepts": [
     {
-      "id": "concept_square_nonnegativity",
-      "text": "The square of a number (x^2) is nonnegative.",
+      "id": "c1",
+      "name": "summation formula",
+      "description": "Formula for the sum of the first n positive integers",
       "trace": [
-        {"span_id": "s3", "start": 33, "end": 58}
-      ]
-    },
-    {
-      "id": "concept_arithmetic_series_formula",
-      "text": "Sum of first n integers equals n(n+1)/2.",
-      "trace": [
-        {"span_id": "s4", "start": 58, "end": 102}
+        "s4"
       ]
     }
   ],
-  "warnings": []
+  "warnings": [
+    {
+      "id": "w1",
+      "message": "The domain/type of the variable x is not specified (e.g. real, integer). The assumption x > 0 is given but the underlying domain is not stated.",
+      "trace": [
+        "s2",
+        "s3"
+      ]
+    }
+  ],
+  "trace": [
+    {
+      "span_id": "s0",
+      "start": 0,
+      "end": 103,
+      "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
+    },
+    {
+      "span_id": "s1",
+      "start": 0,
+      "end": 18,
+      "text": "Compute $x^2 + 1$."
+    },
+    {
+      "span_id": "s2",
+      "start": 18,
+      "end": 33,
+      "text": "\nLet \\(x > 0\\)."
+    },
+    {
+      "span_id": "s3",
+      "start": 33,
+      "end": 58,
+      "text": " Show that \\[x^2 \\ge 0\\]."
+    },
+    {
+      "span_id": "s4",
+      "start": 58,
+      "end": 102,
+      "text": "\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
+    }
+  ]
 }

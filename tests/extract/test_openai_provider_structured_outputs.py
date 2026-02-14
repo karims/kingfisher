@@ -35,11 +35,12 @@ def test_openai_uses_json_schema_response_format(
     assert out == "ok-json"
 
     assert len(seen_payloads) == 1
-    response_format = seen_payloads[0]["response_format"]
-    assert response_format["type"] == "json_schema"
-    assert response_format["json_schema"]["name"] == "mvir_v01"
-    assert response_format["json_schema"]["strict"] is True
-    assert "schema" in response_format["json_schema"]
+    assert "response_format" not in seen_payloads[0]
+    fmt = seen_payloads[0]["text"]["format"]
+    assert fmt["type"] == "json_schema"
+    assert fmt["name"] == "mvir_v01"
+    assert fmt["strict"] is True
+    assert "schema" in fmt
 
 
 def test_openai_falls_back_to_json_object_when_json_schema_unsupported(
@@ -58,8 +59,8 @@ def test_openai_falls_back_to_json_object_when_json_schema_unsupported(
                 400,
                 {
                     "error": {
-                        "message": "response_format json_schema is not supported for this model",
-                        "param": "response_format",
+                        "message": "text.format json_schema is not supported for this model",
+                        "param": "text.format",
                     }
                 },
                 text="bad request",
@@ -71,7 +72,40 @@ def test_openai_falls_back_to_json_object_when_json_schema_unsupported(
     assert out == "fallback-ok"
 
     assert len(seen_payloads) == 2
-    assert seen_payloads[0]["response_format"]["type"] == "json_schema"
-    assert seen_payloads[1]["response_format"]["type"] == "json_object"
+    assert "response_format" not in seen_payloads[0]
+    assert "response_format" not in seen_payloads[1]
+    assert seen_payloads[0]["text"]["format"]["type"] == "json_schema"
+    assert seen_payloads[1]["text"]["format"]["type"] == "json_object"
     assert "JSON only" in seen_payloads[1]["input"]
 
+
+def test_openai_falls_back_when_schema_is_invalid(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider = mod.OpenAIProvider(api_key="test-key", model="test-model")
+    seen_payloads: list[dict] = []
+
+    def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
+        _ = url
+        _ = headers
+        _ = timeout
+        seen_payloads.append(dict(json))
+        if len(seen_payloads) == 1:
+            return _FakeResponse(
+                400,
+                {
+                    "error": {
+                        "message": "Invalid schema for response_format 'mvir_v01': additionalProperties is required to be supplied and to be false.",
+                        "param": "text.format.schema",
+                    }
+                },
+                text="bad request",
+            )
+        return _FakeResponse(200, {"output_text": "schema-fallback-ok"})
+
+    monkeypatch.setattr(mod, "_requests_post", _fake_post)
+    out = provider.complete("hello")
+    assert out == "schema-fallback-ok"
+    assert len(seen_payloads) == 2
+    assert seen_payloads[0]["text"]["format"]["type"] == "json_schema"
+    assert seen_payloads[1]["text"]["format"]["type"] == "json_object"

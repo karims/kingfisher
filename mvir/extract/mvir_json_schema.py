@@ -58,23 +58,23 @@ def get_mvir_v01_json_schema() -> dict:
             "meta": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["version", "id"],
+                "required": ["version", "id", "generator", "created_at"],
                 "properties": {
                     "version": {"type": "string", "const": "0.1"},
                     "id": {"type": "string"},
-                    "generator": {"type": "string"},
-                    "created_at": {"type": "string"},
+                    "generator": {"type": ["string", "null"]},
+                    "created_at": {"type": ["string", "null"]},
                 },
             },
             "source": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["text"],
+                "required": ["text", "normalized_text", "spans"],
                 "properties": {
                     "text": {"type": "string"},
-                    "normalized_text": {"type": "string"},
+                    "normalized_text": {"type": ["string", "null"]},
                     "spans": {
-                        "type": "array",
+                        "type": ["array", "null"],
                         "items": {"type": "object"},
                     },
                 },
@@ -84,7 +84,7 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["id", "kind", "type", "trace"],
+                    "required": ["id", "kind", "type", "properties", "trace"],
                     "properties": {
                         "id": {"type": "string"},
                         "kind": {"type": "string", "enum": entity_kinds},
@@ -102,23 +102,23 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["expr", "kind", "trace"],
+                    "required": ["expr", "kind", "trace", "id"],
                     "properties": {
                         "expr": {"type": "object"},
                         "kind": {"type": "string", "enum": assumption_kinds},
                         "trace": span_ref_array,
-                        "id": {"type": "string"},
+                        "id": {"type": ["string", "null"]},
                     },
                 },
             },
             "goal": {
                 "type": "object",
                 "additionalProperties": False,
-                "required": ["kind", "expr", "trace"],
+                "required": ["kind", "expr", "trace", "target"],
                 "properties": {
                     "kind": {"type": "string", "enum": goal_kinds},
                     "expr": {"type": "object"},
-                    "target": {"type": "object"},
+                    "target": {"type": ["object", "null"]},
                     "trace": span_ref_array,
                 },
             },
@@ -127,14 +127,14 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["id", "role", "trace"],
+                    "required": ["id", "role", "trace", "trigger", "confidence", "name"],
                     "properties": {
                         "id": {"type": "string"},
                         "role": {"type": "string", "enum": concept_roles},
-                        "trigger": {"type": "string"},
-                        "confidence": {"type": "number"},
+                        "trigger": {"type": ["string", "null"]},
+                        "confidence": {"type": ["number", "null"]},
                         "trace": span_ref_array,
-                        "name": {"type": "string"},
+                        "name": {"type": ["string", "null"]},
                     },
                 },
             },
@@ -143,12 +143,12 @@ def get_mvir_v01_json_schema() -> dict:
                 "items": {
                     "type": "object",
                     "additionalProperties": False,
-                    "required": ["code", "message", "trace"],
+                    "required": ["code", "message", "trace", "details"],
                     "properties": {
                         "code": {"type": "string"},
                         "message": {"type": "string"},
                         "trace": span_ref_array,
-                        "details": {"type": "object"},
+                        "details": {"type": ["object", "null"]},
                     },
                 },
             },
