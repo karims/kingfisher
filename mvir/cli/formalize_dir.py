@@ -7,27 +7,11 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from mvir.cli.formalize import build_provider
 from mvir.extract.cache import ResponseCache
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
-from mvir.extract.provider_base import LLMProvider
-from mvir.extract.providers.mock import MockProvider
-from mvir.extract.providers.ollama_provider import OllamaProvider
-from mvir.extract.providers.openai_provider import OpenAIProvider
 from mvir.extract.report import RunReport, classify_exception
-
-
-def _build_provider(args: argparse.Namespace) -> LLMProvider:
-    if args.provider == "mock":
-        if not args.mock_path:
-            raise ValueError("--mock-path is required when --provider=mock")
-        mapping = json.loads(Path(args.mock_path).read_text(encoding="utf-8"))
-        return MockProvider(mapping)
-    if args.provider == "openai":
-        return OpenAIProvider()
-    if args.provider == "ollama":
-        return OllamaProvider()
-    raise ValueError(f"Unsupported provider: {args.provider}")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,7 +21,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("input_dir", help="Root directory containing problem .txt files.")
     parser.add_argument(
         "--provider",
-        choices=["mock", "openai", "ollama"],
+        choices=["mock", "openai"],
         default="mock",
         help="Provider backend.",
     )
@@ -73,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
-        provider = _build_provider(args)
+        provider = build_provider(args.provider, mock_path=args.mock_path)
     except Exception as exc:  # noqa: BLE001 - CLI boundary
         print(f"ERROR: {exc}")
         return 1
