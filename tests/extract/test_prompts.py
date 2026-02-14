@@ -15,6 +15,9 @@ def test_build_mvir_prompt_instructions_and_context() -> None:
     assert "DO NOT invent meaning." in prompt
     assert "entities.kind MUST be one of" in prompt
     assert "trace must be arrays of span_id strings" in prompt
+    assert "DO NOT output {op,left,right}" in prompt
+    assert '"node":"Gt"' in prompt
+    assert "goal is ONE object" in prompt
     assert "PROBLEM_ID=abc123" in prompt
     assert json.dumps(prompt_context, ensure_ascii=False) in prompt
     assert "```" not in prompt
