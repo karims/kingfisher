@@ -1,0 +1,149 @@
+kind: schema_validation
+message: MVIR validation failed: 21 validation errors for MVIR
+meta
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12...
+exception: ValueError("MVIR validation failed: 21 validation errors for MVIR\nmeta\n  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nsource\n  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nentities.0.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's2', 'start': 18, 'end': 33}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.0.trace.1\n  Input should be a valid string [type=string_type, input_value={'span_id': 's1', 'start': 0, 'end': 18}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.0.trace.2\n  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.1.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.2.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.3.kind\n  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='expression', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/enum\nentities.3.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's1', 'start': 0, 'end': 18}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.4.kind\n  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='inequality', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/enum\nentities.4.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nentities.5.kind\n  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='equation', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/enum\nentities.5.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nassumptions.0.expr\n  Field required [type=missing, input_value={'id': 'assump_x_positive...start': 18, 'end': 33}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nassumptions.0.kind\n  Field required [type=missing, input_value={'id': 'assump_x_positive...start': 18, 'end': 33}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nassumptions.0.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's2', 'start': 18, 'end': 33}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\ngoal\n  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.0.role\n  Field required [type=missing, input_value={'id': 'concept_square_no...start': 33, 'end': 58}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.0.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\nconcepts.1.role\n  Field required [type=missing, input_value={'id': 'concept_arithmeti...tart': 58, 'end': 102}]}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.1.trace.0\n  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type")
+
+traceback:
+Traceback (most recent call last):
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 122, in formalize_text_to_mvir
+    mvir = MVIR.model_validate(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\karim\studioprojects\sydes\.venv\Lib\site-packages\pydantic\main.py", line 716, in model_validate
+    return cls.__pydantic_validator__.validate_python(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 21 validation errors for MVIR
+meta
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+source
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+entities.0.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's2', 'start': 18, 'end': 33}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.0.trace.1
+  Input should be a valid string [type=string_type, input_value={'span_id': 's1', 'start': 0, 'end': 18}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.0.trace.2
+  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.1.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.2.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.3.kind
+  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='expression', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/enum
+entities.3.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's1', 'start': 0, 'end': 18}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.4.kind
+  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='inequality', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/enum
+entities.4.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.5.kind
+  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='equation', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/enum
+entities.5.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+assumptions.0.expr
+  Field required [type=missing, input_value={'id': 'assump_x_positive...start': 18, 'end': 33}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+assumptions.0.kind
+  Field required [type=missing, input_value={'id': 'assump_x_positive...start': 18, 'end': 33}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+assumptions.0.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's2', 'start': 18, 'end': 33}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+goal
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+concepts.0.role
+  Field required [type=missing, input_value={'id': 'concept_square_no...start': 33, 'end': 58}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+concepts.0.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+concepts.1.role
+  Field required [type=missing, input_value={'id': 'concept_arithmeti...tart': 58, 'end': 102}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+concepts.1.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 124, in formalize_text_to_mvir
+    raise ValueError(f"MVIR validation failed: {exc}") from exc
+ValueError: MVIR validation failed: 21 validation errors for MVIR
+meta
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+source
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+entities.0.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's2', 'start': 18, 'end': 33}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.0.trace.1
+  Input should be a valid string [type=string_type, input_value={'span_id': 's1', 'start': 0, 'end': 18}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.0.trace.2
+  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.1.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.2.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.3.kind
+  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='expression', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/enum
+entities.3.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's1', 'start': 0, 'end': 18}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.4.kind
+  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='inequality', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/enum
+entities.4.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+entities.5.kind
+  Input should be 'variable', 'constant', 'function', 'set', 'sequence', 'point', 'vector' or 'object' [type=enum, input_value='equation', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/enum
+entities.5.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+assumptions.0.expr
+  Field required [type=missing, input_value={'id': 'assump_x_positive...start': 18, 'end': 33}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+assumptions.0.kind
+  Field required [type=missing, input_value={'id': 'assump_x_positive...start': 18, 'end': 33}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+assumptions.0.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's2', 'start': 18, 'end': 33}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+goal
+  Field required [type=missing, input_value={'mvir_version': '0.1', '...102}]}], 'warnings': []}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+concepts.0.role
+  Field required [type=missing, input_value={'id': 'concept_square_no...start': 33, 'end': 58}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+concepts.0.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's3', 'start': 33, 'end': 58}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type
+concepts.1.role
+  Field required [type=missing, input_value={'id': 'concept_arithmeti...tart': 58, 'end': 102}]}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/missing
+concepts.1.trace.0
+  Input should be a valid string [type=string_type, input_value={'span_id': 's4', 'start': 58, 'end': 102}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.12/v/string_type

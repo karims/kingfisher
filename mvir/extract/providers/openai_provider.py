@@ -57,12 +57,76 @@ class OpenAIProvider(LLMProvider):
         payload = {
             "model": self.model,
             "input": prompt,
-            "temperature": temperature,
-            "max_output_tokens": max_tokens,
+            "max_tokens": max_tokens,
         }
+        if temperature != 0.0:
+            payload["temperature"] = temperature
+
+        response = self._safe_post(url, headers=headers, payload=payload)
+
+        if response.status_code == 400:
+            error_message, error_param = _extract_error_details(response)
+            retry_payload = dict(payload)
+            should_retry = False
+            if error_param == "temperature" and "temperature" in retry_payload:
+                retry_payload.pop("temperature", None)
+                should_retry = True
+            elif error_param == "max_tokens" and "max_tokens" in retry_payload:
+                retry_payload.pop("max_tokens", None)
+                should_retry = True
+
+            if should_retry:
+                response = self._safe_post(url, headers=headers, payload=retry_payload)
+
+        if response.status_code != 200:
+            error_message, error_param = _extract_error_details(response)
+            kind = "bad_response"
+            retryable = False
+            if response.status_code in (401, 403):
+                kind = "auth"
+            elif response.status_code == 429:
+                kind = "rate_limit"
+                retryable = True
+            elif response.status_code in (408,):
+                kind = "timeout"
+                retryable = True
+            elif response.status_code >= 500:
+                kind = "network"
+                retryable = True
+            raise ProviderError(
+                provider=self.name,
+                kind=kind,
+                message=_format_http_error_message(
+                    response.status_code,
+                    error_message,
+                    error_param,
+                ),
+                retryable=retryable,
+            )
 
         try:
-            response = _requests_post(url, headers=headers, json=payload, timeout=self.timeout_s)
+            json_obj = response.json()
+        except Exception as exc:
+            raise ProviderError(
+                provider=self.name,
+                kind="bad_response",
+                message=f"Malformed JSON response: {exc}",
+                retryable=False,
+            ) from exc
+
+        text = _extract_text_from_openai_response(json_obj)
+        if not text:
+            raise ProviderError(
+                provider=self.name,
+                kind="bad_response",
+                message="No text content found in OpenAI response.",
+                retryable=False,
+            )
+        return text
+
+    def _safe_post(self, url: str, *, headers: dict, payload: dict):
+        try:
+            return _requests_post(url, headers=headers, json=payload, timeout=self.timeout_s)
         except Exception as exc:  # requests may be unavailable
             if exc.__class__.__name__ == "Timeout":
                 raise ProviderError(
@@ -86,47 +150,6 @@ class OpenAIProvider(LLMProvider):
                     retryable=True,
                 ) from exc
             raise
-
-        if response.status_code != 200:
-            kind = "bad_response"
-            retryable = False
-            if response.status_code in (401, 403):
-                kind = "auth"
-            elif response.status_code == 429:
-                kind = "rate_limit"
-                retryable = True
-            elif response.status_code in (408,):
-                kind = "timeout"
-                retryable = True
-            elif response.status_code >= 500:
-                kind = "network"
-                retryable = True
-            raise ProviderError(
-                provider=self.name,
-                kind=kind,
-                message=f"HTTP {response.status_code}: {response.text}",
-                retryable=retryable,
-            )
-
-        try:
-            json_obj = response.json()
-        except Exception as exc:
-            raise ProviderError(
-                provider=self.name,
-                kind="bad_response",
-                message=f"Malformed JSON response: {exc}",
-                retryable=False,
-            ) from exc
-
-        text = _extract_text_from_openai_response(json_obj)
-        if not text:
-            raise ProviderError(
-                provider=self.name,
-                kind="bad_response",
-                message="No text content found in OpenAI response.",
-                retryable=False,
-            )
-        return text
 
 
 def _requests_post(url: str, *, headers: dict, json: dict, timeout: float):
@@ -193,3 +216,36 @@ def _extract_text_from_openai_response(json_obj) -> str:
             return "".join(chunks)
 
     return ""
+
+
+def _extract_error_details(response) -> tuple[str, str | None]:
+    """Extract short error message and param from error response body."""
+
+    try:
+        payload = response.json()
+    except Exception:
+        payload = {}
+    if not isinstance(payload, dict):
+        payload = {}
+    err = payload.get("error")
+    if isinstance(err, dict):
+        message = err.get("message")
+        param = err.get("param")
+        return (
+            message if isinstance(message, str) and message else response.text,
+            param if isinstance(param, str) and param else None,
+        )
+    return (response.text, None)
+
+
+def _format_http_error_message(
+    status_code: int,
+    error_message: str,
+    error_param: str | None,
+) -> str:
+    parts = [f"HTTP {status_code}"]
+    if error_message:
+        parts.append(error_message)
+    if error_param:
+        parts.append(f"param={error_param}")
+    return ": ".join(parts[:2]) + (f" ({parts[2]})" if len(parts) > 2 else "")

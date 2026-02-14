@@ -1,0 +1,108 @@
+{
+  "mvir_version": "0.1",
+  "problem_id": "latex_smoke_01",
+  "trace": [
+    {"span_id": "s0", "start": 0, "end": 103},
+    {"span_id": "s1", "start": 0, "end": 18},
+    {"span_id": "s2", "start": 18, "end": 33},
+    {"span_id": "s3", "start": 33, "end": 58},
+    {"span_id": "s4", "start": 58, "end": 102}
+  ],
+  "entities": [
+    {
+      "id": "x",
+      "kind": "variable",
+      "type": "Unknown",
+      "trace": [
+        {"span_id": "s2", "start": 18, "end": 33},
+        {"span_id": "s1", "start": 0, "end": 18},
+        {"span_id": "s3", "start": 33, "end": 58}
+      ]
+    },
+    {
+      "id": "n",
+      "kind": "variable",
+      "type": "Unknown",
+      "trace": [
+        {"span_id": "s4", "start": 58, "end": 102}
+      ]
+    },
+    {
+      "id": "k",
+      "kind": "variable",
+      "type": "Unknown",
+      "trace": [
+        {"span_id": "s4", "start": 58, "end": 102}
+      ]
+    },
+    {
+      "id": "expr_x2_plus_1",
+      "kind": "expression",
+      "type": "algebraic",
+      "representation": "x^2 + 1",
+      "trace": [
+        {"span_id": "s1", "start": 0, "end": 18}
+      ]
+    },
+    {
+      "id": "ineq_x2_ge_0",
+      "kind": "inequality",
+      "type": "algebraic",
+      "representation": "x^2 \\ge 0",
+      "trace": [
+        {"span_id": "s3", "start": 33, "end": 58}
+      ]
+    },
+    {
+      "id": "sum_formula",
+      "kind": "equation",
+      "type": "algebraic",
+      "representation": "\\\\sum_{k=1}^n k = \\frac{n(n+1)}{2}",
+      "trace": [
+        {"span_id": "s4", "start": 58, "end": 102}
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "assump_x_positive",
+      "text": "x > 0",
+      "trace": [
+        {"span_id": "s2", "start": 18, "end": 33}
+      ]
+    }
+  ],
+  "goals": [
+    {
+      "id": "goal_compute_expr",
+      "text": "Compute x^2 + 1.",
+      "trace": [
+        {"span_id": "s1", "start": 0, "end": 18}
+      ]
+    },
+    {
+      "id": "goal_show_ineq",
+      "text": "Show that x^2 \\ge 0.",
+      "trace": [
+        {"span_id": "s3", "start": 33, "end": 58}
+      ]
+    }
+  ],
+  "concepts": [
+    {
+      "id": "concept_square_nonnegativity",
+      "text": "The square of a number (x^2) is nonnegative.",
+      "trace": [
+        {"span_id": "s3", "start": 33, "end": 58}
+      ]
+    },
+    {
+      "id": "concept_arithmetic_series_formula",
+      "text": "Sum of first n integers equals n(n+1)/2.",
+      "trace": [
+        {"span_id": "s4", "start": 58, "end": 102}
+      ]
+    }
+  ],
+  "warnings": []
+}

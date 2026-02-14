@@ -1,0 +1,49 @@
+{
+  "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n",
+  "cue_candidates": [
+    {
+      "category": "VERB_COMPUTE",
+      "start": 0,
+      "end": 7,
+      "text": "Compute"
+    },
+    {
+      "category": "PHRASE_LET",
+      "start": 19,
+      "end": 22,
+      "text": "Let"
+    },
+    {
+      "category": "VERB_PROVE",
+      "start": 34,
+      "end": 43,
+      "text": "Show that"
+    }
+  ],
+  "math_candidates": [
+    {
+      "start": 9,
+      "end": 16,
+      "text": "x^2 + 1",
+      "kind": "inline_math"
+    },
+    {
+      "start": 25,
+      "end": 30,
+      "text": "x > 0",
+      "kind": "inline_math"
+    },
+    {
+      "start": 46,
+      "end": 55,
+      "text": "x^2 \\ge 0",
+      "kind": "inline_math"
+    },
+    {
+      "start": 66,
+      "end": 99,
+      "text": "\\sum_{k=1}^n k = \\frac{n(n+1)}{2}",
+      "kind": "inline_math"
+    }
+  ]
+}
