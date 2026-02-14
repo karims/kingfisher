@@ -21,6 +21,7 @@ from mvir.extract.normalize import normalize_llm_payload
 from mvir.extract.prompts import build_mvir_prompt
 from mvir.extract.provider_base import LLMProvider, Provider, ProviderError, ProviderResult
 from mvir.extract.report import classify_exception
+from mvir.extract.sanitize import sanitize_mvir_payload
 from mvir.preprocess.context import build_preprocess_output
 
 
@@ -144,6 +145,8 @@ def formalize_text_to_mvir(
         if normalize or not strict:
             if isinstance(payload, dict):
                 payload = normalize_llm_payload(payload)
+        if isinstance(payload, dict):
+            payload = sanitize_mvir_payload(payload)
 
         try:
             mvir = MVIR.model_validate(payload)
@@ -195,6 +198,8 @@ def formalize_text_to_mvir(
 
                 if (normalize or not strict) and isinstance(payload, dict):
                     payload = normalize_llm_payload(payload)
+                if isinstance(payload, dict):
+                    payload = sanitize_mvir_payload(payload)
 
                 try:
                     mvir = MVIR.model_validate(payload)

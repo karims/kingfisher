@@ -35,7 +35,12 @@ def _invalid_first_payload() -> dict:
         "meta": {"version": "0.1", "id": "repair_case", "generator": "openai"},
         "source": {"text": "x"},
         "entities": [
-            {"id": "x", "kind": "variable", "properties": [], "trace": ["s1"]}
+            {
+                "id": "x",
+                "kind": "expression",
+                "properties": [],
+                "trace": ["s1"],
+            }
         ],
         "assumptions": [],
         "goal": {
@@ -92,4 +97,3 @@ def test_validation_error_triggers_one_shot_openai_repair() -> None:
     assert "You output JSON but it failed MVIR validation." in provider.prompts[1]
     assert "Return corrected JSON only." in provider.prompts[1]
     assert "```" not in provider.prompts[1]
-
