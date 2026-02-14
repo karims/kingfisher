@@ -17,6 +17,11 @@ class _FakeResponse:
         return self._payload
 
 
+@pytest.fixture(autouse=True)
+def _clear_openai_schema_support_cache() -> None:
+    mod.OpenAIProvider._supports_json_schema.clear()
+
+
 def test_openai_request_uses_json_schema_format_by_default(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -81,4 +86,3 @@ def test_openai_request_fallback_switches_to_json_object(
     assert len(captured) == 2
     assert captured[0]["text"]["format"]["type"] == "json_schema"
     assert captured[1]["text"]["format"]["type"] == "json_object"
-

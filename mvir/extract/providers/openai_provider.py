@@ -17,6 +17,7 @@ class OpenAIProvider(LLMProvider):
     """OpenAI-backed provider for prompt completion."""
 
     name = "openai"
+    _supports_json_schema: dict[str, bool] = {}
 
     def __init__(
         self,
@@ -69,6 +70,22 @@ class OpenAIProvider(LLMProvider):
             "max_tokens": max_tokens,
             "text": {"format": _build_format_payload(self.format_mode)},
         }
+        using_json_schema = self.format_mode == "json_schema"
+        if using_json_schema and self._supports_json_schema.get(self.model) is False:
+            if self.allow_fallback:
+                payload["text"] = {"format": {"type": "json_object"}}
+                payload["input"] = _append_json_only_instruction(prompt)
+                using_json_schema = False
+            else:
+                raise ProviderError(
+                    provider=self.name,
+                    kind="bad_response",
+                    message=(
+                        f"Model '{self.model}' does not support json_schema enforcement. "
+                        "Rerun with --openai-allow-fallback or --openai-format json_object."
+                    ),
+                    retryable=False,
+                )
         if temperature != 0.0:
             payload["temperature"] = temperature
 
@@ -83,6 +100,14 @@ class OpenAIProvider(LLMProvider):
                 error_code == "invalid_json_schema"
                 or "Invalid schema for response_format" in error_message
             ):
+                self._supports_json_schema[self.model] = False
+                if self.allow_fallback and not retried_format and using_json_schema:
+                    payload["text"] = {"format": {"type": "json_object"}}
+                    payload["input"] = _append_json_only_instruction(prompt)
+                    retried_format = True
+                    using_json_schema = False
+                    response = self._safe_post(url, headers=headers, payload=payload)
+                    continue
                 raise ProviderError(
                     provider=self.name,
                     kind="bad_schema",
@@ -110,18 +135,22 @@ class OpenAIProvider(LLMProvider):
             if (
                 self.allow_fallback
                 and not retried_format
+                and using_json_schema
                 and _is_json_schema_unsupported(error_message=error_message, error_param=error_param)
             ):
+                self._supports_json_schema[self.model] = False
                 payload["text"] = {"format": {"type": "json_object"}}
                 payload["input"] = _append_json_only_instruction(prompt)
                 retried_format = True
+                using_json_schema = False
                 response = self._safe_post(url, headers=headers, payload=payload)
                 continue
             if (
                 not self.allow_fallback
-                and self.format_mode == "json_schema"
+                and using_json_schema
                 and _is_json_schema_unsupported(error_message=error_message, error_param=error_param)
             ):
+                self._supports_json_schema[self.model] = False
                 raise ProviderError(
                     provider=self.name,
                     kind="bad_response",
@@ -158,6 +187,8 @@ class OpenAIProvider(LLMProvider):
                 ),
                 retryable=retryable,
             )
+        if using_json_schema:
+            self._supports_json_schema[self.model] = True
 
         try:
             json_obj = response.json()

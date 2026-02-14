@@ -18,6 +18,11 @@ class _FakeResponse:
         return self._payload
 
 
+@pytest.fixture(autouse=True)
+def _clear_openai_schema_support_cache() -> None:
+    mod.OpenAIProvider._supports_json_schema.clear()
+
+
 def test_openai_invalid_json_schema_maps_to_bad_schema(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -72,4 +77,3 @@ def test_openai_json_schema_unsupported_maps_to_bad_response(
     with pytest.raises(ProviderError) as excinfo:
         provider.complete("hello")
     assert excinfo.value.kind == "bad_response"
-
