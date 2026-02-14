@@ -17,6 +17,7 @@ from mvir.core.models import MVIR
 from mvir.extract.cache import ResponseCache
 from mvir.extract.context import build_prompt_context
 from mvir.extract.contract import validate_grounding_contract
+from mvir.extract.normalize import normalize_llm_payload
 from mvir.extract.prompts import build_mvir_prompt
 from mvir.extract.provider_base import LLMProvider, Provider, ProviderError, ProviderResult
 from mvir.extract.report import classify_exception
@@ -63,6 +64,7 @@ def formalize_text_to_mvir(
     cache: ResponseCache | None = None,
     use_cache: bool = True,
     strict: bool = True,
+    normalize: bool = False,
     repair: bool = True,
     debug_dir: str | None = None,
 ) -> MVIR:
@@ -117,6 +119,10 @@ def formalize_text_to_mvir(
                 raise ValueError(
                     f"JSON parse failed: {exc}. head={head!r} tail={tail!r}"
                 ) from exc
+
+        if normalize or not strict:
+            if isinstance(payload, dict):
+                payload = normalize_llm_payload(payload)
 
         try:
             mvir = MVIR.model_validate(payload)
