@@ -29,6 +29,30 @@ def formalize(prompt_context: dict, provider: Provider) -> ProviderResult:
     raise NotImplementedError("Formalization not implemented.")
 
 
+def try_repair_json_output(raw: str) -> str | None:
+    """Try deterministic minimal repair of nearly-JSON LLM output."""
+
+    repaired = raw.strip()
+
+    if "```" in repaired:
+        first = repaired.find("```")
+        second = repaired.find("```", first + 3)
+        if first != -1 and second != -1 and second > first:
+            repaired = repaired[first + 3 : second].strip()
+
+    first_brace = repaired.find("{")
+    if first_brace != -1 and first_brace > 0:
+        repaired = repaired[first_brace:]
+
+    last_brace = repaired.rfind("}")
+    if last_brace != -1 and last_brace < len(repaired) - 1:
+        repaired = repaired[: last_brace + 1]
+
+    if repaired.startswith("{") and repaired.endswith("}"):
+        return repaired
+    return None
+
+
 def formalize_text_to_mvir(
     text: str,
     provider: LLMProvider,
@@ -39,6 +63,7 @@ def formalize_text_to_mvir(
     cache: ResponseCache | None = None,
     use_cache: bool = True,
     strict: bool = True,
+    repair: bool = True,
     debug_dir: str | None = None,
 ) -> MVIR:
     """Run preprocess + prompt + provider completion and return MVIR."""
@@ -70,17 +95,23 @@ def formalize_text_to_mvir(
             if cache is not None and cache_key is not None:
                 cache.set(cache_key, response)
 
-        if "```" in response:
-            raise ValueError("Response contains markdown fences; JSON only is required.")
-
         try:
             payload = json.loads(response)
         except json.JSONDecodeError as exc:
-            head = response[:200]
-            tail = response[-200:] if len(response) > 200 else response
-            raise ValueError(
-                f"JSON parse failed: {exc}. head={head!r} tail={tail!r}"
-            ) from exc
+            payload = None
+            if repair:
+                repaired = try_repair_json_output(response)
+                if repaired is not None:
+                    try:
+                        payload = json.loads(repaired)
+                    except json.JSONDecodeError:
+                        payload = None
+            if payload is None:
+                head = response[:200]
+                tail = response[-200:] if len(response) > 200 else response
+                raise ValueError(
+                    f"JSON parse failed: {exc}. head={head!r} tail={tail!r}"
+                ) from exc
 
         try:
             mvir = MVIR.model_validate(payload)
