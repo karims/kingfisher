@@ -13,7 +13,15 @@ import json
 _INSTRUCTIONS = [
     "Output MUST be valid JSON only (no markdown, no prose).",
     "Output MUST conform to MVIR v0.1 schema.",
+    "Top-level object MUST contain keys: meta, source, entities, assumptions, goal, concepts, warnings, trace.",
+    "meta must include version=\"0.1\", id=PROBLEM_ID, and generator.",
+    "source must include text equal to the exact full input text.",
+    "entities.kind MUST be one of: variable, constant, function, set, sequence, point, vector, object.",
+    "Do NOT use entity kinds like expression, equation, or inequality.",
+    "Put equations/inequalities in assumptions.expr or goal.expr as AST nodes, not entities.kind.",
     "Every entity, assumption, goal, concept, and warning MUST include trace referencing existing span_ids.",
+    "entities[].trace / assumptions[].trace / goal.trace / concepts[].trace / warnings[].trace must be arrays of span_id strings ONLY, e.g. [\"s2\",\"s3\"].",
+    "The span objects with start/end/text must exist ONLY in top-level trace.",
     "Trace spans must include start/end offsets.",
     "If unsure about a sentence, DO NOT invent meaning.",
     "Do not invent assumptions or goals.",
@@ -26,10 +34,10 @@ _TRACE_EXAMPLE = "\n".join(
     [
         "{",
         '  "trace": [',
-        '    {"span_id": "s0", "start": 0, "end": 5}',
+        '    {"span_id":"s2","start":10,"end":18,"text":"x > 0.00"}',
         "  ],",
         '  "entities": [',
-        '    {"id": "x", "kind": "variable", "type": "Real", "trace": ["s0"]}',
+        '    {"id":"x","kind":"variable","type":"Real","trace":["s2"]}',
         "  ]",
         "}",
     ]

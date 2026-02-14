@@ -13,6 +13,8 @@ def test_build_mvir_prompt_instructions_and_context() -> None:
 
     assert "Output MUST be valid JSON only (no markdown, no prose)." in prompt
     assert "DO NOT invent meaning." in prompt
+    assert "entities.kind MUST be one of" in prompt
+    assert "trace must be arrays of span_id strings" in prompt
     assert "PROBLEM_ID=abc123" in prompt
     assert json.dumps(prompt_context, ensure_ascii=False) in prompt
     assert "```" not in prompt
