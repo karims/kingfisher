@@ -54,6 +54,27 @@ def try_repair_json_output(raw: str) -> str | None:
     return None
 
 
+def _build_validation_repair_prompt(
+    *,
+    problem_id: str,
+    validation_error: ValidationError,
+    previous_output: str,
+) -> str:
+    summary_lines = str(validation_error).splitlines()[:15]
+    summary = "\n".join(summary_lines)
+    return (
+        "You output JSON but it failed MVIR validation.\n"
+        "Fix the JSON to conform EXACTLY to MVIR v0.1.\n"
+        "Do NOT change trace spans or span_ids; keep them identical.\n"
+        f"Problem ID: {problem_id}\n\n"
+        "Validation errors (first lines):\n"
+        f"{summary}\n\n"
+        "Previous JSON output:\n"
+        f"{previous_output}\n\n"
+        "Return corrected JSON only."
+    )
+
+
 def formalize_text_to_mvir(
     text: str,
     provider: LLMProvider,
@@ -127,7 +148,62 @@ def formalize_text_to_mvir(
         try:
             mvir = MVIR.model_validate(payload)
         except ValidationError as exc:
-            raise ValueError(f"MVIR validation failed: {exc}") from exc
+            first_error = ValueError(f"MVIR validation failed: {exc}")
+            _write_debug_bundle(
+                debug_dir=debug_dir,
+                problem_id=problem_id,
+                source_text=text,
+                preprocess_result=preprocess_result,
+                prompt=prompt,
+                raw_output=response,
+                provider=provider,
+                exc=first_error,
+            )
+
+            if str(provider_name) == "openai":
+                repair_prompt = _build_validation_repair_prompt(
+                    problem_id=problem_id,
+                    validation_error=exc,
+                    previous_output=response,
+                )
+                try:
+                    response = provider.complete(
+                        repair_prompt, temperature=temperature, max_tokens=max_tokens
+                    )
+                except Exception as retry_exc:
+                    if isinstance(retry_exc, ProviderError):
+                        raise
+                    raise ValueError(
+                        f"Provider repair call failed: {retry_exc}"
+                    ) from retry_exc
+
+                try:
+                    payload = json.loads(response)
+                except json.JSONDecodeError as json_exc:
+                    repaired = try_repair_json_output(response) if repair else None
+                    if repaired is not None:
+                        try:
+                            payload = json.loads(repaired)
+                        except json.JSONDecodeError:
+                            payload = None
+                    else:
+                        payload = None
+                    if payload is None:
+                        raise ValueError(
+                            f"JSON parse failed after repair retry: {json_exc}"
+                        ) from json_exc
+
+                if (normalize or not strict) and isinstance(payload, dict):
+                    payload = normalize_llm_payload(payload)
+
+                try:
+                    mvir = MVIR.model_validate(payload)
+                except ValidationError as retry_validation_exc:
+                    raise ValueError(
+                        f"MVIR validation failed after repair retry: {retry_validation_exc}"
+                    ) from retry_validation_exc
+            else:
+                raise first_error from exc
 
         errors = validate_grounding_contract(mvir)
         if strict and errors:
