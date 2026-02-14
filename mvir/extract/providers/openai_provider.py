@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 
+from mvir.extract.mvir_json_schema import get_mvir_v01_json_schema
 from mvir.extract.provider_base import LLMProvider, ProviderError
 
 
@@ -58,25 +59,54 @@ class OpenAIProvider(LLMProvider):
             "model": self.model,
             "input": prompt,
             "max_tokens": max_tokens,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "mvir_v01",
+                    "description": "Kingfisher MVIR v0.1",
+                    "schema": get_mvir_v01_json_schema(),
+                    "strict": True,
+                },
+            },
         }
         if temperature != 0.0:
             payload["temperature"] = temperature
 
+        retried_temperature = False
+        retried_max_tokens = False
+        retried_format = False
         response = self._safe_post(url, headers=headers, payload=payload)
 
-        if response.status_code == 400:
+        while response.status_code == 400:
             error_message, error_param = _extract_error_details(response)
-            retry_payload = dict(payload)
-            should_retry = False
-            if error_param == "temperature" and "temperature" in retry_payload:
-                retry_payload.pop("temperature", None)
-                should_retry = True
-            elif error_param == "max_tokens" and "max_tokens" in retry_payload:
-                retry_payload.pop("max_tokens", None)
-                should_retry = True
-
-            if should_retry:
-                response = self._safe_post(url, headers=headers, payload=retry_payload)
+            if (
+                error_param == "temperature"
+                and "temperature" in payload
+                and not retried_temperature
+            ):
+                payload.pop("temperature", None)
+                retried_temperature = True
+                response = self._safe_post(url, headers=headers, payload=payload)
+                continue
+            if (
+                error_param in {"max_tokens", "max_output_tokens"}
+                and "max_tokens" in payload
+                and not retried_max_tokens
+            ):
+                payload.pop("max_tokens", None)
+                retried_max_tokens = True
+                response = self._safe_post(url, headers=headers, payload=payload)
+                continue
+            if (
+                not retried_format
+                and _is_json_schema_unsupported(error_message=error_message, error_param=error_param)
+            ):
+                payload["response_format"] = {"type": "json_object"}
+                payload["input"] = _append_json_only_instruction(prompt)
+                retried_format = True
+                response = self._safe_post(url, headers=headers, payload=payload)
+                continue
+            break
 
         if response.status_code != 200:
             error_message, error_param = _extract_error_details(response)
@@ -249,3 +279,17 @@ def _format_http_error_message(
     if error_param:
         parts.append(f"param={error_param}")
     return ": ".join(parts[:2]) + (f" ({parts[2]})" if len(parts) > 2 else "")
+
+
+def _is_json_schema_unsupported(*, error_message: str, error_param: str | None) -> bool:
+    if error_param in {"response_format", "response_format.type"}:
+        return "json_schema" in error_message.lower()
+    msg = error_message.lower()
+    return "json_schema" in msg and ("unsupported" in msg or "not supported" in msg)
+
+
+def _append_json_only_instruction(prompt: str) -> str:
+    instruction = "Output MUST be valid JSON only."
+    if instruction in prompt:
+        return prompt
+    return prompt + "\n\n" + instruction
