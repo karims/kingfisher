@@ -63,6 +63,10 @@ def main(argv: list[str] | None = None) -> int:
         default=True,
         help="Enforce grounding-contract failures as errors (default: true).",
     )
+    parser.add_argument(
+        "--debug-dir",
+        help="Optional directory to write debug bundles for failed extractions.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -77,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
             provider,
             problem_id=problem_id,
             strict=args.strict,
+            debug_dir=args.debug_dir,
         )
         if not args.strict:
             grounding_errors = validate_grounding_contract(mvir)
