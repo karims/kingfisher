@@ -67,6 +67,19 @@ def _build_validation_repair_prompt(
         "You output JSON but it failed MVIR validation.\n"
         "Fix the JSON to conform EXACTLY to MVIR v0.1.\n"
         "Do NOT change trace spans or span_ids; keep them identical.\n"
+        "All trace references must be existing span_ids.\n\n"
+        "Allowed values:\n"
+        'Assumption.kind MUST be exactly one of: ["given","derived","wlog"]\n'
+        'Goal.kind MUST be exactly one of: ["prove","find","compute","maximize","minimize","exists","counterexample"]\n'
+        'Concept.role MUST be exactly one of: ["domain","pattern","candidate_tool","definition","representation_hint"]\n'
+        'Entity.kind MUST be exactly one of: ["variable","constant","function","set","sequence","point","vector","object"]\n\n'
+        "Required fields:\n"
+        "Entity requires: id, kind, type\n"
+        "Assumption requires: expr, kind\n"
+        "Goal requires: kind, expr\n"
+        "Concept requires: id, role\n"
+        "Warning requires: code, message\n"
+        "MVIR.trace must be non-empty\n"
         f"Problem ID: {problem_id}\n\n"
         "Validation errors (first lines):\n"
         f"{summary}\n\n"
