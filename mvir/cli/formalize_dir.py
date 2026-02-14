@@ -105,6 +105,7 @@ def main(argv: list[str] | None = None) -> int:
                 text,
                 provider,
                 problem_id=problem_id,
+                temperature=0.0,
                 cache=cache,
                 use_cache=True,
                 strict=args.strict,

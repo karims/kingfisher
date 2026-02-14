@@ -134,6 +134,7 @@ def main(argv: list[str] | None = None) -> int:
             text,
             provider,
             problem_id=problem_id,
+            temperature=0.0,
             strict=args.strict,
             debug_dir=args.debug_dir,
         )
