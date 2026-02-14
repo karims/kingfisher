@@ -97,20 +97,22 @@ def main(argv: list[str] | None = None) -> int:
             if not args.strict:
                 grounding_errors = validate_grounding_contract(mvir)
                 if grounding_errors:
-                    run_report.failed.append(
-                        {
-                            "id": problem_id,
-                            "kind": "grounding_contract",
-                            "message": "; ".join(grounding_errors),
-                        }
-                    )
+                    failure = {
+                        "id": problem_id,
+                        "kind": "grounding_contract",
+                        "message": "; ".join(grounding_errors),
+                    }
+                    if args.debug_dir:
+                        failure["debug_path"] = str(Path(args.debug_dir) / problem_id)
+                    run_report.failed.append(failure)
                     if args.fail_fast:
                         break
         except Exception as exc:  # noqa: BLE001 - per-item fault isolation
             kind, message = classify_exception(exc)
-            run_report.failed.append(
-                {"id": problem_id, "kind": kind.value, "message": message}
-            )
+            failure = {"id": problem_id, "kind": kind.value, "message": message}
+            if args.debug_dir:
+                failure["debug_path"] = str(Path(args.debug_dir) / problem_id)
+            run_report.failed.append(failure)
             if args.fail_fast:
                 break
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -37,10 +38,21 @@ def classify_exception(exc: Exception) -> tuple[FailureKind, str]:
     if isinstance(exc, ProviderError):
         return FailureKind.PROVIDER, _truncate_message(message)
 
+    if isinstance(exc, json.JSONDecodeError):
+        return FailureKind.JSON_PARSE, _truncate_message(message)
+
+    if isinstance(exc, (TimeoutError, ConnectionError)):
+        return FailureKind.PROVIDER, _truncate_message(message)
+
+    if exc.__class__.__module__.startswith("requests"):
+        return FailureKind.PROVIDER, _truncate_message(message)
+
     if isinstance(exc, ValidationError):
         return FailureKind.SCHEMA_VALIDATION, _truncate_message(message)
 
     if isinstance(exc, ValueError):
+        if "Provider call failed" in message:
+            return FailureKind.PROVIDER, _truncate_message(message)
         if "JSON parse failed" in message:
             return FailureKind.JSON_PARSE, _truncate_message(message)
         if "MVIR validation failed" in message:

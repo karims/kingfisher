@@ -18,7 +18,7 @@ from mvir.extract.cache import ResponseCache
 from mvir.extract.context import build_prompt_context
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.prompts import build_mvir_prompt
-from mvir.extract.provider_base import LLMProvider, Provider, ProviderResult
+from mvir.extract.provider_base import LLMProvider, Provider, ProviderError, ProviderResult
 from mvir.extract.report import classify_exception
 from mvir.preprocess.context import build_preprocess_output
 
@@ -89,9 +89,14 @@ def formalize_text_to_mvir(
                 response = cache.get(cache_key)
 
         if response is None:
-            response = provider.complete(
-                prompt, temperature=temperature, max_tokens=max_tokens
-            )
+            try:
+                response = provider.complete(
+                    prompt, temperature=temperature, max_tokens=max_tokens
+                )
+            except Exception as exc:
+                if isinstance(exc, ProviderError):
+                    raise
+                raise ValueError(f"Provider call failed: {exc}") from exc
             if cache is not None and cache_key is not None:
                 cache.set(cache_key, response)
 
