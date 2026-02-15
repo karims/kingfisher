@@ -5,146 +5,78 @@ from __future__ import annotations
 from copy import deepcopy
 
 
-def _expr_schema() -> dict:
-    """Recursive Expr schema using strict tagged union variants."""
+_EXPR_NODE_ENUM = [
+    "Symbol",
+    "Number",
+    "Bool",
+    "True",
+    "False",
+    "Add",
+    "Mul",
+    "Div",
+    "Pow",
+    "Neg",
+    "Eq",
+    "Neq",
+    "Lt",
+    "Le",
+    "Gt",
+    "Ge",
+    "Divides",
+    "Sum",
+    "Call",
+]
 
-    expr_ref = {"$ref": "#/$defs/Expr"}
 
-    symbol = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Symbol", "type": "string"},
-            "id": {"type": "string"},
-        },
-        "required": ["node", "id"],
-    }
-    number = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Number", "type": "string"},
-            "value": {"type": "number"},
-        },
-        "required": ["node", "value"],
-    }
-    bool_node = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"type": "string", "enum": ["Bool", "True", "False"]},
-            "value": {"type": "boolean"},
-        },
-        "required": ["node", "value"],
-    }
-    add = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Add", "type": "string"},
-            "args": {"type": "array", "items": expr_ref},
-        },
-        "required": ["node", "args"],
-    }
-    mul = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Mul", "type": "string"},
-            "args": {"type": "array", "items": expr_ref},
-        },
-        "required": ["node", "args"],
-    }
-    div = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Div", "type": "string"},
-            "num": expr_ref,
-            "den": expr_ref,
-        },
-        "required": ["node", "num", "den"],
-    }
-    pow_node = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Pow", "type": "string"},
-            "base": expr_ref,
-            "exp": expr_ref,
-        },
-        "required": ["node", "base", "exp"],
-    }
-    neg = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Neg", "type": "string"},
-            "arg": expr_ref,
-        },
-        "required": ["node", "arg"],
-    }
-
-    def _rel(rel_node: str) -> dict:
-        return {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {
-                "node": {"const": rel_node, "type": "string"},
-                "lhs": expr_ref,
-                "rhs": expr_ref,
-            },
-            "required": ["node", "lhs", "rhs"],
-        }
-
-    sum_node = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Sum", "type": "string"},
-            "var": {"type": "string"},
-            "from": expr_ref,
-            "to": expr_ref,
-            "body": expr_ref,
-        },
-        "required": ["node", "var", "from", "to", "body"],
-    }
-    call = {
-        "type": "object",
-        "additionalProperties": False,
-        "properties": {
-            "node": {"const": "Call", "type": "string"},
-            "fn": {"type": "string"},
-            "args": {"type": "array", "items": expr_ref},
-        },
-        "required": ["node", "fn", "args"],
-    }
+def _expr_ref_schema() -> dict:
+    """Shallow nullable Expr reference shape for strict OpenAI schema."""
 
     return {
-        "$defs": {
-            "Expr": {
-                "oneOf": [
-                    symbol,
-                    number,
-                    bool_node,
-                    add,
-                    mul,
-                    div,
-                    pow_node,
-                    neg,
-                    _rel("Eq"),
-                    _rel("Neq"),
-                    _rel("Lt"),
-                    _rel("Le"),
-                    _rel("Gt"),
-                    _rel("Ge"),
-                    _rel("Divides"),
-                    sum_node,
-                    call,
-                ]
-            }
+        "type": ["object", "null"],
+        "additionalProperties": False,
+        "properties": {
+            "node": {"type": "string", "enum": _EXPR_NODE_ENUM},
         },
-        "$ref": "#/$defs/Expr",
+        "required": ["node"],
+    }
+
+
+def _expr_openai_superset_schema() -> dict:
+    """Single-object Expr superset schema compatible with OpenAI strict mode."""
+
+    props = {
+        "node": {"type": "string", "enum": _EXPR_NODE_ENUM},
+        "id": {"type": ["string", "null"]},
+        "value": {"type": ["number", "boolean", "null"]},
+        "lhs": _expr_ref_schema(),
+        "rhs": _expr_ref_schema(),
+        "args": {
+            "type": ["array", "null"],
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "node": {"type": "string", "enum": _EXPR_NODE_ENUM},
+                },
+                "required": ["node"],
+            },
+        },
+        "base": _expr_ref_schema(),
+        "exp": _expr_ref_schema(),
+        "num": _expr_ref_schema(),
+        "den": _expr_ref_schema(),
+        "arg": _expr_ref_schema(),
+        "var": {"type": ["string", "null"]},
+        "from": _expr_ref_schema(),
+        "to": _expr_ref_schema(),
+        "body": _expr_ref_schema(),
+        "fn": {"type": ["string", "null"]},
+    }
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": props,
+        "required": list(props.keys()),
     }
 
 
@@ -203,7 +135,6 @@ def get_mvir_v01_openai_json_schema() -> dict:
         "title": "MVIR v0.1 OpenAI Subset",
         "type": "object",
         "additionalProperties": False,
-        "$defs": _expr_schema()["$defs"],
         "required": [
             "meta",
             "source",
@@ -278,7 +209,7 @@ def get_mvir_v01_openai_json_schema() -> dict:
                     "additionalProperties": False,
                     "required": ["expr", "kind", "trace", "id"],
                     "properties": {
-                        "expr": {"$ref": "#/$defs/Expr"},
+                        "expr": _expr_openai_superset_schema(),
                         "kind": {"type": "string", "enum": ["given", "derived", "wlog"]},
                         "trace": _span_ref_array_schema(),
                         "id": {"type": ["string", "null"]},
@@ -302,9 +233,9 @@ def get_mvir_v01_openai_json_schema() -> dict:
                             "counterexample",
                         ],
                     },
-                    "expr": {"$ref": "#/$defs/Expr"},
+                    "expr": _expr_openai_superset_schema(),
                     "trace": _span_ref_array_schema(),
-                    "target": {"anyOf": [{"$ref": "#/$defs/Expr"}, {"type": "null"}]},
+                    "target": _expr_ref_schema(),
                 },
             },
             "concepts": {

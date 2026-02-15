@@ -106,12 +106,23 @@ class OpenAIProvider(LLMProvider):
                 error_code=error_code,
             ):
                 self._supports_json_schema[self.model] = False
-                raise ProviderError(
+                original_error = ProviderError(
                     provider=self.name,
                     kind="bad_schema",
                     message=f"{error_message} | {self._SCHEMA_HINT}",
                     retryable=False,
                 )
+                if self.allow_fallback and not retried_format and using_json_schema:
+                    print("OpenAI rejected json_schema; retrying with json_object")
+                    payload["text"] = {"format": {"type": "json_object"}}
+                    payload["input"] = _append_json_only_instruction(prompt)
+                    retried_format = True
+                    using_json_schema = False
+                    response = self._safe_post(url, headers=headers, payload=payload)
+                    if response.status_code == 200:
+                        continue
+                    raise original_error
+                raise original_error
             if (
                 error_param == "temperature"
                 and "temperature" in payload

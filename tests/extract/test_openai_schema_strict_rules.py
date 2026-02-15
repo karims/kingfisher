@@ -65,26 +65,21 @@ def test_sanitize_openai_strict_schema_repairs_broken_object_schema() -> None:
 
 def test_openai_expr_schema_uses_node_enum() -> None:
     schema = get_mvir_v01_openai_json_schema()
-    expr_schema = schema["$defs"]["Expr"]
-    assert "oneOf" in expr_schema
-    variants = expr_schema["oneOf"]
-    assert isinstance(variants, list)
-    assert len(variants) > 0
+    assumptions_expr = schema["properties"]["assumptions"]["items"]["properties"]["expr"]
+    goal_expr = schema["properties"]["goal"]["properties"]["expr"]
+    goal_target = schema["properties"]["goal"]["properties"]["target"]
 
-    for variant in variants:
-        assert variant["type"] == "object"
-        assert variant["additionalProperties"] is False
-        assert set(variant["required"]) == set(variant["properties"].keys())
-
-    symbol_variant = next(
-        v for v in variants if v["properties"].get("node", {}).get("const") == "Symbol"
-    )
-    assert set(symbol_variant["required"]) == {"node", "id"}
-
-    gt_variant = next(
-        v for v in variants if v["properties"].get("node", {}).get("const") == "Gt"
-    )
-    assert set(gt_variant["required"]) == {"node", "lhs", "rhs"}
+    for expr_schema in (assumptions_expr, goal_expr, goal_target):
+        assert expr_schema["type"] == "object" or (
+            isinstance(expr_schema["type"], list) and "object" in expr_schema["type"]
+        )
+        assert expr_schema["additionalProperties"] is False
+        assert set(expr_schema["required"]) == set(expr_schema["properties"].keys())
+        node = expr_schema["properties"]["node"]
+        assert node["type"] == "string"
+        assert isinstance(node["enum"], list)
+        assert "Symbol" in node["enum"]
+        assert "Gt" in node["enum"]
 
 
 def test_openai_schema_core_objects_required_match_properties() -> None:

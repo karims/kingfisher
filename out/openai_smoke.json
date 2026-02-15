@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "openai-mvir-generator"
+    "generator": "assistant"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -81,26 +81,15 @@
       "s3"
     ]
   },
-  "concepts": [
-    {
-      "id": "c_sum",
-      "role": "domain",
-      "trace": [
-        "s4"
-      ],
-      "name": "summation"
-    }
-  ],
+  "concepts": [],
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Multiple tasks detected in input. Primary selected goal: prove x^2 >= 0 (from 'Show that \\[x^2 \\ge 0\\]'). Secondary tasks present: 'Compute x^2 + 1' and the summation identity.",
+      "message": "Multiple tasks in input. Primary selected: prove x^2 >= 0 (s3). Secondary tasks: compute x^2 + 1 (s1), summation identity (s4).",
       "trace": [
         "s1",
-        "s4",
-        "s3"
-      ],
-      "details": {}
+        "s4"
+      ]
     }
   ],
   "trace": [

@@ -88,3 +88,52 @@ def test_openai_invalid_schema_raises_when_fallback_disabled(
         provider.complete("hello")
     assert excinfo.value.kind == "bad_schema"
     assert mod.OpenAIProvider._supports_json_schema.get("test-model") is False
+
+
+def test_openai_invalid_schema_fallback_failure_raises_original_bad_schema(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider = mod.OpenAIProvider(
+        api_key="test-key",
+        model="test-model",
+        format_mode="json_schema",
+        allow_fallback=True,
+    )
+    calls: list[dict] = []
+
+    def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
+        _ = url
+        _ = headers
+        _ = timeout
+        calls.append(dict(json))
+        if len(calls) == 1:
+            return _FakeResponse(
+                400,
+                {
+                    "error": {
+                        "message": "Invalid schema for response_format 'mvir_v01': oneOf is not permitted",
+                        "param": "text.format.schema",
+                        "code": "invalid_json_schema",
+                    }
+                },
+                text="bad request",
+            )
+        return _FakeResponse(
+            400,
+            {
+                "error": {
+                    "message": "still failing after fallback",
+                    "param": "text.format",
+                }
+            },
+            text="bad request 2",
+        )
+
+    monkeypatch.setattr(mod, "_requests_post", _fake_post)
+    with pytest.raises(ProviderError) as excinfo:
+        provider.complete("hello")
+    assert excinfo.value.kind == "bad_schema"
+    assert "Invalid schema for response_format" in str(excinfo.value)
+    assert len(calls) == 2
+    assert calls[0]["text"]["format"]["type"] == "json_schema"
+    assert calls[1]["text"]["format"]["type"] == "json_object"
