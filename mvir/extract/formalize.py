@@ -87,6 +87,15 @@ def _build_validation_repair_prompt(
         "No extra null fields like id:null/value:null everywhere\n"
         "Never output placeholder Expr nodes. If node==\"Sum\", you MUST provide var, from, to, body.\n"
         "Never include unrelated keys filled with null to satisfy schemas. Do not emit id/value/lhs/rhs/etc unless the node type requires it.\n"
+        "If an assumption expression cannot be constructed with all required fields of its AST node, DO NOT insert placeholder null fields.\n"
+        "Instead: remove that assumption and add warning:\n"
+        "{\n"
+        "  \"code\": \"dropped_assumption\",\n"
+        "  \"message\": \"...\",\n"
+        "  \"trace\": [...],\n"
+        "  \"details\": {\"reason\": \"...\"}\n"
+        "}\n"
+        "FORBIDDEN: id:null, value:null, args:null, lhs:null, rhs:null, base:null, exp:null, num:null, den:null, from:null, to:null, body:null.\n"
         "If a secondary task expression cannot be represented correctly with available AST nodes, DO NOT put it in assumptions.\n"
         "Instead: omit that assumption and add a warning with code=\"unparsed_math\" and trace=[span_id].\n"
         "Keep goal as primary; secondary tasks go into warning only.\n"
@@ -289,9 +298,10 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
             if not isinstance(expr, dict):
                 warnings.append(
                     {
-                        "code": "invalid_assumption_expr",
-                        "message": "Dropped assumption with non-object expr.",
+                        "code": "dropped_assumption",
+                        "message": "Dropped assumption: expression is not an object.",
                         "trace": _trace_ids(item),
+                        "details": {"reason": "non_object_expr"},
                     }
                 )
                 continue
@@ -305,9 +315,10 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
             if expr is None:
                 warnings.append(
                     {
-                        "code": "invalid_assumption_expr",
-                        "message": "Dropped assumption with incomplete expr.",
+                        "code": "dropped_assumption",
+                        "message": "Dropped assumption: expression missing required AST fields.",
                         "trace": _trace_ids(item),
+                        "details": {"reason": "incomplete_expr"},
                     }
                 )
                 continue

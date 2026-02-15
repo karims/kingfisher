@@ -60,3 +60,16 @@ Kingfisher does NOT aim to:
 
 Its job is to **formalize**, not to **prove**.
 
+## Running golden regression
+
+Run the golden regression checker against baseline MVIR JSON files in `out/mvir`:
+
+```bash
+python -m mvir.cli.golden --provider openai --openai-allow-fallback
+```
+
+Useful flags:
+- `--input-dir out/mvir` to change baseline location
+- `--provider mock --mock-path examples/mock_llm/mock_responses.json` for offline/mock runs
+- `--openai-format json_object` or `--openai-format json_schema`
+

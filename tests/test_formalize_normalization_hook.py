@@ -85,4 +85,50 @@ def test_formalize_normalization_hook_drops_invalid_assumption_to_warning() -> N
     mvir = MVIR.model_validate(normalized)
 
     assert mvir.assumptions == []
-    assert any(w.code == "invalid_assumption_expr" for w in mvir.warnings)
+    assert any(w.code == "dropped_assumption" for w in mvir.warnings)
+
+
+def test_formalize_normalization_hook_drops_incomplete_sum_assumption_without_null_stuffing() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_bad_sum_assumption", "generator": "test"},
+        "source": {"text": "Also sum from k=1 to n of k equals something."},
+        "entities": [
+            {"id": "k", "kind": "variable", "type": "integer", "properties": [], "trace": ["s1"]},
+            {"id": "n", "kind": "variable", "type": "integer", "properties": [], "trace": ["s1"]},
+        ],
+        "assumptions": [
+            {
+                "expr": {
+                    "node": "Eq",
+                    "lhs": {
+                        "node": "Sum",
+                        "var": "k",
+                        "from": {"node": "Number", "value": 1},
+                    },
+                    "rhs": {"node": "Symbol", "id": "n"},
+                },
+                "kind": "given",
+                "trace": ["s1"],
+            }
+        ],
+        "goal": {
+            "kind": "prove",
+            "expr": {"node": "Bool", "value": True},
+            "trace": ["s0"],
+        },
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 44, "text": "Also sum from k=1 to n of k equals something."},
+            {"span_id": "s1", "start": 0, "end": 44, "text": "Also sum from k=1 to n of k equals something."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload)
+    mvir = MVIR.model_validate(normalized)
+
+    assert mvir.assumptions == []
+    warning = next((w for w in mvir.warnings if w.code == "dropped_assumption"), None)
+    assert warning is not None
+    assert warning.details is not None
+    assert warning.details.get("reason") == "incomplete_expr"

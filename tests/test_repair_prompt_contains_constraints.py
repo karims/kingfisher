@@ -27,6 +27,10 @@ def test_repair_prompt_contains_required_constraints() -> None:
     assert "Pow must be base/exp" in prompt
     assert 'Never output placeholder Expr nodes. If node=="Sum", you MUST provide var, from, to, body.' in prompt
     assert "Never include unrelated keys filled with null to satisfy schemas." in prompt
+    assert "If an assumption expression cannot be constructed with all required fields of its AST node, DO NOT insert placeholder null fields." in prompt
+    assert '"code": "dropped_assumption"' in prompt
+    assert '"details": {"reason": "..."}' in prompt
+    assert "FORBIDDEN: id:null, value:null, args:null, lhs:null, rhs:null, base:null, exp:null, num:null, den:null, from:null, to:null, body:null." in prompt
     assert "If a secondary task expression cannot be represented correctly with available AST nodes, DO NOT put it in assumptions." in prompt
     assert 'add a warning with code="unparsed_math" and trace=[span_id]' in prompt
     assert "Keep goal as primary; secondary tasks go into warning only." in prompt
