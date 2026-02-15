@@ -13,7 +13,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from mvir.core.ast_normalize import normalize_expr
+from mvir.core.ast_normalize import normalize_expr_dict
 from mvir.core.models import MVIR
 from mvir.extract.cache import ResponseCache
 from mvir.extract.ast_repair import repair_expr
@@ -258,7 +258,7 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
     if isinstance(assumptions, list):
         for item in assumptions:
             if isinstance(item, dict) and isinstance(item.get("expr"), dict):
-                item["expr"] = normalize_expr(item["expr"])
+                item["expr"] = normalize_expr_dict(item["expr"])
                 item["expr"] = repair_expr(
                     item["expr"],
                     span_text=_first_trace_text(item, span_texts),
@@ -267,7 +267,7 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
 
     goal = payload.get("goal")
     if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
-        goal["expr"] = normalize_expr(goal["expr"])
+        goal["expr"] = normalize_expr_dict(goal["expr"])
         goal["expr"] = repair_expr(
             goal["expr"],
             span_text=_first_trace_text(goal, span_texts),
