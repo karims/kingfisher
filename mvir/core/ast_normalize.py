@@ -1,65 +1,218 @@
-"""Deterministic normalization helpers for AST-like dict payloads."""
+"""Deterministic normalization helpers for AST-like payloads."""
 
 from __future__ import annotations
 
+import re
 from copy import deepcopy
 
 
-_COMPARISON_NODES = {"Eq", "Neq", "Lt", "Le", "Gt", "Ge", "Divides"}
+_REL_NODES = {"Eq", "Neq", "Lt", "Le", "Gt", "Ge", "Divides"}
+
+
+def normalize_any(x):
+    """Normalize any python object recursively for MVIR Expr shapes."""
+
+    if isinstance(x, list):
+        return [normalize_any(v) for v in x]
+    if isinstance(x, dict):
+        return normalize_expr_dict(x)
+    return x
+
+
+def normalize_expr_dict(data: dict) -> dict:
+    """Normalize a dict into a parse_expr-friendly Expr-like dict."""
+
+    if not isinstance(data, dict):
+        return data
+
+    raw = deepcopy(data)
+    node = raw.get("node")
+    if not isinstance(node, str):
+        return {k: normalize_any(v) for k, v in raw.items()}
+
+    if node == "Symbol":
+        out: dict = {"node": "Symbol"}
+        symbol_id = raw.get("id")
+        if not symbol_id and isinstance(raw.get("name"), str):
+            symbol_id = raw.get("name")
+        if symbol_id is not None:
+            out["id"] = symbol_id
+        return out
+
+    if node in _REL_NODES:
+        lhs = raw.get("lhs")
+        rhs = raw.get("rhs")
+        args = raw.get("args")
+        if (lhs is None or rhs is None) and isinstance(args, list):
+            if lhs is None and len(args) >= 1:
+                lhs = args[0]
+            if rhs is None and len(args) >= 2:
+                rhs = args[1]
+        out = {"node": node}
+        if lhs is not None:
+            out["lhs"] = normalize_any(lhs)
+        if rhs is not None:
+            out["rhs"] = normalize_any(rhs)
+        return out
+
+    if node in {"Add", "Mul"}:
+        args = raw.get("args")
+        if not isinstance(args, list):
+            lhs = raw.get("lhs")
+            rhs = raw.get("rhs")
+            if lhs is not None and rhs is not None:
+                args = [lhs, rhs]
+        out = {"node": node}
+        if isinstance(args, list):
+            norm_args = [normalize_any(a) for a in args]
+            out["args"] = _flatten_same_op(node, norm_args)
+        return out
+
+    if node == "Pow":
+        base = raw.get("base")
+        exp = raw.get("exp")
+        args = raw.get("args")
+        if (base is None or exp is None) and isinstance(args, list):
+            if base is None and len(args) >= 1:
+                base = args[0]
+            if exp is None and len(args) >= 2:
+                exp = args[1]
+        out = {"node": "Pow"}
+        if base is not None:
+            out["base"] = normalize_any(base)
+        if exp is not None:
+            out["exp"] = normalize_any(exp)
+        return out
+
+    if node == "Div":
+        num = raw.get("num")
+        den = raw.get("den")
+        args = raw.get("args")
+        if (num is None or den is None) and isinstance(args, list):
+            if num is None and len(args) >= 1:
+                num = args[0]
+            if den is None and len(args) >= 2:
+                den = args[1]
+        out = {"node": "Div"}
+        if num is not None:
+            out["num"] = normalize_any(num)
+        if den is not None:
+            out["den"] = normalize_any(den)
+        return out
+
+    if node == "Neg":
+        arg = raw.get("arg")
+        args = raw.get("args")
+        if arg is None and isinstance(args, list) and len(args) >= 1:
+            arg = args[0]
+        out = {"node": "Neg"}
+        if arg is not None:
+            out["arg"] = normalize_any(arg)
+        return out
+
+    if node == "Number":
+        out = {"node": "Number"}
+        value = raw.get("value")
+        if value is None and "val" in raw:
+            value = raw.get("val")
+        value = _parse_numeric(value)
+        if value is not None:
+            out["value"] = value
+        return out
+
+    if node in {"Bool", "True", "False"}:
+        out = {"node": "Bool"}
+        if node == "True":
+            out["value"] = True
+            return out
+        if node == "False":
+            out["value"] = False
+            return out
+        value = raw.get("value")
+        coerced = _coerce_bool(value)
+        if coerced is not None:
+            out["value"] = coerced
+        return out
+
+    if node == "Call":
+        out = {"node": "Call"}
+        fn = raw.get("fn")
+        if not isinstance(fn, str):
+            name = raw.get("name")
+            if isinstance(name, str):
+                fn = name
+        if isinstance(fn, str):
+            out["fn"] = fn
+        args = raw.get("args")
+        if isinstance(args, list):
+            out["args"] = [normalize_any(a) for a in args]
+        return out
+
+    if node == "Sum":
+        out = {"node": "Sum"}
+        var = raw.get("var")
+        if isinstance(var, str):
+            out["var"] = var
+        frm = raw.get("from")
+        if frm is None and "from_" in raw:
+            frm = raw.get("from_")
+        to = raw.get("to")
+        body = raw.get("body")
+        if frm is not None:
+            out["from"] = normalize_any(frm)
+        if to is not None:
+            out["to"] = normalize_any(to)
+        if body is not None:
+            out["body"] = normalize_any(body)
+        return out
+
+    # Unknown node: recurse values but keep shape.
+    return {k: normalize_any(v) for k, v in raw.items()}
 
 
 def normalize_expr(obj: dict) -> dict:
-    """Normalize common near-valid Expr dict shapes into MVIR AST shapes."""
+    """Backward-compatible alias for callers using old function name."""
 
-    def _norm(value):
-        if isinstance(value, list):
-            return [_norm(item) for item in value]
-        if not isinstance(value, dict):
-            return value
+    return normalize_expr_dict(obj)
 
-        node = value.get("node")
-        out = {k: _norm(v) for k, v in value.items()}
 
-        if node == "Symbol" and "id" not in out and isinstance(out.get("name"), str):
-            out["id"] = out.pop("name")
+def _flatten_same_op(node: str, args: list) -> list:
+    flat: list = []
+    for arg in args:
+        if isinstance(arg, dict) and arg.get("node") == node and isinstance(arg.get("args"), list):
+            flat.extend(arg["args"])
+        else:
+            flat.append(arg)
+    return flat
 
-        if node == "Number" and "value" not in out and "val" in out:
-            out["value"] = out.pop("val")
 
-        if node in _COMPARISON_NODES:
-            args = out.get("args")
-            if (
-                isinstance(args, list)
-                and len(args) >= 2
-                and "lhs" not in out
-                and "rhs" not in out
-            ):
-                out["lhs"] = args[0]
-                out["rhs"] = args[1]
-                out.pop("args", None)
+def _parse_numeric(value):
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if re.fullmatch(r"[+-]?\d+", text):
+            try:
+                return int(text)
+            except ValueError:
+                return None
+        if re.fullmatch(r"[+-]?(?:\d+\.\d*|\d*\.\d+)", text):
+            try:
+                return float(text)
+            except ValueError:
+                return None
+    return None
 
-        if node in {"Add", "Mul"}:
-            has_args = isinstance(out.get("args"), list)
-            if not has_args and "lhs" in out and "rhs" in out:
-                out["args"] = [out["lhs"], out["rhs"]]
-                out.pop("lhs", None)
-                out.pop("rhs", None)
 
-        if node == "Pow":
-            args = out.get("args")
-            if (
-                isinstance(args, list)
-                and len(args) >= 2
-                and "base" not in out
-                and "exp" not in out
-            ):
-                out["base"] = args[0]
-                out["exp"] = args[1]
-                out.pop("args", None)
-
-        return out
-
-    if not isinstance(obj, dict):
-        return obj
-    return _norm(deepcopy(obj))
-
+def _coerce_bool(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        text = value.strip().lower()
+        if text == "true":
+            return True
+        if text == "false":
+            return False
+    return None

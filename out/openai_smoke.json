@@ -20,15 +20,6 @@
       ]
     },
     {
-      "id": "n",
-      "kind": "variable",
-      "type": "Integer",
-      "properties": [],
-      "trace": [
-        "s4"
-      ]
-    },
-    {
       "id": "k",
       "kind": "variable",
       "type": "Integer",
@@ -38,23 +29,11 @@
       ]
     },
     {
-      "id": "0",
-      "kind": "constant",
+      "id": "n",
+      "kind": "variable",
       "type": "Integer",
       "properties": [],
       "trace": [
-        "s1",
-        "s3",
-        "s4"
-      ]
-    },
-    {
-      "id": "1",
-      "kind": "constant",
-      "type": "Integer",
-      "properties": [],
-      "trace": [
-        "s1",
         "s4"
       ]
     }
@@ -102,26 +81,11 @@
       "s3"
     ]
   },
-  "concepts": [
-    {
-      "id": "nonnegativity_of_square",
-      "role": "pattern",
-      "trace": [
-        "s3"
-      ]
-    },
-    {
-      "id": "summation_formula",
-      "role": "pattern",
-      "trace": [
-        "s4"
-      ]
-    }
-  ],
+  "concepts": [],
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Multiple tasks present. Primary goal chosen: 'Show that x^2 >= 0'. Secondary tasks not solved here: 'Compute x^2 + 1' (s1) and the summation identity (s4).",
+      "message": "Multiple tasks present. Primary selected: proof that x^2 >= 0 (s3). Secondary tasks: compute x^2 + 1 (s1); sum identity sum_{k=1}^n k = n(n+1)/2 (s4).",
       "trace": [
         "s1",
         "s4"
