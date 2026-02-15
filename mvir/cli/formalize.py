@@ -22,7 +22,7 @@ def build_provider(
     provider_name: str,
     *,
     mock_path: str | None = None,
-    openai_format: str = "json_schema",
+    openai_format: str = "json_object",
     openai_allow_fallback: bool = False,
 ) -> LLMProvider:
     """Construct a provider instance from CLI arguments."""
@@ -98,10 +98,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--openai-format",
         choices=["json_schema", "json_object"],
-        default="json_schema",
+        default=None,
         help=(
-            "OpenAI output format mode: json_schema = strict enforcement (may be rejected), "
-            "json_object = JSON-only output (recommended)."
+            "OpenAI output format mode. OpenAI has schema limitations; "
+            "json_object is recommended for stability. "
+            "Use json_schema only when explicitly needed."
         ),
     )
     parser.add_argument(
@@ -128,11 +129,14 @@ def main(argv: list[str] | None = None) -> int:
         text_path = Path(args.path)
         text = text_path.read_text(encoding="utf-8")
         problem_id = text_path.stem
+        openai_format = args.openai_format
+        if args.provider == "openai" and openai_format is None:
+            openai_format = "json_object"
 
         provider = build_provider(
             args.provider,
             mock_path=args.mock_path,
-            openai_format=args.openai_format,
+            openai_format=openai_format or "json_object",
             openai_allow_fallback=args.openai_allow_fallback,
         )
 

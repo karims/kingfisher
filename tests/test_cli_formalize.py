@@ -11,6 +11,7 @@ import pytest
 
 from mvir.cli import formalize as cli_formalize
 from mvir.extract.provider_base import ProviderError
+from mvir.extract.providers import openai_provider as openai_mod
 
 
 def test_cli_formalize_success(tmp_path: Path) -> None:
@@ -214,3 +215,59 @@ def test_cli_formalize_passes_temperature_zero_by_default(
     rc = cli_formalize.main([str(problem_path)])
     assert rc == 0
     assert captured["temperature"] == 0.0
+
+
+def test_cli_formalize_openai_defaults_to_json_object_request(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    problem_path = tmp_path / "sample.txt"
+    problem_path.write_text("x", encoding="utf-8")
+    out_path = tmp_path / "out.json"
+
+    class _FakeResponse:
+        def __init__(self, payload: dict) -> None:
+            self.status_code = 200
+            self._payload = payload
+            self.text = ""
+
+        def json(self) -> dict:
+            return self._payload
+
+    seen_payloads: list[dict] = []
+
+    def _fake_post(url: str, *, headers: dict, json: dict, timeout: float) -> _FakeResponse:
+        _ = url
+        _ = headers
+        _ = timeout
+        seen_payloads.append(dict(json))
+        payload = {
+            "meta": {"version": "0.1", "id": "sample", "generator": "openai-test"},
+            "source": {"text": "x"},
+            "entities": [],
+            "assumptions": [],
+            "goal": {
+                "kind": "prove",
+                "expr": {"node": "Bool", "value": True},
+                "trace": ["s0"],
+            },
+            "concepts": [],
+            "warnings": [],
+            "trace": [
+                {"span_id": "s0", "start": 0, "end": 1, "text": "x"},
+                {"span_id": "s1", "start": 0, "end": 1, "text": "x"},
+            ],
+        }
+        return _FakeResponse({"output_text": json_module.dumps(payload)})
+
+    import json as json_module
+
+    openai_mod.OpenAIProvider._supports_json_schema.clear()
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setattr(openai_mod, "_requests_post", _fake_post)
+
+    rc = cli_formalize.main(
+        [str(problem_path), "--provider", "openai", "--out", str(out_path)]
+    )
+    assert rc == 0
+    assert len(seen_payloads) == 1
+    assert seen_payloads[0]["text"]["format"]["type"] == "json_object"
