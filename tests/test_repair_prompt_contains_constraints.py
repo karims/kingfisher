@@ -25,6 +25,14 @@ def test_repair_prompt_contains_required_constraints() -> None:
     assert 'Symbol must be {"node":"Symbol","id":"x"} not name' in prompt
     assert "Gt/Ge/etc must use lhs/rhs (args only allowed in input but output must be lhs/rhs)" in prompt
     assert "Pow must be base/exp" in prompt
+    assert 'Never output placeholder Expr nodes. If node=="Sum", you MUST provide var, from, to, body.' in prompt
+    assert "Never include unrelated keys filled with null to satisfy schemas." in prompt
+    assert "If a secondary task expression cannot be represented correctly with available AST nodes, DO NOT put it in assumptions." in prompt
+    assert 'add a warning with code="unparsed_math" and trace=[span_id]' in prompt
+    assert "Keep goal as primary; secondary tasks go into warning only." in prompt
+    assert "AST examples:" in prompt
+    assert 'Sum example: {"node":"Sum","var":"k","from":{"node":"Number","value":1},"to":{"node":"Symbol","id":"n"},"body":{"node":"Symbol","id":"k"}}' in prompt
+    assert 'Div example: {"node":"Div","num":{"node":"Symbol","id":"a"},"den":{"node":"Number","value":2}}' in prompt
+    assert 'Symbol example: {"node":"Symbol","id":"x"} (never {"node":"Symbol","name":"x"})' in prompt
     assert "Do not add fields not in the previous JSON unless required by schema." in prompt
     assert "Do not change trace spans; keep trace identical." in prompt
-
