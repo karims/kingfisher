@@ -283,6 +283,8 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
             span_text=_first_trace_text(goal, span_texts),
             entities=entities,
         )
+    if isinstance(goal, dict) and isinstance(goal.get("target"), dict):
+        goal["target"] = normalize_expr_dict(goal["target"])
 
     return payload
 

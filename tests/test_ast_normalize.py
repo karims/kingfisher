@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from mvir.core.ast import parse_expr
 from mvir.core.ast_normalize import normalize_expr_dict
 
 
@@ -80,3 +81,44 @@ def test_stray_fields_removed() -> None:
     assert out["lhs"] == {"node": "Symbol", "id": "a"}
     assert out["rhs"] == {"node": "Number", "value": 2}
 
+
+def test_normalized_gt_args_is_parseable_expr() -> None:
+    src = {
+        "node": "Gt",
+        "args": [{"node": "Symbol", "name": "x"}, {"node": "Number", "value": 0}],
+    }
+    out = normalize_expr_dict(src)
+    expr = parse_expr(out)
+    assert expr.node == "Gt"
+    assert expr.lhs.id == "x"
+    assert expr.rhs.value == 0
+
+
+def test_normalized_sum_from_alias_is_parseable_expr() -> None:
+    src = {
+        "node": "Sum",
+        "var": "k",
+        "from_": {"node": "Number", "value": 1},
+        "to": {"node": "Symbol", "name": "n"},
+        "body": {"node": "Symbol", "name": "k"},
+        "junk": None,
+    }
+    out = normalize_expr_dict(src)
+    expr = parse_expr(out)
+    assert expr.node == "Sum"
+    assert expr.var == "k"
+    assert expr.from_.value == 1
+    assert expr.to.id == "n"
+    assert expr.body.id == "k"
+
+
+def test_normalized_pow_args_is_parseable_expr() -> None:
+    src = {
+        "node": "Pow",
+        "args": [{"node": "Symbol", "name": "x"}, {"node": "Number", "value": 2}],
+    }
+    out = normalize_expr_dict(src)
+    expr = parse_expr(out)
+    assert expr.node == "Pow"
+    assert expr.base.id == "x"
+    assert expr.exp.value == 2
