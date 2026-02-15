@@ -85,3 +85,22 @@ def test_openai_expr_schema_uses_node_enum() -> None:
         v for v in variants if v["properties"].get("node", {}).get("const") == "Gt"
     )
     assert set(gt_variant["required"]) == {"node", "lhs", "rhs"}
+
+
+def test_openai_schema_core_objects_required_match_properties() -> None:
+    schema = get_mvir_v01_openai_json_schema()
+    objects = [
+        schema["properties"]["meta"],
+        schema["properties"]["source"],
+        schema["properties"]["entities"]["items"],
+        schema["properties"]["assumptions"]["items"],
+        schema["properties"]["goal"],
+        schema["properties"]["concepts"]["items"],
+        schema["properties"]["warnings"]["items"],
+        schema["properties"]["trace"]["items"],
+    ]
+
+    for obj in objects:
+        assert obj["type"] == "object"
+        assert obj["additionalProperties"] is False
+        assert set(obj["required"]) == set(obj["properties"].keys())
