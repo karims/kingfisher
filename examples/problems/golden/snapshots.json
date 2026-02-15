@@ -1,0 +1,351 @@
+{
+  "json_schema": {
+    "latex_smoke_01": {
+      "meta": {
+        "version": "0.1",
+        "id": "latex_smoke_01"
+      },
+      "entities": [
+        {
+          "id": "x",
+          "kind": "variable",
+          "type": "Real"
+        },
+        {
+          "id": "n",
+          "kind": "variable",
+          "type": "Integer"
+        },
+        {
+          "id": "k",
+          "kind": "variable",
+          "type": "Integer"
+        }
+      ],
+      "assumptions_kind": [
+        "given",
+        "given"
+      ],
+      "goal_kind": "prove",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 106,
+          "text": "Compute $x^2 + 1$.\r\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 18,
+          "text": "Compute $x^2 + 1$."
+        },
+        {
+          "span_id": "s2",
+          "start": 18,
+          "end": 34,
+          "text": "\r\nLet \\(x > 0\\)."
+        },
+        {
+          "span_id": "s3",
+          "start": 34,
+          "end": 59,
+          "text": " Show that \\[x^2 \\ge 0\\]."
+        },
+        {
+          "span_id": "s4",
+          "start": 59,
+          "end": 104,
+          "text": "\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
+        }
+      ]
+    },
+    "mf2f_amc12a_2015_p10": {
+      "meta": {
+        "version": "0.1",
+        "id": "mf2f_amc12a_2015_p10"
+      },
+      "entities": [
+        {
+          "id": "x",
+          "kind": "variable",
+          "type": "Integer"
+        },
+        {
+          "id": "y",
+          "kind": "variable",
+          "type": "Integer"
+        }
+      ],
+      "assumptions_kind": [
+        "given",
+        "given",
+        "given"
+      ],
+      "goal_kind": "find",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 54,
+          "text": "Integers x > y > 0 satisfy x + y + xy = 80. Find x.\n\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 43,
+          "text": "Integers x > y > 0 satisfy x + y + xy = 80."
+        },
+        {
+          "span_id": "s2",
+          "start": 43,
+          "end": 51,
+          "text": " Find x."
+        }
+      ]
+    },
+    "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110": {
+      "meta": {
+        "version": "0.1",
+        "id": "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110"
+      },
+      "entities": [
+        {
+          "id": "a",
+          "kind": "variable",
+          "type": "Complex"
+        }
+      ],
+      "assumptions_kind": [
+        "given"
+      ],
+      "goal_kind": "prove",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 72,
+          "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110.\n\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 69,
+          "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
+        }
+      ]
+    },
+    "mf2f_mathd_algebra_17": {
+      "meta": {
+        "version": "0.1",
+        "id": "mf2f_mathd_algebra_17"
+      },
+      "entities": [
+        {
+          "id": "a",
+          "kind": "variable",
+          "type": "Real"
+        }
+      ],
+      "assumptions_kind": [
+        "given"
+      ],
+      "goal_kind": "find",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 77,
+          "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 66,
+          "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6."
+        },
+        {
+          "span_id": "s2",
+          "start": 66,
+          "end": 74,
+          "text": " Find a."
+        }
+      ]
+    }
+  },
+  "json_object": {
+    "latex_smoke_01": {
+      "meta": {
+        "version": "0.1",
+        "id": "latex_smoke_01"
+      },
+      "entities": [
+        {
+          "id": "x",
+          "kind": "variable",
+          "type": "Real"
+        },
+        {
+          "id": "n",
+          "kind": "variable",
+          "type": "Integer"
+        },
+        {
+          "id": "k",
+          "kind": "variable",
+          "type": "Integer"
+        }
+      ],
+      "assumptions_kind": [
+        "given",
+        "given"
+      ],
+      "goal_kind": "prove",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 106,
+          "text": "Compute $x^2 + 1$.\r\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 18,
+          "text": "Compute $x^2 + 1$."
+        },
+        {
+          "span_id": "s2",
+          "start": 18,
+          "end": 34,
+          "text": "\r\nLet \\(x > 0\\)."
+        },
+        {
+          "span_id": "s3",
+          "start": 34,
+          "end": 59,
+          "text": " Show that \\[x^2 \\ge 0\\]."
+        },
+        {
+          "span_id": "s4",
+          "start": 59,
+          "end": 104,
+          "text": "\r\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
+        }
+      ]
+    },
+    "mf2f_amc12a_2015_p10": {
+      "meta": {
+        "version": "0.1",
+        "id": "mf2f_amc12a_2015_p10"
+      },
+      "entities": [
+        {
+          "id": "x",
+          "kind": "variable",
+          "type": "Integer"
+        },
+        {
+          "id": "y",
+          "kind": "variable",
+          "type": "Integer"
+        }
+      ],
+      "assumptions_kind": [
+        "given",
+        "given",
+        "given"
+      ],
+      "goal_kind": "find",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 54,
+          "text": "Integers x > y > 0 satisfy x + y + xy = 80. Find x.\n\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 43,
+          "text": "Integers x > y > 0 satisfy x + y + xy = 80."
+        },
+        {
+          "span_id": "s2",
+          "start": 43,
+          "end": 51,
+          "text": " Find x."
+        }
+      ]
+    },
+    "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110": {
+      "meta": {
+        "version": "0.1",
+        "id": "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110"
+      },
+      "entities": [
+        {
+          "id": "a",
+          "kind": "variable",
+          "type": "Complex"
+        }
+      ],
+      "assumptions_kind": [
+        "given"
+      ],
+      "goal_kind": "prove",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 72,
+          "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110.\n\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 69,
+          "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
+        }
+      ]
+    },
+    "mf2f_mathd_algebra_17": {
+      "meta": {
+        "version": "0.1",
+        "id": "mf2f_mathd_algebra_17"
+      },
+      "entities": [
+        {
+          "id": "a",
+          "kind": "variable",
+          "type": "Real"
+        }
+      ],
+      "assumptions_kind": [
+        "given"
+      ],
+      "goal_kind": "find",
+      "trace": [
+        {
+          "span_id": "s0",
+          "start": 0,
+          "end": 77,
+          "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
+        },
+        {
+          "span_id": "s1",
+          "start": 0,
+          "end": 66,
+          "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6."
+        },
+        {
+          "span_id": "s2",
+          "start": 66,
+          "end": 74,
+          "text": " Find a."
+        }
+      ]
+    }
+  }
+}
+
