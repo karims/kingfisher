@@ -68,13 +68,23 @@ def _build_validation_repair_prompt(
     return (
         "You output JSON but it failed MVIR validation.\n"
         "Fix the JSON to conform EXACTLY to MVIR v0.1.\n"
+        "Do not change trace spans; keep trace identical.\n"
         "Do NOT change trace spans or span_ids; keep them identical.\n"
         "All trace references must be existing span_ids.\n\n"
+        "Assumption.kind in {\"given\",\"derived\",\"wlog\"}\n"
+        "Goal.kind in {\"prove\",\"find\",\"compute\",\"maximize\",\"minimize\",\"exists\",\"counterexample\"}\n"
+        "Concept.role in {\"domain\",\"pattern\",\"candidate_tool\",\"definition\",\"representation_hint\"}\n\n"
         "Allowed values:\n"
         'Assumption.kind MUST be exactly one of: ["given","derived","wlog"]\n'
         'Goal.kind MUST be exactly one of: ["prove","find","compute","maximize","minimize","exists","counterexample"]\n'
         'Concept.role MUST be exactly one of: ["domain","pattern","candidate_tool","definition","representation_hint"]\n'
         'Entity.kind MUST be exactly one of: ["variable","constant","function","set","sequence","point","vector","object"]\n\n'
+        "Exact AST rules:\n"
+        'Symbol must be {"node":"Symbol","id":"x"} not name\n'
+        "Gt/Ge/etc must use lhs/rhs (args only allowed in input but output must be lhs/rhs)\n"
+        "Pow must be base/exp\n"
+        "No extra null fields like id:null/value:null everywhere\n"
+        "Do not add fields not in the previous JSON unless required by schema.\n"
         "Required fields:\n"
         "Entity requires: id, kind, type\n"
         "Assumption requires: expr, kind\n"
