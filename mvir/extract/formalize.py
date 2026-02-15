@@ -25,6 +25,7 @@ from mvir.extract.provider_base import LLMProvider, Provider, ProviderError, Pro
 from mvir.extract.report import classify_exception
 from mvir.extract.sanitize import sanitize_mvir_payload
 from mvir.preprocess.context import build_preprocess_output
+from mvir.repair.ast_sanitize import sanitize_expr_dict
 
 
 def formalize(prompt_context: dict, provider: Provider) -> ProviderResult:
@@ -273,27 +274,63 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
     if not isinstance(entities, list):
         entities = []
 
+    warnings = payload.get("warnings")
+    if not isinstance(warnings, list):
+        warnings = []
+        payload["warnings"] = warnings
+
     assumptions = payload.get("assumptions")
     if isinstance(assumptions, list):
+        kept_assumptions: list[dict] = []
         for item in assumptions:
-            if isinstance(item, dict) and isinstance(item.get("expr"), dict):
-                item["expr"] = normalize_expr_dict(item["expr"])
-                item["expr"] = repair_expr(
-                    item["expr"],
-                    span_text=_first_trace_text(item, span_texts),
-                    entities=entities,
+            if not isinstance(item, dict):
+                continue
+            expr = item.get("expr")
+            if not isinstance(expr, dict):
+                warnings.append(
+                    {
+                        "code": "invalid_assumption_expr",
+                        "message": "Dropped assumption with non-object expr.",
+                        "trace": _trace_ids(item),
+                    }
                 )
+                continue
+            expr = normalize_expr_dict(expr)
+            expr = repair_expr(
+                expr,
+                span_text=_first_trace_text(item, span_texts),
+                entities=entities,
+            )
+            expr = sanitize_expr_dict(expr)
+            if expr is None:
+                warnings.append(
+                    {
+                        "code": "invalid_assumption_expr",
+                        "message": "Dropped assumption with incomplete expr.",
+                        "trace": _trace_ids(item),
+                    }
+                )
+                continue
+            item["expr"] = expr
+            kept_assumptions.append(item)
+        payload["assumptions"] = kept_assumptions
 
     goal = payload.get("goal")
     if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
-        goal["expr"] = normalize_expr_dict(goal["expr"])
-        goal["expr"] = repair_expr(
-            goal["expr"],
+        normalized_expr = normalize_expr_dict(goal["expr"])
+        normalized_expr = repair_expr(
+            normalized_expr,
             span_text=_first_trace_text(goal, span_texts),
             entities=entities,
         )
+        sanitized_expr = sanitize_expr_dict(normalized_expr)
+        if sanitized_expr is not None:
+            goal["expr"] = sanitized_expr
     if isinstance(goal, dict) and isinstance(goal.get("target"), dict):
-        goal["target"] = normalize_expr_dict(goal["target"])
+        normalized_target = normalize_expr_dict(goal["target"])
+        sanitized_target = sanitize_expr_dict(normalized_target)
+        if sanitized_target is not None:
+            goal["target"] = sanitized_target
 
     return payload
 
@@ -321,6 +358,13 @@ def _first_trace_text(node: dict, span_texts: dict[str, str]) -> str:
     if not isinstance(first, str):
         return ""
     return span_texts.get(first, "")
+
+
+def _trace_ids(node: dict) -> list[str]:
+    trace = node.get("trace")
+    if not isinstance(trace, list):
+        return []
+    return [item for item in trace if isinstance(item, str)]
 
 
 def _write_debug_bundle(
