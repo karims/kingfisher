@@ -26,9 +26,9 @@ def _is_object_schema(schema_node: dict) -> bool:
     return False
 
 
-def test_openai_schema_has_no_oneof() -> None:
+def test_openai_schema_contains_expr_oneof() -> None:
     schema = get_mvir_v01_openai_json_schema()
-    assert "oneOf" not in json.dumps(schema)
+    assert "oneOf" in json.dumps(schema)
 
 
 def test_openai_schema_every_object_has_additional_properties_false() -> None:
