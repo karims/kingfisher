@@ -51,26 +51,53 @@ def build_prompt_context(preprocess_result: dict) -> dict:
     """Build extraction prompt context from preprocess outputs."""
 
     source_text = preprocess_result.get("text", "")
-    sentences = []
-    sentence_id = 1
-    for match in _SENTENCE_RE.finditer(source_text):
-        start = match.start()
-        end = match.end()
-        snippet = source_text[start:end]
-        if not snippet.strip():
-            continue
-        sentences.append(
-            {
-                "span_id": f"s{sentence_id}",
-                "start": start,
-                "end": end,
-                "text": snippet,
-                "starts_with": _starts_with_hint(snippet),
-                "has_math": _has_math_hint(snippet),
-                "has_question_mark": "?" in snippet,
-            }
-        )
-        sentence_id += 1
+    sentences: list[dict] = []
+    provided_spans = preprocess_result.get("spans")
+    if isinstance(provided_spans, list):
+        for i, span in enumerate(provided_spans, start=1):
+            if not isinstance(span, dict):
+                continue
+            start = span.get("start")
+            end = span.get("end")
+            snippet = span.get("text")
+            if not isinstance(start, int) or not isinstance(end, int) or not isinstance(snippet, str):
+                continue
+            if not snippet.strip():
+                continue
+            span_id = span.get("span_id")
+            if not isinstance(span_id, str) or not span_id:
+                span_id = f"s{i}"
+            sentences.append(
+                {
+                    "span_id": span_id,
+                    "start": start,
+                    "end": end,
+                    "text": snippet,
+                    "starts_with": _starts_with_hint(snippet),
+                    "has_math": _has_math_hint(snippet),
+                    "has_question_mark": "?" in snippet,
+                }
+            )
+    else:
+        sentence_id = 1
+        for match in _SENTENCE_RE.finditer(source_text):
+            start = match.start()
+            end = match.end()
+            snippet = source_text[start:end]
+            if not snippet.strip():
+                continue
+            sentences.append(
+                {
+                    "span_id": f"s{sentence_id}",
+                    "start": start,
+                    "end": end,
+                    "text": snippet,
+                    "starts_with": _starts_with_hint(snippet),
+                    "has_math": _has_math_hint(snippet),
+                    "has_question_mark": "?" in snippet,
+                }
+            )
+            sentence_id += 1
 
     return {
         "source_text": source_text,

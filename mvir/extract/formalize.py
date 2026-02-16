@@ -161,7 +161,8 @@ def formalize_text_to_mvir(
 ) -> MVIR:
     """Run preprocess + prompt + provider completion and return MVIR."""
 
-    preprocess_result = build_preprocess_output(text).to_dict()
+    preprocess_output = build_preprocess_output(text)
+    preprocess_result = preprocess_output.to_dict()
     prompt_context = build_prompt_context(preprocess_result)
     prompt = build_mvir_prompt(prompt_context, problem_id=problem_id)
     provider_name = getattr(provider, "name", provider.__class__.__name__)
