@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant"
+    "generator": "assistant_v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -11,7 +11,7 @@
     {
       "id": "x",
       "kind": "variable",
-      "type": "Real",
+      "type": "Unknown",
       "properties": [],
       "trace": [
         "s1",
@@ -22,7 +22,7 @@
     {
       "id": "n",
       "kind": "variable",
-      "type": "Integer",
+      "type": "Unknown",
       "properties": [],
       "trace": [
         "s4"
@@ -31,7 +31,7 @@
     {
       "id": "k",
       "kind": "variable",
-      "type": "Integer",
+      "type": "Unknown",
       "properties": [],
       "trace": [
         "s4"
@@ -55,65 +55,18 @@
       "trace": [
         "s2"
       ]
-    },
-    {
-      "expr": {
-        "node": "Eq",
-        "lhs": {
-          "node": "Sum",
-          "var": "k",
-          "from_": {
-            "node": "Number",
-            "value": 1
-          },
-          "to": {
-            "node": "Symbol",
-            "id": "n"
-          },
-          "body": {
-            "node": "Symbol",
-            "id": "k"
-          }
-        },
-        "rhs": {
-          "node": "Div",
-          "num": {
-            "node": "Mul",
-            "args": [
-              {
-                "node": "Symbol",
-                "id": "n"
-              },
-              {
-                "node": "Add",
-                "args": [
-                  {
-                    "node": "Symbol",
-                    "id": "n"
-                  },
-                  {
-                    "node": "Number",
-                    "value": 1
-                  }
-                ]
-              }
-            ]
-          },
-          "den": {
-            "node": "Number",
-            "value": 2
-          }
-        }
-      },
-      "kind": "given",
-      "trace": [
-        "s4"
-      ]
     }
   ],
   "goal": {
-    "kind": "compute",
+    "kind": "prove",
     "expr": {
+      "node": "Bool",
+      "value": true
+    },
+    "trace": [
+      "s1"
+    ],
+    "target": {
       "node": "Add",
       "args": [
         {
@@ -132,45 +85,50 @@
           "value": 1
         }
       ]
-    },
-    "trace": [
-      "s1"
-    ]
+    }
   },
   "concepts": [
     {
-      "id": "c1",
-      "role": "candidate_tool",
+      "id": "compute_expression",
+      "role": "definition",
       "trace": [
         "s1"
-      ],
-      "name": "compute_polynomial_expression"
+      ]
     },
     {
-      "id": "c2",
+      "id": "nonnegativity_of_square",
       "role": "definition",
       "trace": [
         "s3"
-      ],
-      "name": "positivity_of_square"
+      ]
     },
     {
-      "id": "c3",
+      "id": "sum_formula",
       "role": "definition",
       "trace": [
         "s4"
-      ],
-      "name": "arithmetic_series_formula"
+      ]
     }
   ],
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Multiple tasks appear in the input. Primary goal selected: compute x^2 + 1. Secondary tasks: show x^2 >= 0; the summation equality is stated.",
+      "message": "Additional tasks present in the input: 'Show that x^2 >= 0' (s3) and the summation formula (s4) are secondary to the primary compute request.",
       "trace": [
         "s3",
         "s4"
       ]
+    },
+    {
+      "code": "invalid_goal_expr_replaced",
+      "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
+      "trace": [
+        "s1"
+      ],
+      "details": {
+        "reason": "goal_expr_not_parseable",
+        "raw_expr": null
+      }
     }
   ],
   "trace": [

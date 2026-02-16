@@ -2,8 +2,9 @@
   "assumptions": [],
   "concepts": [
     {
-      "id": "distributive_property",
-      "role": "candidate_tool",
+      "id": "distributive_law",
+      "name": "Distributive property / FOIL for binomials",
+      "role": "definition",
       "trace": [
         "s1"
       ]
@@ -17,7 +18,7 @@
       "trace": [
         "s1"
       ],
-      "type": "set"
+      "type": "Unknown"
     },
     {
       "id": "a",
@@ -31,54 +32,8 @@
   ],
   "goal": {
     "expr": {
-      "lhs": {
-        "args": [
-          {
-            "args": [
-              {
-                "id": "a",
-                "node": "Symbol"
-              }
-            ],
-            "node": "Add"
-          },
-          {
-            "args": [
-              {
-                "id": "a",
-                "node": "Symbol"
-              },
-              {
-                "node": "Number",
-                "value": 11
-              }
-            ],
-            "node": "Add"
-          }
-        ],
-        "node": "Mul"
-      },
-      "node": "Eq",
-      "rhs": {
-        "args": [
-          {
-            "base": {
-              "id": "a",
-              "node": "Symbol"
-            },
-            "exp": {
-              "node": "Number",
-              "value": 2
-            },
-            "node": "Pow"
-          },
-          {
-            "id": "a",
-            "node": "Symbol"
-          }
-        ],
-        "node": "Add"
-      }
+      "node": "Bool",
+      "value": true
     },
     "kind": "prove",
     "trace": [
@@ -106,5 +61,90 @@
       "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
     }
   ],
-  "warnings": []
+  "warnings": [
+    {
+      "code": "invalid_assumption_expr_dropped",
+      "details": {
+        "raw_expr": {
+          "lhs": {
+            "id": "a",
+            "node": "Symbol"
+          },
+          "node": "In",
+          "rhs": {
+            "id": "Complex",
+            "node": "Symbol"
+          }
+        },
+        "reason": "normalize_missing_required_fields"
+      },
+      "message": "dropped invalid expr subtree: normalization missing required fields",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
+      "code": "invalid_goal_expr_replaced",
+      "details": {
+        "raw_expr": {
+          "lhs": {
+            "lhs": {
+              "lhs": {
+                "id": "a",
+                "node": "Symbol"
+              },
+              "node": "Sub",
+              "rhs": {
+                "node": "Number",
+                "value": 10
+              }
+            },
+            "node": "Mul",
+            "rhs": {
+              "lhs": {
+                "id": "a",
+                "node": "Symbol"
+              },
+              "node": "Add",
+              "rhs": {
+                "node": "Number",
+                "value": 11
+              }
+            }
+          },
+          "node": "Eq",
+          "rhs": {
+            "lhs": {
+              "lhs": {
+                "base": {
+                  "id": "a",
+                  "node": "Symbol"
+                },
+                "exp": {
+                  "node": "Number",
+                  "value": 2
+                },
+                "node": "Pow"
+              },
+              "node": "Add",
+              "rhs": {
+                "id": "a",
+                "node": "Symbol"
+              }
+            },
+            "node": "Sub",
+            "rhs": {
+              "node": "Number",
+              "value": 110
+            }
+          }
+        },
+        "reason": "goal_expr_not_parseable"
+      },
+      "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
+      "trace": [
+        "s1"
+      ]
+    }
+  ]
 }

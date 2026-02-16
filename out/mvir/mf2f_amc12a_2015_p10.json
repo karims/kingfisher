@@ -3,6 +3,45 @@
     {
       "expr": {
         "lhs": {
+          "args": [
+            {
+              "id": "x",
+              "node": "Symbol"
+            },
+            {
+              "id": "y",
+              "node": "Symbol"
+            },
+            {
+              "args": [
+                {
+                  "id": "x",
+                  "node": "Symbol"
+                },
+                {
+                  "id": "y",
+                  "node": "Symbol"
+                }
+              ],
+              "node": "Mul"
+            }
+          ],
+          "node": "Add"
+        },
+        "node": "Eq",
+        "rhs": {
+          "node": "Number",
+          "value": 80
+        }
+      },
+      "kind": "given",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
+      "expr": {
+        "lhs": {
           "id": "x",
           "node": "Symbol"
         },
@@ -37,22 +76,22 @@
   ],
   "concepts": [
     {
-      "id": "factorization",
-      "role": "candidate_tool",
+      "id": "integer_solutions",
+      "role": "domain",
       "trace": [
         "s1"
       ]
     },
     {
-      "id": "positive_shift",
-      "role": "representation_hint",
+      "id": "positive_integers",
+      "role": "domain",
       "trace": [
         "s1"
       ]
     },
     {
-      "id": "shifted_inequality",
-      "role": "representation_hint",
+      "id": "simon_favorite_factoring_trick",
+      "role": "pattern",
       "trace": [
         "s1"
       ]
@@ -60,8 +99,8 @@
   ],
   "entities": [
     {
-      "id": "Integers",
-      "kind": "set",
+      "id": "80",
+      "kind": "constant",
       "properties": [],
       "trace": [
         "s1"
@@ -73,7 +112,8 @@
       "kind": "variable",
       "properties": [],
       "trace": [
-        "s1"
+        "s1",
+        "s2"
       ],
       "type": "Integer"
     },
@@ -98,8 +138,7 @@
       "node": "Symbol"
     },
     "trace": [
-      "s2",
-      "s1"
+      "s2"
     ]
   },
   "meta": {
@@ -131,11 +170,35 @@
   ],
   "warnings": [
     {
-      "code": "dropped_assumption",
+      "code": "invalid_assumption_expr_dropped",
       "details": {
-        "reason": "incomplete_expr"
+        "raw_expr": {
+          "arg": {
+            "id": "x",
+            "node": "Symbol"
+          },
+          "node": "IsInteger"
+        },
+        "reason": "normalize_missing_required_fields"
       },
-      "message": "Dropped assumption: expression missing required AST fields.",
+      "message": "dropped invalid expr subtree: normalization missing required fields",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
+      "code": "invalid_assumption_expr_dropped",
+      "details": {
+        "raw_expr": {
+          "arg": {
+            "id": "y",
+            "node": "Symbol"
+          },
+          "node": "IsInteger"
+        },
+        "reason": "normalize_missing_required_fields"
+      },
+      "message": "dropped invalid expr subtree: normalization missing required fields",
       "trace": [
         "s1"
       ]
