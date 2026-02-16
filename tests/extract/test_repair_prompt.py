@@ -35,9 +35,12 @@ def test_repair_prompt_includes_enum_and_required_field_constraints() -> None:
     assert "Entity requires: id, kind, type" in prompt
     assert "Assumption requires: expr, kind" in prompt
     assert "Goal requires: kind, expr" in prompt
+    assert 'If goal.kind is "find", goal.target is required.' in prompt
+    assert 'do NOT keep kind="find"' in prompt
+    assert '"code": "goal_kind_downgraded"' in prompt
+    assert '"details": {"old_kind": "find", "reason": "..."}' in prompt
     assert "Concept requires: id, role" in prompt
     assert "Warning requires: code, message" in prompt
     assert "MVIR.trace must be non-empty" in prompt
     assert "Do NOT change trace spans or span_ids; keep them identical." in prompt
     assert "All trace references must be existing span_ids." in prompt
-

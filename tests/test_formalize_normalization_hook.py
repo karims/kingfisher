@@ -132,3 +132,33 @@ def test_formalize_normalization_hook_drops_incomplete_sum_assumption_without_nu
     assert warning is not None
     assert warning.details is not None
     assert warning.details.get("reason") == "incomplete_expr"
+
+
+def test_formalize_normalization_hook_downgrades_find_without_target() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_find_missing_target", "generator": "test"},
+        "source": {"text": "Find x."},
+        "entities": [{"id": "x", "kind": "variable", "type": "integer", "properties": [], "trace": ["s1"]}],
+        "assumptions": [],
+        "goal": {
+            "kind": "find",
+            "expr": {"node": "Bool", "value": True},
+            "target": None,
+            "trace": ["s1"],
+        },
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 7, "text": "Find x."},
+            {"span_id": "s1", "start": 0, "end": 7, "text": "Find x."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload)
+    mvir = MVIR.model_validate(normalized)
+
+    assert mvir.goal.kind.value != "find"
+    warning = next((w for w in mvir.warnings if w.code == "goal_kind_downgraded"), None)
+    assert warning is not None
+    assert warning.details is not None
+    assert warning.details.get("old_kind") == "find"

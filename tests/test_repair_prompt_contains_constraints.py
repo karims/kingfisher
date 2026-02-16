@@ -40,3 +40,6 @@ def test_repair_prompt_contains_required_constraints() -> None:
     assert 'Symbol example: {"node":"Symbol","id":"x"} (never {"node":"Symbol","name":"x"})' in prompt
     assert "Do not add fields not in the previous JSON unless required by schema." in prompt
     assert "Do not change trace spans; keep trace identical." in prompt
+    assert 'If goal.kind is "find", goal.target is required.' in prompt
+    assert "Downgrade to nearest valid kind among compute/prove/exists" in prompt
+    assert '"code": "goal_kind_downgraded"' in prompt

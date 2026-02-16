@@ -108,6 +108,15 @@ def _build_validation_repair_prompt(
         "Entity requires: id, kind, type\n"
         "Assumption requires: expr, kind\n"
         "Goal requires: kind, expr\n"
+        "If goal.kind is \"find\", goal.target is required.\n"
+        "If goal.target cannot be constructed safely, do NOT keep kind=\"find\".\n"
+        "Downgrade to nearest valid kind among compute/prove/exists and add warning:\n"
+        "{\n"
+        "  \"code\": \"goal_kind_downgraded\",\n"
+        "  \"message\": \"...\",\n"
+        "  \"trace\": [...],\n"
+        "  \"details\": {\"old_kind\": \"find\", \"reason\": \"...\"}\n"
+        "}\n"
         "Concept requires: id, role\n"
         "Warning requires: code, message\n"
         "MVIR.trace must be non-empty\n"
@@ -342,8 +351,73 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
         sanitized_target = sanitize_expr_dict(normalized_target)
         if sanitized_target is not None:
             goal["target"] = sanitized_target
+        else:
+            goal.pop("target", None)
+
+    _repair_find_goal_without_target(payload)
 
     return payload
+
+
+def _repair_find_goal_without_target(payload: dict) -> None:
+    goal = payload.get("goal")
+    if not isinstance(goal, dict):
+        return
+    kind = goal.get("kind")
+    if kind != "find":
+        return
+    target = goal.get("target")
+    if isinstance(target, dict):
+        return
+
+    warnings = payload.get("warnings")
+    if not isinstance(warnings, list):
+        warnings = []
+        payload["warnings"] = warnings
+
+    downgraded = _choose_downgraded_goal_kind(payload, goal)
+    goal["kind"] = downgraded
+    goal.pop("target", None)
+    warnings.append(
+        {
+            "code": "goal_kind_downgraded",
+            "message": (
+                "Downgraded goal kind from find because goal.target could not be extracted safely."
+            ),
+            "trace": _trace_ids(goal),
+            "details": {
+                "old_kind": "find",
+                "new_kind": downgraded,
+                "reason": "missing_or_invalid_target",
+            },
+        }
+    )
+
+
+def _choose_downgraded_goal_kind(payload: dict, goal: dict) -> str:
+    source_text = ""
+    source = payload.get("source")
+    if isinstance(source, dict):
+        text = source.get("text")
+        if isinstance(text, str):
+            source_text = text.lower()
+
+    goal_text = ""
+    span_map = _span_text_map(payload)
+    trace = goal.get("trace")
+    if isinstance(trace, list):
+        parts: list[str] = []
+        for item in trace:
+            if isinstance(item, str):
+                parts.append(span_map.get(item, ""))
+        goal_text = " ".join(parts).lower()
+
+    text = f"{goal_text} {source_text}".strip()
+    if any(token in text for token in ("show that", "prove", "verify", "demonstrate")):
+        return "prove"
+    if any(token in text for token in ("there exists", "exists", "is there")):
+        return "exists"
+    return "compute"
 
 
 def _span_text_map(payload: dict) -> dict[str, str]:

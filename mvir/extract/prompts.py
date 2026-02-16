@@ -32,6 +32,8 @@ _INSTRUCTIONS = [
     "entities[].trace / assumptions[].trace / goal.trace / concepts[].trace / warnings[].trace must be arrays of span_id strings ONLY, e.g. [\"s2\",\"s3\"].",
     "The span objects with start/end/text must exist ONLY in top-level trace.",
     "goal is ONE object. If multiple tasks appear, choose the primary goal and add a warning listing secondary tasks.",
+    "If goal.kind is \"find\", you MUST include goal.target as an Expr node.",
+    "If target cannot be extracted safely, DO NOT use goal.kind=\"find\"; use the nearest valid kind among compute/prove/exists and add warning code=\"goal_kind_downgraded\".",
     "Do NOT change trace spans or span_ids.",
     "Trace spans must include start/end offsets.",
     "If unsure about a sentence, DO NOT invent meaning.",

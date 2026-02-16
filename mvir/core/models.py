@@ -119,6 +119,12 @@ class Goal(BaseModel):
     trace: list[str] = Field(default_factory=list)
     target: Expr | None = None
 
+    @model_validator(mode="after")
+    def _validate_find_target(self) -> "Goal":
+        if self.kind == GoalKind.FIND and self.target is None:
+            raise ValueError("Find goal requires a target.")
+        return self
+
 
 class Concept(BaseModel):
     """Concept or hint associated with the MVIR document."""

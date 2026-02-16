@@ -25,6 +25,8 @@ def test_build_mvir_prompt_instructions_and_context() -> None:
     assert 'x^2 >= 0 => {"node":"Ge"' in prompt
     assert "Do NOT change trace spans or span_ids." in prompt
     assert "goal is ONE object" in prompt
+    assert 'If goal.kind is "find", you MUST include goal.target as an Expr node.' in prompt
+    assert 'warning code="goal_kind_downgraded"' in prompt
     assert "PROBLEM_ID=abc123" in prompt
     assert json.dumps(prompt_context, ensure_ascii=False) in prompt
     assert "```" not in prompt
