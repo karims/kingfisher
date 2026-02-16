@@ -280,6 +280,25 @@ python -m mvir.cli.formalize examples/problems/latex_smoke_01.txt --provider ope
 
 ---
 
+## 15. Phase 8 - Solver Trace (Structured) + Append-only Logger
+
+**Decision**
+- Phase 8 adds a structured `solver_trace` block to MVIR for future solver/action logs.
+- It also adds an append-only JSONL logger for pipeline/solver-style events.
+- This does not change solving behavior; it is representation + observability only.
+
+**What Phase 8 adds**
+- MVIR top-level optional field: `solver_trace`
+- Structured event shape (`event_id`, `ts`, `kind`, `message`, `data`, `trace`, `refs`)
+- Append-only logger output: `.solver_trace.jsonl`
+
+**Typical run artifacts**
+- `out/openai_smoke.json` (MVIR JSON output)
+- `out/debug/<id>.solver_trace.jsonl` (append-only event log)
+- `out/<id>.report.md` (human-readable report path, when rendered)
+
+---
+
 ## Closing Note
 
 Kingfisher is infrastructure.
