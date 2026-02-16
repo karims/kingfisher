@@ -144,6 +144,7 @@ def formalize_text_to_mvir(
     repair: bool = True,
     debug_dir: str | None = None,
     degrade_on_validation_failure: bool = False,
+    deterministic: bool = False,
 ) -> MVIR:
     """Run preprocess + prompt + provider completion and return MVIR."""
 
@@ -152,6 +153,15 @@ def formalize_text_to_mvir(
     prompt = build_mvir_prompt(prompt_context, problem_id=problem_id)
     provider_name = getattr(provider, "name", provider.__class__.__name__)
     model_name = getattr(provider, "model", None)
+    debug_settings = {
+        "provider": str(provider_name),
+        "model": str(model_name) if model_name is not None else None,
+        "schema_mode": getattr(provider, "format_mode", None),
+        "fallback_mode": bool(getattr(provider, "allow_fallback", False)),
+        "deterministic": deterministic,
+        "temperature": temperature,
+        "top_p": getattr(provider, "top_p", None),
+    }
 
     response: str | None = None
     try:
@@ -220,6 +230,7 @@ def formalize_text_to_mvir(
                 raw_output=response,
                 provider=provider,
                 exc=first_error,
+                settings=debug_settings,
             )
 
             if str(provider_name) == "openai":
@@ -315,6 +326,7 @@ def formalize_text_to_mvir(
             raw_output=response,
             provider=provider,
             exc=exc,
+            settings=debug_settings,
         )
         raise
 
@@ -578,6 +590,7 @@ def _write_debug_bundle(
     raw_output: str | None,
     provider: LLMProvider,
     exc: Exception,
+    settings: dict | None = None,
 ) -> None:
     """Best-effort debug bundle writer; never raises."""
 
@@ -604,6 +617,11 @@ def _write_debug_bundle(
         if response_json is not None:
             (base / "response.json").write_text(
                 json.dumps(response_json, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        if settings is not None:
+            (base / "settings.json").write_text(
+                json.dumps(settings, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
         kind, message = classify_exception(exc)

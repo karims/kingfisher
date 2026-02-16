@@ -18,6 +18,19 @@ from mvir.extract.providers.mock import MockProvider
 from mvir.extract.providers.openai_provider import OpenAIProvider
 
 
+def _configure_provider_sampling(provider: object) -> None:
+    """Best-effort OpenAI sampling defaults for lower-variance runs."""
+
+    if getattr(provider, "name", None) != "openai":
+        return
+    try:
+        current_top_p = getattr(provider, "top_p", None)
+        if current_top_p is None:
+            setattr(provider, "top_p", 1.0)
+    except Exception:
+        return
+
+
 def build_provider(
     provider_name: str,
     *,
@@ -123,6 +136,11 @@ def main(argv: list[str] | None = None) -> int:
         default=0.0,
         help="Sampling temperature for provider calls (default: 0.0).",
     )
+    parser.add_argument(
+        "--deterministic",
+        action="store_true",
+        help="Force deterministic sampling settings (temperature=0 for this run).",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -139,15 +157,18 @@ def main(argv: list[str] | None = None) -> int:
             openai_format=openai_format or "json_object",
             openai_allow_fallback=args.openai_allow_fallback,
         )
+        _configure_provider_sampling(provider)
+        call_temperature = 0.0 if args.deterministic else args.temperature
 
         mvir = formalize_text_to_mvir(
             text,
             provider,
             problem_id=problem_id,
-            temperature=args.temperature,
+            temperature=call_temperature,
             strict=args.strict,
             debug_dir=args.debug_dir,
             degrade_on_validation_failure=args.openai_allow_fallback,
+            deterministic=args.deterministic,
         )
         if not args.strict:
             grounding_errors = validate_grounding_contract(mvir)

@@ -160,7 +160,7 @@ def test_cli_golden_counts_degraded_files(
     assert "degraded=1" in out
 
 
-def test_cli_golden_forces_deterministic_sampling_for_openai(
+def test_cli_golden_passes_non_deterministic_temperature_for_openai(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
@@ -186,6 +186,43 @@ def test_cli_golden_forces_deterministic_sampling_for_openai(
     _ = capsys.readouterr().out
 
     assert rc == 0
-    assert captured["temperature"] == 0.0
+    assert captured["temperature"] == 0.7
     assert captured["provider_top_p"] == 1.0
     assert captured["provider_seed"] is None
+
+
+def test_cli_golden_forces_deterministic_sampling_for_openai(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    baseline = _mvir_payload("a", "x")
+    (tmp_path / "a.json").write_text(json.dumps(baseline), encoding="utf-8")
+
+    provider = _DummyOpenAIProvider()
+    monkeypatch.setattr(cli_golden, "build_provider", lambda *args, **kwargs: provider)
+    captured: dict = {}
+
+    def _fake_formalize(*args, **kwargs):
+        captured["temperature"] = kwargs.get("temperature")
+        captured["provider_top_p"] = getattr(provider, "top_p", None)
+        return _DummyMVIR(_mvir_payload("a", "x"))
+
+    monkeypatch.setattr(cli_golden, "formalize_text_to_mvir", _fake_formalize)
+
+    rc = cli_golden.main(
+        [
+            "--input-dir",
+            str(tmp_path),
+            "--provider",
+            "openai",
+            "--temperature",
+            "0.7",
+            "--deterministic",
+        ]
+    )
+    _ = capsys.readouterr().out
+
+    assert rc == 0
+    assert captured["temperature"] == 0.0
+    assert captured["provider_top_p"] == 1.0

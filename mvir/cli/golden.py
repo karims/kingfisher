@@ -124,7 +124,9 @@ def _configure_provider_for_golden(provider: object) -> None:
     if getattr(provider, "name", None) != "openai":
         return
     try:
-        setattr(provider, "top_p", 1.0)
+        current_top_p = getattr(provider, "top_p", None)
+        if current_top_p is None:
+            setattr(provider, "top_p", 1.0)
     except Exception:
         pass
 
@@ -173,6 +175,11 @@ def main(argv: list[str] | None = None) -> int:
         type=float,
         default=0.0,
         help="Sampling temperature for provider calls (default: 0.0).",
+    )
+    parser.add_argument(
+        "--deterministic",
+        action="store_true",
+        help="Force deterministic sampling settings (temperature=0 for this run).",
     )
     parser.add_argument(
         "--fail-fast",
@@ -233,9 +240,10 @@ def main(argv: list[str] | None = None) -> int:
                 source["text"],
                 provider,
                 problem_id=problem_id,
-                temperature=0.0,
+                temperature=0.0 if args.deterministic else args.temperature,
                 strict=args.strict,
                 degrade_on_validation_failure=True,
+                deterministic=args.deterministic,
             )
             rerun_payload = rerun_mvir.model_dump(by_alias=False, exclude_none=True)
             warning_codes: set[str] = set()
