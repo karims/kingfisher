@@ -214,6 +214,10 @@ def main(argv: list[str] | None = None) -> int:
     if not input_dir.exists():
         print(f"ERROR: input dir not found: {input_dir}")
         return 1
+    new_dir = input_dir / ".new"
+    debug_dir = input_dir / ".debug"
+    new_dir.mkdir(parents=True, exist_ok=True)
+    debug_dir.mkdir(parents=True, exist_ok=True)
 
     files = sorted(path for path in input_dir.rglob("*.json") if _is_baseline_file(path))
     if not files:
@@ -223,6 +227,11 @@ def main(argv: list[str] | None = None) -> int:
     mismatches: list[str] = []
     failures: list[str] = []
     degraded: list[str] = []
+    variant = (
+        f"{args.openai_format}{'+fallback' if args.openai_allow_fallback else ''}"
+        if args.provider == "openai"
+        else args.provider
+    )
 
     for path in files:
         try:
@@ -266,14 +275,19 @@ def main(argv: list[str] | None = None) -> int:
             right = _normalize_for_compare(rerun_payload)
             if left != right:
                 mismatches.append(str(path))
+                new_path = new_dir / path.name
+                new_path.write_text(
+                    json.dumps(right, indent=2, ensure_ascii=False),
+                    encoding="utf-8",
+                )
                 if args.update:
                     path.write_text(
                         json.dumps(right, indent=2, ensure_ascii=False),
                         encoding="utf-8",
                     )
-                    print(f"UPDATE: {path}")
+                    print(f"UPDATE: {path} (variant={variant}, new={new_path})")
                 else:
-                    print(f"MISMATCH: {path}")
+                    print(f"MISMATCH: {path} (variant={variant}, new={new_path})")
                 if args.fail_fast:
                     break
             else:
@@ -281,6 +295,20 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:  # noqa: BLE001 - per-file boundary
             failures.append(f"{path}: {format_cli_exception(exc)}")
             print(f"ERROR: {path}: {format_cli_exception(exc)}")
+            failed_artifact = debug_dir / f"{path.stem}.failed.json"
+            failed_artifact.write_text(
+                json.dumps(
+                    {
+                        "baseline_path": str(path),
+                        "variant": variant,
+                        "error": format_cli_exception(exc),
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                ),
+                encoding="utf-8",
+            )
+            print(f"FAILED_ARTIFACT: {failed_artifact}")
             if args.fail_fast:
                 break
 

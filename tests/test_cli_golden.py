@@ -128,6 +128,8 @@ def test_cli_golden_fail_on_mismatch_returns_non_zero(
 
     assert rc == 1
     assert f"MISMATCH: {baseline_path}" in out
+    assert "variant=json_object" in out
+    assert "new=" in out
 
 
 def test_cli_golden_counts_degraded_files(
@@ -158,6 +160,32 @@ def test_cli_golden_counts_degraded_files(
 
     assert rc == 0
     assert "degraded=1" in out
+
+
+def test_cli_golden_update_does_not_overwrite_on_failure_and_writes_failed_artifact(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    baseline_path = tmp_path / "a.json"
+    baseline_payload = _mvir_payload("a", "x", goal_value=True)
+    baseline_path.write_text(json.dumps(baseline_payload), encoding="utf-8")
+
+    monkeypatch.setattr(cli_golden, "build_provider", lambda *args, **kwargs: object())
+
+    def _boom(*args, **kwargs):
+        raise RuntimeError("provider failed")
+
+    monkeypatch.setattr(cli_golden, "formalize_text_to_mvir", _boom)
+
+    rc = cli_golden.main(["--input-dir", str(tmp_path), "--provider", "openai", "--update"])
+    out = capsys.readouterr().out
+
+    assert rc == 1
+    assert "FAILED_ARTIFACT:" in out
+    assert json.loads(baseline_path.read_text(encoding="utf-8")) == baseline_payload
+    failed_artifact = tmp_path / ".debug" / "a.failed.json"
+    assert failed_artifact.exists()
 
 
 def test_cli_golden_passes_non_deterministic_temperature_for_openai(
