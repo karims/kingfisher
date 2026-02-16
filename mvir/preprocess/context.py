@@ -1,8 +1,8 @@
-"""Prompt context scaffolding for preprocess outputs."""
+﻿"""Prompt context scaffolding for preprocess outputs."""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
 
 from mvir.preprocess.spans import detect_math_spans
@@ -35,6 +35,7 @@ class PreprocessOutput:
     text: str
     cue_candidates: list[CandidateSpan]
     math_candidates: list[MathSpan]
+    spans: list[dict] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         """Return a JSON-serializable dict representation."""
@@ -43,6 +44,7 @@ class PreprocessOutput:
             "text": self.text,
             "cue_candidates": [span.__dict__ for span in self.cue_candidates],
             "math_candidates": [span.__dict__ for span in self.math_candidates],
+            "spans": list(self.spans),
         }
 
 
@@ -53,6 +55,7 @@ _PHRASE_ASSUME_RE = re.compile(r"\b(assume|given)\b", re.IGNORECASE)
 _PHRASE_LET_RE = re.compile(r"\b(let)\b", re.IGNORECASE)
 _PHRASE_QUANTIFIER_RE = re.compile(r"\b(for all|for any)\b", re.IGNORECASE)
 _PHRASE_CONSTRAINT_RE = re.compile(r"\b(such that|satisfy)\b", re.IGNORECASE)
+_SENTENCE_RE = re.compile(r"[^.!?]+[.!?]?")
 
 
 def _find_candidates(text: str, pattern: re.Pattern[str], category: str) -> list[CandidateSpan]:
@@ -66,6 +69,27 @@ def _find_candidates(text: str, pattern: re.Pattern[str], category: str) -> list
                 text=text[match.start() : match.end()],
             )
         )
+    return spans
+
+
+def _extract_sentence_spans(text: str) -> list[dict]:
+    spans: list[dict] = []
+    sentence_id = 1
+    for match in _SENTENCE_RE.finditer(text):
+        start = match.start()
+        end = match.end()
+        snippet = text[start:end]
+        if not snippet.strip():
+            continue
+        spans.append(
+            {
+                "span_id": f"s{sentence_id}",
+                "start": start,
+                "end": end,
+                "text": snippet,
+            }
+        )
+        sentence_id += 1
     return spans
 
 
@@ -91,10 +115,8 @@ def build_preprocess_output(text: str) -> PreprocessOutput:
         text=text,
         cue_candidates=cue_candidates,
         math_candidates=math_candidates,
+        spans=_extract_sentence_spans(text),
     )
-
-
-_SENTENCE_RE = re.compile(r"[^.!?]+[.!?]?")
 
 
 def _sorted_spans(spans: list[dict]) -> list[dict]:
@@ -105,23 +127,11 @@ def build_prompt_context(pre: dict) -> dict:
     """Build a compact prompt context object from preprocess output."""
 
     text = pre.get("text", "")
-    sentences = []
-    sentence_id = 1
-    for match in _SENTENCE_RE.finditer(text):
-        start = match.start()
-        end = match.end()
-        snippet = text[start:end]
-        if not snippet.strip():
-            continue
-        sentences.append(
-            {
-                "span_id": f"s{sentence_id}",
-                "start": start,
-                "end": end,
-                "text": snippet,
-            }
-        )
-        sentence_id += 1
+    pre_spans = pre.get("spans")
+    if isinstance(pre_spans, list):
+        sentences = [span for span in pre_spans if isinstance(span, dict)]
+    else:
+        sentences = _extract_sentence_spans(text)
 
     math_candidates = []
     math_id = 1

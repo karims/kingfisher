@@ -47,6 +47,15 @@ def test_preprocess_output_dict_keys() -> None:
     assert "math" not in payload
     assert "cue_candidates" in payload
     assert "math_candidates" in payload
+    assert "spans" in payload
+
+
+def test_preprocess_output_includes_spans() -> None:
+    output = build_preprocess_output("Find x.")
+
+    assert output.spans
+    assert output.spans[0]["span_id"] == "s1"
+    assert output.spans[0]["text"] == "Find x."
 
 
 def test_build_prompt_context_keys_and_spans() -> None:
@@ -111,3 +120,18 @@ def test_build_prompt_context_deterministic_order() -> None:
 
     assert math_ids == ["m1", "m2", "m3"]
     assert cue_ids == ["c1", "c2"]
+
+
+def test_build_prompt_context_prefers_spans() -> None:
+    pre = {
+        "text": "Show that x = 2. Find y.",
+        "spans": [
+            {"span_id": "s1", "start": 0, "end": 3, "text": "Show"},
+            {"span_id": "s2", "start": 4, "end": 8, "text": "that"},
+        ],
+        "math_candidates": [],
+        "cue_candidates": [],
+    }
+
+    context = build_prompt_context(pre)
+    assert context["sentences"] == pre["spans"]
