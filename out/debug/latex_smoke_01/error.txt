@@ -1,19 +1,19 @@
 kind: schema_validation
 message: MVIR validation failed: 1 validation error for MVIR
-concepts.0.id
-  Field required [type=missing, input_value={'expr': {'node': 'Eq', '...ce': None, 'name': None}, input_type=dict]
-    For further information visit https://errors.pydantic.d...
-exception: ValueError("MVIR validation failed: 1 validation error for MVIR\nconcepts.0.id\n  Field required [type=missing, input_value={'expr': {'node': 'Eq', '...ce': None, 'name': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing")
+goal.expr
+  Field required [type=missing, input_value={'kind': 'compute', 'targ...: 1}]}, 'trace': ['s1']}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2...
+exception: ValueError("MVIR validation failed: 1 validation error for MVIR\ngoal.expr\n  Field required [type=missing, input_value={'kind': 'compute', 'targ...: 1}]}, 'trace': ['s1']}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing")
 
 traceback:
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 197, in formalize_text_to_mvir
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 211, in formalize_text_to_mvir
     mvir = MVIR.model_validate(payload)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\karim\studioprojects\sydes\.venv\Lib\site-packages\pydantic\main.py", line 716, in model_validate
     return cls.__pydantic_validator__.validate_python(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 pydantic_core._pydantic_core.ValidationError: 1 validation error for MVIR
-concepts.0.id
-  Field required [type=missing, input_value={'expr': {'node': 'Eq', '...ce': None, 'name': None}, input_type=dict]
+goal.expr
+  Field required [type=missing, input_value={'kind': 'compute', 'targ...: 1}]}, 'trace': ['s1']}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.12/v/missing

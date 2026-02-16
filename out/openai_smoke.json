@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant-v1"
+    "generator": "assistant"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -55,54 +55,120 @@
       "trace": [
         "s2"
       ]
-    }
-  ],
-  "goal": {
-    "kind": "prove",
-    "expr": {
-      "node": "Ge",
-      "lhs": {
-        "node": "Pow",
-        "base": {
-          "node": "Symbol",
-          "id": "x"
+    },
+    {
+      "expr": {
+        "node": "Eq",
+        "lhs": {
+          "node": "Sum",
+          "var": "k",
+          "from_": {
+            "node": "Number",
+            "value": 1
+          },
+          "to": {
+            "node": "Symbol",
+            "id": "n"
+          },
+          "body": {
+            "node": "Symbol",
+            "id": "k"
+          }
         },
-        "exp": {
-          "node": "Number",
-          "value": 2
+        "rhs": {
+          "node": "Div",
+          "num": {
+            "node": "Mul",
+            "args": [
+              {
+                "node": "Symbol",
+                "id": "n"
+              },
+              {
+                "node": "Add",
+                "args": [
+                  {
+                    "node": "Symbol",
+                    "id": "n"
+                  },
+                  {
+                    "node": "Number",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "den": {
+            "node": "Number",
+            "value": 2
+          }
         }
       },
-      "rhs": {
-        "node": "Number",
-        "value": 0
-      }
-    },
-    "trace": [
-      "s3"
-    ]
-  },
-  "concepts": [
-    {
-      "id": "sum_identity",
-      "role": "pattern",
+      "kind": "given",
       "trace": [
         "s4"
       ]
     }
   ],
-  "warnings": [
-    {
-      "code": "unparsed_math",
-      "message": "Secondary task 'Compute x^2 + 1.' not represented as a formal MVIR expression.",
-      "trace": [
-        "s1"
+  "goal": {
+    "kind": "compute",
+    "expr": {
+      "node": "Add",
+      "args": [
+        {
+          "node": "Pow",
+          "base": {
+            "node": "Symbol",
+            "id": "x"
+          },
+          "exp": {
+            "node": "Number",
+            "value": 2
+          }
+        },
+        {
+          "node": "Number",
+          "value": 1
+        }
       ]
     },
+    "trace": [
+      "s1"
+    ]
+  },
+  "concepts": [
+    {
+      "id": "c1",
+      "role": "candidate_tool",
+      "trace": [
+        "s1"
+      ],
+      "name": "compute_polynomial_expression"
+    },
+    {
+      "id": "c2",
+      "role": "definition",
+      "trace": [
+        "s3"
+      ],
+      "name": "positivity_of_square"
+    },
+    {
+      "id": "c3",
+      "role": "definition",
+      "trace": [
+        "s4"
+      ],
+      "name": "arithmetic_series_formula"
+    }
+  ],
+  "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Primary goal chosen is the inequality 'x^2 >= 0'. Other tasks treated as secondary.",
+      "message": "Multiple tasks appear in the input. Primary goal selected: compute x^2 + 1. Secondary tasks: show x^2 >= 0; the summation equality is stated.",
       "trace": [
-        "s1",
+        "s3",
         "s4"
       ]
     }
