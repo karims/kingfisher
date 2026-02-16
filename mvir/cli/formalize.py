@@ -16,8 +16,10 @@ from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.provider_base import LLMProvider, ProviderError
 from mvir.extract.providers.mock import MockProvider
 from mvir.extract.providers.openai_provider import OpenAIProvider
+from mvir.preprocess.context import build_preprocess_output
 from mvir.render.bundle import write_explain_bundle
 from mvir.render.markdown import render_mvir_markdown
+from mvir.trace import TraceLogger, new_event
 
 
 def _configure_provider_sampling(provider: object) -> None:
@@ -112,6 +114,45 @@ def _write_markdown_report(mvir, md_path: Path) -> None:
     md_path.write_text(render_mvir_markdown(mvir), encoding="utf-8")
 
 
+class _SafeTraceLogger:
+    """Best-effort trace logger that never raises to CLI flow."""
+
+    def __init__(self, path: Path) -> None:
+        self._logger: TraceLogger | None = None
+        self._enabled = True
+        try:
+            self._logger = TraceLogger(str(path))
+        except Exception as exc:
+            self._enabled = False
+            print(f"WARNING: solver trace logging disabled: {exc}")
+
+    def append(self, event: dict) -> None:
+        if not self._enabled or self._logger is None:
+            return
+        try:
+            self._logger.append(event)
+        except Exception as exc:
+            self._enabled = False
+            print(f"WARNING: solver trace logging failed: {exc}")
+
+    def flush(self) -> None:
+        if not self._enabled or self._logger is None:
+            return
+        try:
+            self._logger.flush()
+        except Exception as exc:
+            self._enabled = False
+            print(f"WARNING: solver trace flush failed: {exc}")
+
+    def close(self) -> None:
+        if self._logger is None:
+            return
+        try:
+            self._logger.close()
+        except Exception as exc:
+            print(f"WARNING: solver trace close failed: {exc}")
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the formalization CLI."""
 
@@ -195,11 +236,31 @@ def main(argv: list[str] | None = None) -> int:
         help="Allow degraded output by dropping/replacing invalid expressions with warnings.",
     )
     args = parser.parse_args(argv)
+    trace_logger: _SafeTraceLogger | None = None
 
     try:
         text_path = Path(args.path)
         text = text_path.read_text(encoding="utf-8")
         problem_id = text_path.stem
+        if args.debug_dir:
+            trace_path = Path(args.debug_dir) / f"{problem_id}.solver_trace.jsonl"
+            trace_logger = _SafeTraceLogger(trace_path)
+        if trace_logger is not None:
+            trace_logger.append(
+                new_event(
+                    "note",
+                    "start: read source",
+                    data={"problem_id": problem_id, "source_path": str(text_path)},
+                )
+            )
+            preprocess_out = build_preprocess_output(text)
+            trace_logger.append(
+                new_event(
+                    "transform",
+                    "after preprocess spans",
+                    data={"span_count": len(preprocess_out.spans)},
+                )
+            )
         openai_format = args.openai_format
         if args.provider == "openai" and openai_format is None:
             openai_format = "json_object"
@@ -224,6 +285,40 @@ def main(argv: list[str] | None = None) -> int:
             deterministic=args.deterministic,
             allow_degraded=args.allow_degraded,
         )
+        if trace_logger is not None:
+            trace_logger.append(
+                new_event(
+                    "tool_result",
+                    "after provider response received",
+                    data={"provider": args.provider},
+                )
+            )
+            repair_warning_codes = {
+                "invalid_assumption_expr_dropped",
+                "invalid_goal_expr_replaced",
+                "invalid_goal_target_expr_dropped",
+                "goal_kind_downgraded",
+                "dropped_expr",
+                "degraded_output",
+            }
+            repair_codes = [
+                w.code for w in mvir.warnings if w.code in repair_warning_codes
+            ]
+            if repair_codes:
+                trace_logger.append(
+                    new_event(
+                        "transform",
+                        "after repair",
+                        data={"warning_codes": sorted(set(repair_codes))},
+                    )
+                )
+            trace_logger.append(
+                new_event(
+                    "final",
+                    "after MVIR validated",
+                    data={"mvir_id": mvir.meta.id},
+                )
+            )
         if not args.strict:
             grounding_errors = validate_grounding_contract(mvir)
             if grounding_errors:
@@ -247,12 +342,24 @@ def main(argv: list[str] | None = None) -> int:
             write_explain_bundle(mvir, bundle_path)
         if args.print_json:
             print(json.dumps(payload, ensure_ascii=False))
+        if trace_logger is not None:
+            trace_logger.append(
+                new_event(
+                    "final",
+                    "final: wrote output path",
+                    data={"out": args.out, "md_out": str(md_path) if md_path else None},
+                )
+            )
+            trace_logger.flush()
 
         print(f"OK: {problem_id}")
         return 0
     except Exception as exc:  # noqa: BLE001 - CLI boundary
         print(f"ERROR: {format_cli_exception(exc)}")
         return 1
+    finally:
+        if trace_logger is not None:
+            trace_logger.close()
 
 
 if __name__ == "__main__":
