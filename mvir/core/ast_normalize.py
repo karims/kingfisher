@@ -5,8 +5,13 @@ from __future__ import annotations
 import re
 from copy import deepcopy
 
+from mvir.core.ast_contract import validate_expr_dict
+from mvir.core.models import Warning
+from mvir.core.operators import DEFAULT_REGISTRY
+
 
 _REL_NODES = {"Eq", "Neq", "Lt", "Le", "Gt", "Ge", "Divides"}
+_BOOL_NODES = {"Bool", "True", "False"}
 
 
 def normalize_any(x):
@@ -19,8 +24,37 @@ def normalize_any(x):
     return x
 
 
+def normalize_expr_dict_with_warnings(data: dict) -> tuple[dict | None, list[Warning]]:
+    """Normalize + validate an Expr-like dict and return (expr, warnings)."""
+
+    warnings: list[Warning] = []
+    raw = _normalize_expr_dict_raw(data, warnings=warnings)
+    if not isinstance(raw, dict):
+        return None, warnings
+
+    validated, contract_warnings = validate_expr_dict(raw, allow_repair=True)
+    warnings.extend(contract_warnings)
+    if not validated:
+        return None, warnings
+    return validated, warnings
+
+
+def normalize_expr_dict_relaxed(data: dict) -> dict | None:
+    """Normalize only keys/shapes without enforcing required-field contract."""
+
+    warnings: list[Warning] = []
+    return _normalize_expr_dict_raw(data, warnings=warnings)
+
+
 def normalize_expr_dict(data: dict) -> dict | None:
     """Normalize a dict into a parse_expr-friendly Expr-like dict."""
+
+    normalized, _warnings = normalize_expr_dict_with_warnings(data)
+    return normalized
+
+
+def _normalize_expr_dict_raw(data: dict, *, warnings: list[Warning]) -> dict | None:
+    """Legacy key normalization pass (before contract validator)."""
 
     if not isinstance(data, dict):
         return data
@@ -29,6 +63,24 @@ def normalize_expr_dict(data: dict) -> dict | None:
     node = raw.get("node")
     if not isinstance(node, str):
         return None
+    canonical_node = _canonicalize_node_name(node)
+    if canonical_node is None:
+        return None
+    if canonical_node != node:
+        warnings.append(
+            Warning(
+                code="expr_normalize_repair",
+                message="Normalized node alias to canonical AST node.",
+                trace=[],
+                details={
+                    "path": ("node",),
+                    "repair": "node_alias_to_canonical",
+                    "from": node,
+                    "to": canonical_node,
+                },
+            )
+        )
+    node = canonical_node
 
     if node == "Symbol":
         out: dict = {"node": "Symbol"}
@@ -37,8 +89,7 @@ def normalize_expr_dict(data: dict) -> dict | None:
             symbol_id = raw.get("name")
         if isinstance(symbol_id, str) and symbol_id:
             out["id"] = symbol_id
-            return out
-        return None
+        return out
 
     if node in _REL_NODES:
         lhs = raw.get("lhs")
@@ -55,11 +106,9 @@ def normalize_expr_dict(data: dict) -> dict | None:
             rhs = raw.get("right")
         out = {"node": node}
         if lhs is not None:
-            out["lhs"] = normalize_any(lhs)
+            out["lhs"] = _normalize_any_raw(lhs, warnings=warnings)
         if rhs is not None:
-            out["rhs"] = normalize_any(rhs)
-        if "lhs" not in out or "rhs" not in out:
-            return None
+            out["rhs"] = _normalize_any_raw(rhs, warnings=warnings)
         return out
 
     if node in {"Add", "Mul"}:
@@ -75,10 +124,8 @@ def normalize_expr_dict(data: dict) -> dict | None:
                 args = [lhs, rhs]
         out = {"node": node}
         if isinstance(args, list):
-            norm_args = [normalize_any(a) for a in args]
+            norm_args = [_normalize_any_raw(a, warnings=warnings) for a in args]
             out["args"] = _flatten_same_op(node, norm_args)
-        if not isinstance(out.get("args"), list):
-            return None
         return out
 
     if node == "Pow":
@@ -96,11 +143,9 @@ def normalize_expr_dict(data: dict) -> dict | None:
                 exp = args[1]
         out = {"node": "Pow"}
         if base is not None:
-            out["base"] = normalize_any(base)
+            out["base"] = _normalize_any_raw(base, warnings=warnings)
         if exp is not None:
-            out["exp"] = normalize_any(exp)
-        if "base" not in out or "exp" not in out:
-            return None
+            out["exp"] = _normalize_any_raw(exp, warnings=warnings)
         return out
 
     if node == "Div":
@@ -122,11 +167,9 @@ def normalize_expr_dict(data: dict) -> dict | None:
                 den = args[1]
         out = {"node": "Div"}
         if num is not None:
-            out["num"] = normalize_any(num)
+            out["num"] = _normalize_any_raw(num, warnings=warnings)
         if den is not None:
-            out["den"] = normalize_any(den)
-        if "num" not in out or "den" not in out:
-            return None
+            out["den"] = _normalize_any_raw(den, warnings=warnings)
         return out
 
     if node == "Neg":
@@ -138,9 +181,8 @@ def normalize_expr_dict(data: dict) -> dict | None:
             arg = args[0]
         out = {"node": "Neg"}
         if arg is not None:
-            out["arg"] = normalize_any(arg)
-            return out
-        return None
+            out["arg"] = _normalize_any_raw(arg, warnings=warnings)
+        return out
 
     if node == "Number":
         out = {"node": "Number"}
@@ -150,10 +192,9 @@ def normalize_expr_dict(data: dict) -> dict | None:
         value = _parse_numeric(value)
         if value is not None:
             out["value"] = value
-            return out
-        return None
+        return out
 
-    if node in {"Bool", "True", "False"}:
+    if node in _BOOL_NODES:
         out = {"node": "Bool"}
         if node == "True":
             out["value"] = True
@@ -165,8 +206,7 @@ def normalize_expr_dict(data: dict) -> dict | None:
         coerced = _coerce_bool(value)
         if coerced is not None:
             out["value"] = coerced
-            return out
-        return None
+        return out
 
     if node == "Call":
         out = {"node": "Call"}
@@ -179,11 +219,7 @@ def normalize_expr_dict(data: dict) -> dict | None:
             out["fn"] = fn
         args = _first_list(raw, "args", "operands", "children")
         if isinstance(args, list):
-            out["args"] = [normalize_any(a) for a in args]
-        if not isinstance(out.get("args"), list) or not out.get("args"):
-            return None
-        if "fn" not in out:
-            return None
+            out["args"] = [_normalize_any_raw(a, warnings=warnings) for a in args]
         return out
 
     if node == "Sum":
@@ -197,15 +233,11 @@ def normalize_expr_dict(data: dict) -> dict | None:
         to = raw.get("to")
         body = raw.get("body")
         if frm is not None:
-            out["from"] = normalize_any(frm)
+            out["from"] = _normalize_any_raw(frm, warnings=warnings)
         if to is not None:
-            out["to"] = normalize_any(to)
+            out["to"] = _normalize_any_raw(to, warnings=warnings)
         if body is not None:
-            out["body"] = normalize_any(body)
-        if not isinstance(out.get("var"), str) or not out.get("var"):
-            return None
-        if "from" not in out or "to" not in out or "body" not in out:
-            return None
+            out["body"] = _normalize_any_raw(body, warnings=warnings)
         return out
 
     # Unknown node: recurse values but keep shape.
@@ -216,6 +248,14 @@ def normalize_expr(obj: dict) -> dict:
     """Backward-compatible alias for callers using old function name."""
 
     return normalize_expr_dict(obj)
+
+
+def _normalize_any_raw(value, *, warnings: list[Warning]):
+    if isinstance(value, list):
+        return [_normalize_any_raw(v, warnings=warnings) for v in value]
+    if isinstance(value, dict):
+        return _normalize_expr_dict_raw(value, warnings=warnings)
+    return value
 
 
 def _flatten_same_op(node: str, args: list) -> list:
@@ -265,4 +305,43 @@ def _coerce_bool(value):
             return True
         if text == "false":
             return False
+    return None
+
+
+def _canonicalize_node_name(node: str) -> str | None:
+    if node in {
+        "Symbol",
+        "Number",
+        "Bool",
+        "True",
+        "False",
+        "Add",
+        "Mul",
+        "Div",
+        "Pow",
+        "Neg",
+        "Eq",
+        "Neq",
+        "Lt",
+        "Le",
+        "Gt",
+        "Ge",
+        "Divides",
+        "Sum",
+        "Call",
+    }:
+        return node
+    if DEFAULT_REGISTRY.canonical(node) is not None or node in _BOOL_NODES:
+        return node
+    # Direct surface lookup for aliases like "lt" or symbolic forms.
+    by_surface = DEFAULT_REGISTRY.lookup(node)
+    if by_surface is not None:
+        return by_surface.ast_node
+    lowered = node.lower()
+    by_surface = DEFAULT_REGISTRY.lookup(lowered)
+    if by_surface is not None:
+        return by_surface.ast_node
+    for candidate in DEFAULT_REGISTRY.all_nodes():
+        if candidate.lower() == lowered:
+            return candidate
     return None

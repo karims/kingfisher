@@ -14,7 +14,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from mvir.core.ast_normalize import normalize_expr_dict
+from mvir.core.ast_normalize import normalize_expr_dict_relaxed
 from mvir.core.models import MVIR, Warning
 from mvir.extract.cache import ResponseCache
 from mvir.extract.ast_repair import repair_expr
@@ -369,7 +369,7 @@ def _normalize_payload_expr_fields(
                 )
                 continue
             raw_expr = deepcopy(expr)
-            expr = normalize_expr_dict(expr)
+            expr = normalize_expr_dict_relaxed(expr)
             if not isinstance(expr, dict):
                 warnings.append(
                     {
@@ -413,7 +413,7 @@ def _normalize_payload_expr_fields(
         raw_goal_expr = None
 
     if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
-        normalized_expr = normalize_expr_dict(goal["expr"])
+        normalized_expr = normalize_expr_dict_relaxed(goal["expr"])
         if isinstance(normalized_expr, dict):
             normalized_expr = repair_expr(
                 normalized_expr,
@@ -431,7 +431,7 @@ def _normalize_payload_expr_fields(
         _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
     if isinstance(goal, dict) and isinstance(goal.get("target"), dict):
         raw_target = deepcopy(goal.get("target"))
-        normalized_target = normalize_expr_dict(goal["target"])
+        normalized_target = normalize_expr_dict_relaxed(goal["target"])
         sanitized_target = (
             sanitize_expr_dict(normalized_target)
             if isinstance(normalized_target, dict)
