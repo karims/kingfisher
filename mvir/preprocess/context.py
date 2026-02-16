@@ -123,19 +123,43 @@ def _sorted_spans(spans: list[dict]) -> list[dict]:
     return sorted(spans, key=lambda span: (span["start"], span["end"]))
 
 
+def normalize_preprocess_dict(pre: dict) -> dict:
+    """Normalize preprocess payload into a stable prompt-context input shape."""
+
+    text = pre.get("text", "") if isinstance(pre, dict) else ""
+    if not isinstance(text, str):
+        text = ""
+
+    cue_candidates = pre.get("cue_candidates", []) if isinstance(pre, dict) else []
+    if not isinstance(cue_candidates, list):
+        cue_candidates = []
+
+    math_candidates = pre.get("math_candidates", []) if isinstance(pre, dict) else []
+    if not isinstance(math_candidates, list):
+        math_candidates = []
+
+    spans = pre.get("spans") if isinstance(pre, dict) else None
+    if not isinstance(spans, list):
+        spans = _extract_sentence_spans(text)
+
+    return {
+        "text": text,
+        "cue_candidates": cue_candidates,
+        "math_candidates": math_candidates,
+        "spans": spans,
+    }
+
+
 def build_prompt_context(pre: dict) -> dict:
     """Build a compact prompt context object from preprocess output."""
 
-    text = pre.get("text", "")
-    pre_spans = pre.get("spans")
-    if isinstance(pre_spans, list):
-        sentences = [span for span in pre_spans if isinstance(span, dict)]
-    else:
-        sentences = _extract_sentence_spans(text)
+    normalized = normalize_preprocess_dict(pre)
+    text = normalized["text"]
+    sentences = normalized["spans"]
 
     math_candidates = []
     math_id = 1
-    for span in _sorted_spans(pre.get("math_candidates", [])):
+    for span in _sorted_spans(normalized["math_candidates"]):
         math_candidates.append(
             {
                 "span_id": f"m{math_id}",
@@ -148,7 +172,7 @@ def build_prompt_context(pre: dict) -> dict:
 
     cue_candidates = []
     cue_id = 1
-    for span in _sorted_spans(pre.get("cue_candidates", [])):
+    for span in _sorted_spans(normalized["cue_candidates"]):
         cue = span.get("cue") or span.get("category") or span.get("label")
         cue_candidates.append(
             {

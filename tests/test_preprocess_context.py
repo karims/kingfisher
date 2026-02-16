@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
-from mvir.preprocess.context import build_preprocess_output, build_prompt_context
+from mvir.preprocess.context import (
+    build_preprocess_output,
+    build_prompt_context,
+    normalize_preprocess_dict,
+)
 
 
 def test_preprocess_output_candidates() -> None:
@@ -135,3 +139,33 @@ def test_build_prompt_context_prefers_spans() -> None:
 
     context = build_prompt_context(pre)
     assert context["sentences"] == pre["spans"]
+
+
+def test_normalize_preprocess_dict_creates_spans_when_missing() -> None:
+    pre = {
+        "text": "Show that x = 2. Find y.",
+        "cue_candidates": [],
+        "math_candidates": [],
+    }
+
+    normalized = normalize_preprocess_dict(pre)
+
+    assert set(normalized.keys()) == {"text", "cue_candidates", "math_candidates", "spans"}
+    assert normalized["spans"]
+    assert normalized["spans"][0]["span_id"] == "s1"
+
+
+def test_normalize_preprocess_dict_preserves_existing_spans_exactly() -> None:
+    spans = [
+        {"span_id": "s_custom_1", "start": 0, "end": 4, "text": "Show"},
+        {"span_id": "s_custom_2", "start": 5, "end": 9, "text": "that"},
+    ]
+    pre = {
+        "text": "Show that x = 2.",
+        "cue_candidates": [],
+        "math_candidates": [],
+        "spans": spans,
+    }
+
+    normalized = normalize_preprocess_dict(pre)
+    assert normalized["spans"] == spans
