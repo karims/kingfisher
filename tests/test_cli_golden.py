@@ -188,4 +188,4 @@ def test_cli_golden_forces_deterministic_sampling_for_openai(
     assert rc == 0
     assert captured["temperature"] == 0.0
     assert captured["provider_top_p"] == 1.0
-    assert captured["provider_seed"] == 0
+    assert captured["provider_seed"] is None

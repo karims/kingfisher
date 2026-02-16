@@ -99,7 +99,7 @@ class OpenAIProvider(LLMProvider):
         if self.top_p is not None:
             payload["top_p"] = self.top_p
         if self.seed is not None:
-            payload["seed"] = self.seed
+            print("WARNING: seed ignored for OpenAI Responses API")
 
         retried_temperature = False
         retried_max_tokens = False

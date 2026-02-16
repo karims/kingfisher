@@ -127,11 +127,6 @@ def _configure_provider_for_golden(provider: object) -> None:
         setattr(provider, "top_p", 1.0)
     except Exception:
         pass
-    try:
-        # Stable seed where supported by backend/model.
-        setattr(provider, "seed", 0)
-    except Exception:
-        pass
 
 
 def main(argv: list[str] | None = None) -> int:
