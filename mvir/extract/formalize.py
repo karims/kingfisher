@@ -9,12 +9,13 @@ from __future__ import annotations
 
 import json
 import traceback
+from copy import deepcopy
 from pathlib import Path
 
 from pydantic import ValidationError
 
 from mvir.core.ast_normalize import normalize_expr_dict
-from mvir.core.models import MVIR
+from mvir.core.models import MVIR, Warning
 from mvir.extract.cache import ResponseCache
 from mvir.extract.ast_repair import repair_expr
 from mvir.extract.context import build_prompt_context
@@ -90,10 +91,10 @@ def _build_validation_repair_prompt(
         "If an assumption expression cannot be constructed with all required fields of its AST node, DO NOT insert placeholder null fields.\n"
         "Instead: remove that assumption and add warning:\n"
         "{\n"
-        "  \"code\": \"dropped_assumption\",\n"
+        "  \"code\": \"invalid_assumption_expr_dropped\",\n"
         "  \"message\": \"...\",\n"
         "  \"trace\": [...],\n"
-        "  \"details\": {\"reason\": \"...\"}\n"
+        "  \"details\": {\"reason\": \"...\", \"raw_expr\": {...}}\n"
         "}\n"
         "FORBIDDEN: id:null, value:null, args:null, lhs:null, rhs:null, base:null, exp:null, num:null, den:null, from:null, to:null, body:null.\n"
         "If a secondary task expression cannot be represented correctly with available AST nodes, DO NOT put it in assumptions.\n"
@@ -142,6 +143,7 @@ def formalize_text_to_mvir(
     normalize: bool = False,
     repair: bool = True,
     debug_dir: str | None = None,
+    degrade_on_validation_failure: bool = False,
 ) -> MVIR:
     """Run preprocess + prompt + provider completion and return MVIR."""
 
@@ -200,7 +202,10 @@ def formalize_text_to_mvir(
                 payload = normalize_llm_payload(payload)
         if isinstance(payload, dict):
             payload = sanitize_mvir_payload(payload)
-            payload = _normalize_payload_expr_fields(payload)
+            payload = _normalize_payload_expr_fields(
+                payload,
+                degrade_on_invalid_goal_expr=degrade_on_validation_failure,
+            )
 
         try:
             mvir = MVIR.model_validate(payload)
@@ -254,20 +259,50 @@ def formalize_text_to_mvir(
                     payload = normalize_llm_payload(payload)
                 if isinstance(payload, dict):
                     payload = sanitize_mvir_payload(payload)
-                    payload = _normalize_payload_expr_fields(payload)
+                    payload = _normalize_payload_expr_fields(
+                        payload,
+                        degrade_on_invalid_goal_expr=degrade_on_validation_failure,
+                    )
 
                 try:
                     mvir = MVIR.model_validate(payload)
                 except ValidationError as retry_validation_exc:
-                    raise ValueError(
-                        f"MVIR validation failed after repair retry: {retry_validation_exc}"
-                    ) from retry_validation_exc
+                    if degrade_on_validation_failure and isinstance(payload, dict):
+                        mvir = _recover_minimal_valid_mvir(
+                            payload=payload,
+                            problem_id=problem_id,
+                            source_text=text,
+                            reason=f"post_retry_validation_error: {retry_validation_exc}",
+                        )
+                    else:
+                        raise ValueError(
+                            f"MVIR validation failed after repair retry: {retry_validation_exc}"
+                        ) from retry_validation_exc
+            elif degrade_on_validation_failure and isinstance(payload, dict):
+                mvir = _recover_minimal_valid_mvir(
+                    payload=payload,
+                    problem_id=problem_id,
+                    source_text=text,
+                    reason=f"validation_error: {exc}",
+                )
             else:
                 raise first_error from exc
 
         errors = validate_grounding_contract(mvir)
         if strict and errors:
-            raise ValueError("Grounding contract failed: " + "; ".join(errors))
+            if degrade_on_validation_failure:
+                mvir.warnings.append(
+                    Warning(
+                        code="grounding_contract_degraded",
+                        message=(
+                            "Grounding contract failed; retained degraded-but-valid MVIR."
+                        ),
+                        trace=["s0"],
+                        details={"errors": errors},
+                    )
+                )
+            else:
+                raise ValueError("Grounding contract failed: " + "; ".join(errors))
 
         return mvir
     except Exception as exc:
@@ -284,7 +319,11 @@ def formalize_text_to_mvir(
         raise
 
 
-def _normalize_payload_expr_fields(payload: dict) -> dict:
+def _normalize_payload_expr_fields(
+    payload: dict,
+    *,
+    degrade_on_invalid_goal_expr: bool = False,
+) -> dict:
     """Normalize assumptions/goal expression dicts before MVIR validation."""
 
     span_texts = _span_text_map(payload)
@@ -307,13 +346,17 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
             if not isinstance(expr, dict):
                 warnings.append(
                     {
-                        "code": "dropped_assumption",
+                        "code": "invalid_assumption_expr_dropped",
                         "message": "Dropped assumption: expression is not an object.",
                         "trace": _trace_ids(item),
-                        "details": {"reason": "non_object_expr"},
+                        "details": {
+                            "reason": "non_object_expr",
+                            "raw_expr": deepcopy(expr),
+                        },
                     }
                 )
                 continue
+            raw_expr = deepcopy(expr)
             expr = normalize_expr_dict(expr)
             expr = repair_expr(
                 expr,
@@ -324,10 +367,13 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
             if expr is None:
                 warnings.append(
                     {
-                        "code": "dropped_assumption",
+                        "code": "invalid_assumption_expr_dropped",
                         "message": "Dropped assumption: expression missing required AST fields.",
                         "trace": _trace_ids(item),
-                        "details": {"reason": "incomplete_expr"},
+                        "details": {
+                            "reason": "incomplete_expr",
+                            "raw_expr": raw_expr,
+                        },
                     }
                 )
                 continue
@@ -336,6 +382,11 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
         payload["assumptions"] = kept_assumptions
 
     goal = payload.get("goal")
+    if isinstance(goal, dict):
+        raw_goal_expr = deepcopy(goal.get("expr"))
+    else:
+        raw_goal_expr = None
+
     if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
         normalized_expr = normalize_expr_dict(goal["expr"])
         normalized_expr = repair_expr(
@@ -346,6 +397,10 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
         sanitized_expr = sanitize_expr_dict(normalized_expr)
         if sanitized_expr is not None:
             goal["expr"] = sanitized_expr
+        elif degrade_on_invalid_goal_expr:
+            _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
+    elif isinstance(goal, dict) and degrade_on_invalid_goal_expr:
+        _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
     if isinstance(goal, dict) and isinstance(goal.get("target"), dict):
         normalized_target = normalize_expr_dict(goal["target"])
         sanitized_target = sanitize_expr_dict(normalized_target)
@@ -357,6 +412,67 @@ def _normalize_payload_expr_fields(payload: dict) -> dict:
     _repair_find_goal_without_target(payload)
 
     return payload
+
+
+def _replace_invalid_goal_expr(payload: dict, goal: dict, raw_goal_expr) -> None:
+    warnings = payload.get("warnings")
+    if not isinstance(warnings, list):
+        warnings = []
+        payload["warnings"] = warnings
+    goal["kind"] = "prove"
+    goal["expr"] = {"node": "Bool", "value": True}
+    warnings.append(
+        {
+            "code": "invalid_goal_expr_replaced",
+            "message": "Replaced invalid goal expression with a safe fallback Bool(true).",
+            "trace": _trace_ids(goal),
+            "details": {
+                "reason": "goal_expr_not_parseable",
+                "raw_expr": deepcopy(raw_goal_expr),
+            },
+        }
+    )
+
+
+def _recover_minimal_valid_mvir(
+    *,
+    payload: dict,
+    problem_id: str,
+    source_text: str,
+    reason: str,
+) -> MVIR:
+    _ = payload
+    full_len = len(source_text)
+    fallback = {
+        "meta": {
+            "version": "0.1",
+            "id": problem_id,
+            "generator": "degraded-recovery",
+        },
+        "source": {"text": source_text},
+        "entities": [],
+        "assumptions": [],
+        "goal": {
+            "kind": "prove",
+            "expr": {"node": "Bool", "value": True},
+            "trace": ["s0"],
+        },
+        "concepts": [],
+        "warnings": [
+            {
+                "code": "invalid_mvir_recovered",
+                "message": "Recovered to minimal valid MVIR after validation failure.",
+                "trace": ["s0"],
+                "details": {"reason": reason},
+            }
+        ],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": full_len, "text": source_text},
+            {"span_id": "s1", "start": 0, "end": full_len, "text": source_text},
+        ],
+    }
+
+    return MVIR.model_validate(fallback)
 
 
 def _repair_find_goal_without_target(payload: dict) -> None:

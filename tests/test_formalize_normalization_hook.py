@@ -85,7 +85,7 @@ def test_formalize_normalization_hook_drops_invalid_assumption_to_warning() -> N
     mvir = MVIR.model_validate(normalized)
 
     assert mvir.assumptions == []
-    assert any(w.code == "dropped_assumption" for w in mvir.warnings)
+    assert any(w.code == "invalid_assumption_expr_dropped" for w in mvir.warnings)
 
 
 def test_formalize_normalization_hook_drops_incomplete_sum_assumption_without_null_stuffing() -> None:
@@ -128,10 +128,11 @@ def test_formalize_normalization_hook_drops_incomplete_sum_assumption_without_nu
     mvir = MVIR.model_validate(normalized)
 
     assert mvir.assumptions == []
-    warning = next((w for w in mvir.warnings if w.code == "dropped_assumption"), None)
+    warning = next((w for w in mvir.warnings if w.code == "invalid_assumption_expr_dropped"), None)
     assert warning is not None
     assert warning.details is not None
     assert warning.details.get("reason") == "incomplete_expr"
+    assert isinstance(warning.details.get("raw_expr"), dict)
 
 
 def test_formalize_normalization_hook_downgrades_find_without_target() -> None:
@@ -242,4 +243,34 @@ def test_formalize_normalization_hook_drops_assumption_when_nested_add_args_all_
     mvir = MVIR.model_validate(normalized)
 
     assert mvir.assumptions == []
-    assert any(w.code == "dropped_assumption" for w in mvir.warnings)
+    assert any(w.code == "invalid_assumption_expr_dropped" for w in mvir.warnings)
+
+
+def test_formalize_normalization_hook_replaces_invalid_goal_expr_when_degrade_enabled() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_bad_goal_expr", "generator": "test"},
+        "source": {"text": "Compute something."},
+        "entities": [],
+        "assumptions": [],
+        "goal": {
+            "kind": "compute",
+            "expr": {"node": "Add"},
+            "trace": ["s1"],
+        },
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 18, "text": "Compute something."},
+            {"span_id": "s1", "start": 0, "end": 18, "text": "Compute something."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload, degrade_on_invalid_goal_expr=True)
+    mvir = MVIR.model_validate(normalized)
+
+    assert mvir.goal.kind.value == "prove"
+    assert mvir.goal.expr.node == "Bool"
+    warning = next((w for w in mvir.warnings if w.code == "invalid_goal_expr_replaced"), None)
+    assert warning is not None
+    assert warning.details is not None
+    assert warning.details.get("reason") == "goal_expr_not_parseable"

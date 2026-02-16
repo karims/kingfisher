@@ -147,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
             temperature=args.temperature,
             strict=args.strict,
             debug_dir=args.debug_dir,
+            degrade_on_validation_failure=args.openai_allow_fallback,
         )
         if not args.strict:
             grounding_errors = validate_grounding_contract(mvir)

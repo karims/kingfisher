@@ -202,6 +202,7 @@ def main(argv: list[str] | None = None) -> int:
 
     mismatches: list[str] = []
     failures: list[str] = []
+    degraded: list[str] = []
 
     for path in files:
         try:
@@ -221,8 +222,24 @@ def main(argv: list[str] | None = None) -> int:
                 problem_id=problem_id,
                 temperature=args.temperature,
                 strict=args.strict,
+                degrade_on_validation_failure=True,
             )
             rerun_payload = rerun_mvir.model_dump(by_alias=False, exclude_none=True)
+            warning_codes: set[str] = set()
+            warnings = rerun_payload.get("warnings")
+            if isinstance(warnings, list):
+                for item in warnings:
+                    if isinstance(item, dict):
+                        code = item.get("code")
+                        if isinstance(code, str):
+                            warning_codes.add(code)
+            if warning_codes & {
+                "invalid_assumption_expr_dropped",
+                "invalid_goal_expr_replaced",
+                "invalid_mvir_recovered",
+                "grounding_contract_degraded",
+            }:
+                degraded.append(str(path))
 
             left = _normalize_for_compare(payload)
             right = _normalize_for_compare(rerun_payload)
@@ -247,7 +264,9 @@ def main(argv: list[str] | None = None) -> int:
                 break
 
     total = len(files)
-    print(f"total={total} mismatches={len(mismatches)} failed={len(failures)}")
+    print(
+        f"total={total} mismatches={len(mismatches)} failed={len(failures)} degraded={len(degraded)}"
+    )
     if mismatches:
         print("mismatch files:")
         for item in mismatches:
@@ -255,6 +274,10 @@ def main(argv: list[str] | None = None) -> int:
     if failures:
         print("failed files:")
         for item in failures:
+            print(item)
+    if degraded:
+        print("degraded files:")
+        for item in degraded:
             print(item)
 
     if failures:

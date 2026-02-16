@@ -55,3 +55,42 @@ def test_formalize_invalid_schema() -> None:
         formalize_text_to_mvir("x", provider, problem_id="bad")
 
     assert "MVIR validation failed" in str(excinfo.value)
+
+
+def test_formalize_degrade_replaces_invalid_goal_expr() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "degrade_goal_case", "generator": "mock"},
+        "source": {"text": "Compute x."},
+        "entities": [],
+        "assumptions": [],
+        "goal": {"kind": "compute", "expr": {"node": "Add"}, "trace": ["s1"]},
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 10, "text": "Compute x."},
+            {"span_id": "s1", "start": 0, "end": 10, "text": "Compute x."},
+        ],
+    }
+    provider = MockProvider({"degrade_goal_case": json.dumps(payload)})
+    mvir = formalize_text_to_mvir(
+        "Compute x.",
+        provider,
+        problem_id="degrade_goal_case",
+        degrade_on_validation_failure=True,
+    )
+    assert mvir.goal.kind.value == "prove"
+    assert mvir.goal.expr.node == "Bool"
+    assert any(w.code == "invalid_goal_expr_replaced" for w in mvir.warnings)
+
+
+def test_formalize_degrade_recovers_minimal_valid_mvir_from_invalid_schema() -> None:
+    provider = MockProvider({"degrade_bad_schema": "{}"})
+    mvir = formalize_text_to_mvir(
+        "x",
+        provider,
+        problem_id="degrade_bad_schema",
+        degrade_on_validation_failure=True,
+    )
+    assert mvir.meta.id == "degrade_bad_schema"
+    assert mvir.goal.expr.node == "Bool"
+    assert any(w.code == "invalid_mvir_recovered" for w in mvir.warnings)

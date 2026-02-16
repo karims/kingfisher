@@ -63,7 +63,7 @@ def test_cli_golden_ignores_json_schema_and_json_object_variants(
     out = capsys.readouterr().out
 
     assert rc == 0
-    assert "total=1 mismatches=0 failed=0" in out
+    assert "total=1 mismatches=0 failed=0 degraded=0" in out
     assert "a.json_object.json" not in out
     assert "a.json_schema.json" not in out
 
@@ -91,7 +91,7 @@ def test_cli_golden_update_overwrites_baseline_on_mismatch(
 
     assert rc == 0
     assert f"UPDATE: {baseline_path}" in out
-    assert "total=1 mismatches=1 failed=0" in out
+    assert "total=1 mismatches=1 failed=0 degraded=0" in out
 
     updated = json.loads(baseline_path.read_text(encoding="utf-8"))
     expected = cli_golden._normalize_for_compare(rerun_payload)
@@ -120,3 +120,33 @@ def test_cli_golden_fail_on_mismatch_returns_non_zero(
 
     assert rc == 1
     assert f"MISMATCH: {baseline_path}" in out
+
+
+def test_cli_golden_counts_degraded_files(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    baseline = _mvir_payload("a", "x")
+    (tmp_path / "a.json").write_text(json.dumps(baseline), encoding="utf-8")
+
+    monkeypatch.setattr(cli_golden, "build_provider", lambda *args, **kwargs: object())
+    degraded_payload = _mvir_payload("a", "x")
+    degraded_payload["warnings"] = [
+        {
+            "code": "invalid_goal_expr_replaced",
+            "message": "Replaced invalid goal expression with a safe fallback Bool(true).",
+            "trace": ["s0"],
+        }
+    ]
+    monkeypatch.setattr(
+        cli_golden,
+        "formalize_text_to_mvir",
+        lambda *args, **kwargs: _DummyMVIR(degraded_payload),
+    )
+
+    rc = cli_golden.main(["--input-dir", str(tmp_path), "--provider", "openai"])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    assert "degraded=1" in out

@@ -116,6 +116,7 @@ def main(argv: list[str] | None = None) -> int:
                 use_cache=True,
                 strict=args.strict,
                 debug_dir=args.debug_dir,
+                degrade_on_validation_failure=args.openai_allow_fallback,
             )
             payload = mvir.model_dump(by_alias=False, exclude_none=True)
             (out_dir / f"{problem_id}.json").write_text(
