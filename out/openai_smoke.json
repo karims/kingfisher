@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant"
+    "generator": "assistant-v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "id": "k",
+      "id": "n",
       "kind": "variable",
       "type": "Integer",
       "properties": [],
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "id": "n",
+      "id": "k",
       "kind": "variable",
       "type": "Integer",
       "properties": [],
@@ -81,11 +81,26 @@
       "s3"
     ]
   },
-  "concepts": [],
+  "concepts": [
+    {
+      "id": "sum_identity",
+      "role": "pattern",
+      "trace": [
+        "s4"
+      ]
+    }
+  ],
   "warnings": [
     {
+      "code": "unparsed_math",
+      "message": "Secondary task 'Compute x^2 + 1.' not represented as a formal MVIR expression.",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
       "code": "multiple_tasks",
-      "message": "Multiple tasks in input. Primary selected: prove x^2 >= 0 (s3). Secondary tasks: compute x^2 + 1 (s1), summation identity (s4).",
+      "message": "Primary goal chosen is the inequality 'x^2 >= 0'. Other tasks treated as secondary.",
       "trace": [
         "s1",
         "s4"

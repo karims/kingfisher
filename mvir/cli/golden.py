@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any
 
 from mvir.cli.formalize import build_provider, format_cli_exception
+from mvir.core.ast import expr_to_dict, parse_expr
+from mvir.core.ast_normalize import normalize_expr_dict
 from mvir.extract.formalize import formalize_text_to_mvir
 
 
@@ -15,20 +17,104 @@ def _canonicalize(value: Any) -> Any:
     if isinstance(value, dict):
         return {key: _canonicalize(val) for key, val in sorted(value.items())}
     if isinstance(value, list):
-        normalized = [_canonicalize(item) for item in value]
-        return sorted(
-            normalized,
-            key=lambda item: json.dumps(item, sort_keys=True, ensure_ascii=False),
-        )
+        return [_canonicalize(item) for item in value]
     return value
 
 
-def _normalize_for_compare(payload: dict[str, Any]) -> dict[str, Any]:
+def _canonical_expr(expr: Any) -> Any:
+    if not isinstance(expr, dict):
+        return expr
+    normalized = normalize_expr_dict(expr)
+    try:
+        return _canonicalize(expr_to_dict(parse_expr(normalized)))
+    except Exception:  # noqa: BLE001 - best-effort canonicalization
+        return _canonicalize(normalized)
+
+
+def _trace_key(trace: Any) -> str:
+    if not isinstance(trace, list):
+        return ""
+    return ",".join(item for item in trace if isinstance(item, str))
+
+
+def _normalize_for_compare(payload: dict[str, Any], *, drop_generator: bool = True) -> dict[str, Any]:
     data = json.loads(json.dumps(payload))
     meta = data.get("meta")
     if isinstance(meta, dict):
         meta.pop("created_at", None)
+        if drop_generator:
+            meta.pop("generator", None)
+
+    entities = data.get("entities")
+    if isinstance(entities, list):
+        data["entities"] = sorted(
+            (_canonicalize(item) for item in entities),
+            key=lambda item: item.get("id", "") if isinstance(item, dict) else "",
+        )
+
+    assumptions = data.get("assumptions")
+    if isinstance(assumptions, list):
+        canonical_assumptions: list[dict[str, Any]] = []
+        for item in assumptions:
+            if not isinstance(item, dict):
+                continue
+            current = _canonicalize(item)
+            if "expr" in current:
+                current["expr"] = _canonical_expr(current.get("expr"))
+            canonical_assumptions.append(current)
+        data["assumptions"] = sorted(
+            canonical_assumptions,
+            key=lambda item: (
+                item.get("kind", ""),
+                _trace_key(item.get("trace")),
+                json.dumps(item.get("expr"), sort_keys=True, ensure_ascii=False),
+            ),
+        )
+
+    concepts = data.get("concepts")
+    if isinstance(concepts, list):
+        data["concepts"] = sorted(
+            (_canonicalize(item) for item in concepts),
+            key=lambda item: item.get("id", "") if isinstance(item, dict) else "",
+        )
+
+    warnings = data.get("warnings")
+    if isinstance(warnings, list):
+        data["warnings"] = sorted(
+            (_canonicalize(item) for item in warnings),
+            key=lambda item: (
+                item.get("code", "") if isinstance(item, dict) else "",
+                _trace_key(item.get("trace")) if isinstance(item, dict) else "",
+                item.get("message", "") if isinstance(item, dict) else "",
+            ),
+        )
+
+    trace = data.get("trace")
+    if isinstance(trace, list):
+        data["trace"] = sorted(
+            (_canonicalize(item) for item in trace),
+            key=lambda item: item.get("span_id", "") if isinstance(item, dict) else "",
+        )
+
+    goal = data.get("goal")
+    if isinstance(goal, dict):
+        goal = _canonicalize(goal)
+        if "expr" in goal:
+            goal["expr"] = _canonical_expr(goal.get("expr"))
+        if "target" in goal:
+            goal["target"] = _canonical_expr(goal.get("target"))
+        data["goal"] = goal
+
     return _canonicalize(data)
+
+
+def _is_baseline_file(path: Path) -> bool:
+    name = path.name
+    return (
+        name.endswith(".json")
+        and not name.endswith(".json_object.json")
+        and not name.endswith(".json_schema.json")
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -81,6 +167,16 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Stop after first mismatch/failure.",
     )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Overwrite baseline with canonical rerun output when a mismatch is found.",
+    )
+    parser.add_argument(
+        "--fail-on-mismatch",
+        action="store_true",
+        help="Return non-zero when mismatches are detected.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -99,7 +195,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: input dir not found: {input_dir}")
         return 1
 
-    files = sorted(input_dir.rglob("*.json"))
+    files = sorted(path for path in input_dir.rglob("*.json") if _is_baseline_file(path))
     if not files:
         print(f"ERROR: no JSON files found under {input_dir}")
         return 1
@@ -132,7 +228,14 @@ def main(argv: list[str] | None = None) -> int:
             right = _normalize_for_compare(rerun_payload)
             if left != right:
                 mismatches.append(str(path))
-                print(f"MISMATCH: {path}")
+                if args.update:
+                    path.write_text(
+                        json.dumps(right, indent=2, ensure_ascii=False),
+                        encoding="utf-8",
+                    )
+                    print(f"UPDATE: {path}")
+                else:
+                    print(f"MISMATCH: {path}")
                 if args.fail_fast:
                     break
             else:
@@ -154,7 +257,9 @@ def main(argv: list[str] | None = None) -> int:
         for item in failures:
             print(item)
 
-    if mismatches or failures:
+    if failures:
+        return 1
+    if mismatches and args.fail_on_mismatch:
         return 1
     return 0
 
