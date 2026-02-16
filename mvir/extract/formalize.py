@@ -157,6 +157,7 @@ def formalize_text_to_mvir(
     debug_dir: str | None = None,
     degrade_on_validation_failure: bool = False,
     deterministic: bool = False,
+    allow_degraded: bool = False,
 ) -> MVIR:
     """Run preprocess + prompt + provider completion and return MVIR."""
 
@@ -165,12 +166,14 @@ def formalize_text_to_mvir(
     prompt = build_mvir_prompt(prompt_context, problem_id=problem_id)
     provider_name = getattr(provider, "name", provider.__class__.__name__)
     model_name = getattr(provider, "model", None)
+    degraded_mode = degrade_on_validation_failure or allow_degraded
     debug_settings = {
         "provider": str(provider_name),
         "model": str(model_name) if model_name is not None else None,
         "schema_mode": getattr(provider, "format_mode", None),
         "fallback_mode": bool(getattr(provider, "allow_fallback", False)),
         "deterministic": deterministic,
+        "allow_degraded": allow_degraded,
         "temperature": temperature,
         "top_p": getattr(provider, "top_p", None),
     }
@@ -226,7 +229,8 @@ def formalize_text_to_mvir(
             payload = sanitize_mvir_payload(payload)
             payload = _normalize_payload_expr_fields(
                 payload,
-                degrade_on_invalid_goal_expr=degrade_on_validation_failure,
+                degrade_on_invalid_goal_expr=degraded_mode,
+                allow_degraded=allow_degraded,
             )
 
         try:
@@ -284,13 +288,14 @@ def formalize_text_to_mvir(
                     payload = sanitize_mvir_payload(payload)
                     payload = _normalize_payload_expr_fields(
                         payload,
-                        degrade_on_invalid_goal_expr=degrade_on_validation_failure,
+                        degrade_on_invalid_goal_expr=degraded_mode,
+                        allow_degraded=allow_degraded,
                     )
 
                 try:
                     mvir = MVIR.model_validate(payload)
                 except ValidationError as retry_validation_exc:
-                    if degrade_on_validation_failure and isinstance(payload, dict):
+                    if degraded_mode and isinstance(payload, dict):
                         mvir = _recover_minimal_valid_mvir(
                             payload=payload,
                             problem_id=problem_id,
@@ -301,7 +306,7 @@ def formalize_text_to_mvir(
                         raise ValueError(
                             f"MVIR validation failed after repair retry: {retry_validation_exc}"
                         ) from retry_validation_exc
-            elif degrade_on_validation_failure and isinstance(payload, dict):
+            elif degraded_mode and isinstance(payload, dict):
                 mvir = _recover_minimal_valid_mvir(
                     payload=payload,
                     problem_id=problem_id,
@@ -313,7 +318,7 @@ def formalize_text_to_mvir(
 
         errors = validate_grounding_contract(mvir)
         if strict and errors:
-            if degrade_on_validation_failure:
+            if degraded_mode:
                 mvir.warnings.append(
                     Warning(
                         code="grounding_contract_degraded",
@@ -347,6 +352,7 @@ def _normalize_payload_expr_fields(
     payload: dict,
     *,
     degrade_on_invalid_goal_expr: bool = False,
+    allow_degraded: bool = False,
 ) -> dict:
     """Normalize assumptions/goal expression dicts before MVIR validation."""
 
@@ -361,39 +367,42 @@ def _normalize_payload_expr_fields(
         payload["warnings"] = warnings
 
     assumptions = payload.get("assumptions")
+    dropped_any = False
     if isinstance(assumptions, list):
         kept_assumptions: list[dict] = []
-        for item in assumptions:
+        for idx, item in enumerate(assumptions):
             if not isinstance(item, dict):
                 continue
             expr = item.get("expr")
             if not isinstance(expr, dict):
-                warnings.append(
-                    {
-                        "code": "invalid_assumption_expr_dropped",
-                        "message": "dropped invalid expr subtree: non-object expression",
-                        "trace": _trace_ids(item),
-                        "details": {
-                            "reason": "non_object_expr",
-                            "raw_expr": deepcopy(expr),
-                        },
-                    }
+                _append_dropped_expr_warning(
+                    warnings=warnings,
+                    trace=_trace_ids(item),
+                    message="dropped invalid expr subtree: non-object expression",
+                    reason="non_object_expr",
+                    raw_expr=deepcopy(expr),
+                    path=("assumptions", idx, "expr"),
+                    node_type=None,
+                    allow_degraded=allow_degraded,
+                    legacy_code="invalid_assumption_expr_dropped",
                 )
+                dropped_any = True
                 continue
             raw_expr = deepcopy(expr)
             expr = normalize_expr_dict_relaxed(expr)
             if not isinstance(expr, dict):
-                warnings.append(
-                    {
-                        "code": "invalid_assumption_expr_dropped",
-                        "message": "dropped invalid expr subtree: normalization missing required fields",
-                        "trace": _trace_ids(item),
-                        "details": {
-                            "reason": "normalize_missing_required_fields",
-                            "raw_expr": raw_expr,
-                        },
-                    }
+                _append_dropped_expr_warning(
+                    warnings=warnings,
+                    trace=_trace_ids(item),
+                    message="dropped invalid expr subtree: normalization missing required fields",
+                    reason="normalize_missing_required_fields",
+                    raw_expr=raw_expr,
+                    path=("assumptions", idx, "expr"),
+                    node_type=raw_expr.get("node") if isinstance(raw_expr, dict) else None,
+                    allow_degraded=allow_degraded,
+                    legacy_code="invalid_assumption_expr_dropped",
                 )
+                dropped_any = True
                 continue
             expr = repair_expr(
                 expr,
@@ -402,17 +411,18 @@ def _normalize_payload_expr_fields(
             )
             expr = sanitize_expr_dict(expr)
             if expr is None:
-                warnings.append(
-                    {
-                        "code": "invalid_assumption_expr_dropped",
-                        "message": "dropped invalid expr subtree: expression missing required AST fields",
-                        "trace": _trace_ids(item),
-                        "details": {
-                            "reason": "incomplete_expr",
-                            "raw_expr": raw_expr,
-                        },
-                    }
+                _append_dropped_expr_warning(
+                    warnings=warnings,
+                    trace=_trace_ids(item),
+                    message="dropped invalid expr subtree: expression missing required AST fields",
+                    reason="incomplete_expr",
+                    raw_expr=raw_expr,
+                    path=("assumptions", idx, "expr"),
+                    node_type=raw_expr.get("node") if isinstance(raw_expr, dict) else None,
+                    allow_degraded=allow_degraded,
+                    legacy_code="invalid_assumption_expr_dropped",
                 )
+                dropped_any = True
                 continue
             item["expr"] = expr
             kept_assumptions.append(item)
@@ -438,9 +448,11 @@ def _normalize_payload_expr_fields(
         if sanitized_expr is not None:
             goal["expr"] = sanitized_expr
         else:
-            _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
+            _replace_invalid_goal_expr(payload, goal, raw_goal_expr, allow_degraded=allow_degraded)
+            dropped_any = True
     elif isinstance(goal, dict):
-        _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
+        _replace_invalid_goal_expr(payload, goal, raw_goal_expr, allow_degraded=allow_degraded)
+        dropped_any = True
     if isinstance(goal, dict) and isinstance(goal.get("target"), dict):
         raw_target = deepcopy(goal.get("target"))
         normalized_target = normalize_expr_dict_relaxed(goal["target"])
@@ -453,39 +465,82 @@ def _normalize_payload_expr_fields(
             goal["target"] = sanitized_target
         else:
             goal.pop("target", None)
-            warnings.append(
-                {
-                    "code": "invalid_goal_target_expr_dropped",
-                    "message": "dropped invalid expr subtree: goal.target missing required AST fields",
-                    "trace": _trace_ids(goal),
-                    "details": {
-                        "reason": "goal_target_incomplete_expr",
-                        "raw_expr": raw_target,
-                    },
-                }
+            _append_dropped_expr_warning(
+                warnings=warnings,
+                trace=_trace_ids(goal),
+                message="dropped invalid expr subtree: goal.target missing required AST fields",
+                reason="goal_target_incomplete_expr",
+                raw_expr=raw_target,
+                path=("goal", "target"),
+                node_type=raw_target.get("node") if isinstance(raw_target, dict) else None,
+                allow_degraded=allow_degraded,
+                legacy_code="invalid_goal_target_expr_dropped",
             )
+            dropped_any = True
 
     _repair_find_goal_without_target(payload)
+    if allow_degraded and dropped_any and not any(
+        isinstance(w, dict) and w.get("code") == "degraded_output" for w in warnings
+    ):
+        warnings.append(
+            {
+                "code": "degraded_output",
+                "message": "Output was degraded: one or more expressions were dropped or replaced.",
+                "trace": ["s0"],
+                "details": {"reason": "dropped_expr"},
+            }
+        )
 
     return payload
 
 
-def _replace_invalid_goal_expr(payload: dict, goal: dict, raw_goal_expr) -> None:
+def _replace_invalid_goal_expr(
+    payload: dict, goal: dict, raw_goal_expr, *, allow_degraded: bool = False
+) -> None:
     warnings = payload.get("warnings")
     if not isinstance(warnings, list):
         warnings = []
         payload["warnings"] = warnings
     goal["kind"] = "prove"
     goal["expr"] = {"node": "Bool", "value": True}
+    _append_dropped_expr_warning(
+        warnings=warnings,
+        trace=_trace_ids(goal),
+        message="dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
+        reason="goal_expr_not_parseable",
+        raw_expr=deepcopy(raw_goal_expr),
+        path=("goal", "expr"),
+        node_type=raw_goal_expr.get("node") if isinstance(raw_goal_expr, dict) else None,
+        allow_degraded=allow_degraded,
+        legacy_code="invalid_goal_expr_replaced",
+    )
+
+
+def _append_dropped_expr_warning(
+    *,
+    warnings: list,
+    trace: list[str],
+    message: str,
+    reason: str,
+    raw_expr,
+    path: tuple | list | str,
+    node_type: str | None,
+    allow_degraded: bool,
+    legacy_code: str,
+) -> None:
+    code = "dropped_expr" if allow_degraded else legacy_code
+    details = {
+        "reason": reason,
+        "raw_expr": raw_expr,
+        "path": list(path) if isinstance(path, tuple) else path,
+        "node_type": node_type,
+    }
     warnings.append(
         {
-            "code": "invalid_goal_expr_replaced",
-            "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
-            "trace": _trace_ids(goal),
-            "details": {
-                "reason": "goal_expr_not_parseable",
-                "raw_expr": deepcopy(raw_goal_expr),
-            },
+            "code": code,
+            "message": message,
+            "trace": trace,
+            "details": details,
         }
     )
 

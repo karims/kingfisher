@@ -196,6 +196,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Return non-zero when mismatches are detected.",
     )
+    parser.add_argument(
+        "--allow-degraded",
+        action="store_true",
+        help="Allow degraded output by dropping/replacing invalid expressions with warnings.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -251,8 +256,9 @@ def main(argv: list[str] | None = None) -> int:
                 problem_id=problem_id,
                 temperature=0.0 if args.deterministic else args.temperature,
                 strict=args.strict,
-                degrade_on_validation_failure=True,
+                degrade_on_validation_failure=args.allow_degraded,
                 deterministic=args.deterministic,
+                allow_degraded=args.allow_degraded,
             )
             rerun_payload = rerun_mvir.model_dump(by_alias=False, exclude_none=True)
             warning_codes: set[str] = set()
@@ -268,6 +274,8 @@ def main(argv: list[str] | None = None) -> int:
                 "invalid_goal_expr_replaced",
                 "invalid_mvir_recovered",
                 "grounding_contract_degraded",
+                "dropped_expr",
+                "degraded_output",
             }:
                 degraded.append(str(path))
 

@@ -304,3 +304,40 @@ def test_formalize_normalization_hook_normalizes_goal_add_terms_to_args() -> Non
     mvir = MVIR.model_validate(normalized)
     assert mvir.goal.expr.node == "Add"
     assert len(mvir.goal.expr.args) == 2
+
+
+def test_formalize_normalization_hook_allow_degraded_drops_bad_sum_with_dropped_expr_warning() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_degraded_bad_sum", "generator": "test"},
+        "source": {"text": "Also sum from k=1 to n of k equals something."},
+        "entities": [],
+        "assumptions": [
+            {
+                "expr": {
+                    "node": "Eq",
+                    "lhs": {"node": "Sum", "var": "k", "from": {"node": "Number", "value": 1}},
+                    "rhs": {"node": "Number", "value": 0},
+                },
+                "kind": "given",
+                "trace": ["s1"],
+            }
+        ],
+        "goal": {"kind": "prove", "expr": {"node": "Bool", "value": True}, "trace": ["s0"]},
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 44, "text": "Also sum from k=1 to n of k equals something."},
+            {"span_id": "s1", "start": 0, "end": 44, "text": "Also sum from k=1 to n of k equals something."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload, allow_degraded=True)
+    mvir = MVIR.model_validate(normalized)
+
+    assert mvir.assumptions == []
+    dropped = [w for w in mvir.warnings if w.code == "dropped_expr"]
+    assert dropped
+    assert dropped[0].details is not None
+    assert dropped[0].details.get("node_type") in {"Eq", "Sum"}
+    assert dropped[0].details.get("path") == ["assumptions", 0, "expr"]
+    assert any(w.code == "degraded_output" for w in mvir.warnings)

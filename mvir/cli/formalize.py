@@ -141,6 +141,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Force deterministic sampling settings (temperature=0 for this run).",
     )
+    parser.add_argument(
+        "--allow-degraded",
+        action="store_true",
+        help="Allow degraded output by dropping/replacing invalid expressions with warnings.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -169,6 +174,7 @@ def main(argv: list[str] | None = None) -> int:
             debug_dir=args.debug_dir,
             degrade_on_validation_failure=args.openai_allow_fallback,
             deterministic=args.deterministic,
+            allow_degraded=args.allow_degraded,
         )
         if not args.strict:
             grounding_errors = validate_grounding_contract(mvir)
