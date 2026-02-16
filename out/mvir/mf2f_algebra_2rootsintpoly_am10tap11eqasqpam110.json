@@ -1,113 +1,110 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110",
-    "generator": "mock-llm"
-  },
-  "source": {
-    "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110.\n\r\n"
-  },
+  "assumptions": [],
+  "concepts": [
+    {
+      "id": "distributive_property",
+      "role": "candidate_tool",
+      "trace": [
+        "s1"
+      ]
+    }
+  ],
   "entities": [
     {
-      "id": "a",
-      "kind": "variable",
-      "type": "Complex",
+      "id": "Complex",
+      "kind": "set",
       "properties": [],
       "trace": [
         "s1"
-      ]
-    }
-  ],
-  "assumptions": [
+      ],
+      "type": "set"
+    },
     {
-      "expr": {
-        "node": "Bool",
-        "value": true
-      },
-      "kind": "given",
+      "id": "a",
+      "kind": "variable",
+      "properties": [],
       "trace": [
         "s1"
-      ]
+      ],
+      "type": "Complex"
     }
   ],
   "goal": {
-    "kind": "prove",
     "expr": {
-      "node": "Eq",
       "lhs": {
-        "node": "Mul",
         "args": [
           {
-            "node": "Add",
             "args": [
               {
-                "node": "Symbol",
-                "id": "a"
-              },
-              {
-                "node": "Number",
-                "value": -10
+                "id": "a",
+                "node": "Symbol"
               }
-            ]
+            ],
+            "node": "Add"
           },
           {
-            "node": "Add",
             "args": [
               {
-                "node": "Symbol",
-                "id": "a"
+                "id": "a",
+                "node": "Symbol"
               },
               {
                 "node": "Number",
                 "value": 11
               }
-            ]
+            ],
+            "node": "Add"
           }
-        ]
+        ],
+        "node": "Mul"
       },
+      "node": "Eq",
       "rhs": {
-        "node": "Add",
         "args": [
           {
-            "node": "Pow",
             "base": {
-              "node": "Symbol",
-              "id": "a"
+              "id": "a",
+              "node": "Symbol"
             },
             "exp": {
               "node": "Number",
               "value": 2
-            }
+            },
+            "node": "Pow"
           },
           {
-            "node": "Symbol",
-            "id": "a"
-          },
-          {
-            "node": "Number",
-            "value": -110
+            "id": "a",
+            "node": "Symbol"
           }
-        ]
+        ],
+        "node": "Add"
       }
     },
+    "kind": "prove",
     "trace": [
       "s1"
     ]
   },
-  "concepts": [],
-  "warnings": [],
+  "meta": {
+    "id": "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110",
+    "version": "0.1"
+  },
+  "source": {
+    "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110.\n\r\n"
+  },
   "trace": [
     {
+      "end": 72,
       "span_id": "s0",
       "start": 0,
-      "end": 72,
       "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110.\n\r\n"
     },
     {
+      "end": 69,
       "span_id": "s1",
       "start": 0,
-      "end": 69,
       "text": "Show that for any complex number a, (a - 10)(a + 11) = a^2 + a - 110."
     }
-  ]
+  ],
+  "warnings": []
 }

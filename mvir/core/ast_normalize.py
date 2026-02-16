@@ -58,6 +58,18 @@ def normalize_expr_dict(data: dict) -> dict:
     if node in {"Add", "Mul"}:
         args = raw.get("args")
         if not isinstance(args, list):
+            if node == "Add":
+                terms = raw.get("terms")
+                if isinstance(terms, list):
+                    args = terms
+            if node == "Mul":
+                factors = raw.get("factors")
+                terms = raw.get("terms")
+                if isinstance(factors, list):
+                    args = factors
+                elif isinstance(terms, list):
+                    args = terms
+        if not isinstance(args, list):
             lhs = raw.get("lhs")
             rhs = raw.get("rhs")
             if lhs is not None and rhs is not None:
@@ -87,6 +99,10 @@ def normalize_expr_dict(data: dict) -> dict:
     if node == "Div":
         num = raw.get("num")
         den = raw.get("den")
+        if num is None and "left" in raw:
+            num = raw.get("left")
+        if den is None and "right" in raw:
+            den = raw.get("right")
         args = raw.get("args")
         if (num is None or den is None) and isinstance(args, list):
             if num is None and len(args) >= 1:

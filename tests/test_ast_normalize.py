@@ -62,6 +62,44 @@ def test_add_flattening() -> None:
     ]
 
 
+def test_add_terms_to_args() -> None:
+    src = {
+        "node": "Add",
+        "terms": [{"node": "Number", "value": 1}, {"node": "Number", "value": 2}],
+        "junk": True,
+    }
+    out = normalize_expr_dict(src)
+    assert out == {
+        "node": "Add",
+        "args": [{"node": "Number", "value": 1}, {"node": "Number", "value": 2}],
+    }
+
+
+def test_add_lhs_rhs_to_args() -> None:
+    src = {
+        "node": "Add",
+        "lhs": {"node": "Number", "value": 1},
+        "rhs": {"node": "Number", "value": 2},
+    }
+    out = normalize_expr_dict(src)
+    assert out == {
+        "node": "Add",
+        "args": [{"node": "Number", "value": 1}, {"node": "Number", "value": 2}],
+    }
+
+
+def test_mul_factors_to_args() -> None:
+    src = {
+        "node": "Mul",
+        "factors": [{"node": "Number", "value": 2}, {"node": "Symbol", "name": "x"}],
+    }
+    out = normalize_expr_dict(src)
+    assert out == {
+        "node": "Mul",
+        "args": [{"node": "Number", "value": 2}, {"node": "Symbol", "id": "x"}],
+    }
+
+
 def test_bool_true_false_coercion() -> None:
     true_out = normalize_expr_dict({"node": "True", "anything": 1})
     false_out = normalize_expr_dict({"node": "False"})
@@ -92,6 +130,37 @@ def test_normalized_gt_args_is_parseable_expr() -> None:
     assert expr.node == "Gt"
     assert expr.lhs.id == "x"
     assert expr.rhs.value == 0
+
+
+def test_nested_eq_with_add_terms_is_parseable_expr() -> None:
+    src = {
+        "node": "Eq",
+        "lhs": {
+            "node": "Add",
+            "terms": [{"node": "Symbol", "name": "x"}, {"node": "Number", "value": 1}],
+        },
+        "rhs": {"node": "Number", "value": 3},
+    }
+    out = normalize_expr_dict(src)
+    expr = parse_expr(out)
+    assert expr.node == "Eq"
+    assert expr.lhs.node == "Add"
+    assert len(expr.lhs.args) == 2
+
+
+def test_div_left_right_to_num_den() -> None:
+    src = {
+        "node": "Div",
+        "left": {"node": "Symbol", "name": "a"},
+        "right": {"node": "Number", "value": 2},
+        "extra": "drop",
+    }
+    out = normalize_expr_dict(src)
+    assert out == {
+        "node": "Div",
+        "num": {"node": "Symbol", "id": "a"},
+        "den": {"node": "Number", "value": 2},
+    }
 
 
 def test_normalized_sum_from_alias_is_parseable_expr() -> None:

@@ -1,110 +1,94 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "mf2f_mathd_algebra_17",
-    "generator": "mock-llm"
-  },
-  "source": {
-    "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
-  },
-  "entities": [
-    {
-      "id": "a",
-      "kind": "variable",
-      "type": "Real",
-      "properties": [],
-      "trace": [
-        "s1",
-        "s2"
-      ]
-    }
-  ],
   "assumptions": [
     {
       "expr": {
-        "node": "Eq",
         "lhs": {
-          "node": "Add",
           "args": [
             {
-              "node": "Call",
-              "fn": "sqrt",
-              "args": [
-                {
-                  "node": "Add",
-                  "args": [
-                    {
-                      "node": "Number",
-                      "value": 4
-                    },
-                    {
-                      "node": "Call",
-                      "fn": "sqrt",
+              "base": {
+                "args": [
+                  {
+                    "node": "Number",
+                    "value": 4
+                  },
+                  {
+                    "base": {
                       "args": [
                         {
-                          "node": "Add",
+                          "node": "Number",
+                          "value": 16
+                        },
+                        {
                           "args": [
                             {
                               "node": "Number",
                               "value": 16
                             },
                             {
-                              "node": "Mul",
-                              "args": [
-                                {
-                                  "node": "Number",
-                                  "value": 16
-                                },
-                                {
-                                  "node": "Symbol",
-                                  "id": "a"
-                                }
-                              ]
+                              "id": "a",
+                              "node": "Symbol"
                             }
-                          ]
+                          ],
+                          "node": "Mul"
                         }
-                      ]
-                    }
-                  ]
-                }
-              ]
+                      ],
+                      "node": "Add"
+                    },
+                    "exp": {
+                      "node": "Number",
+                      "value": 0.5
+                    },
+                    "node": "Pow"
+                  }
+                ],
+                "node": "Add"
+              },
+              "exp": {
+                "node": "Number",
+                "value": 0.5
+              },
+              "node": "Pow"
             },
             {
-              "node": "Call",
-              "fn": "sqrt",
-              "args": [
-                {
-                  "node": "Add",
-                  "args": [
-                    {
-                      "node": "Number",
-                      "value": 1
-                    },
-                    {
-                      "node": "Call",
-                      "fn": "sqrt",
+              "base": {
+                "args": [
+                  {
+                    "node": "Number",
+                    "value": 1
+                  },
+                  {
+                    "base": {
                       "args": [
                         {
-                          "node": "Add",
-                          "args": [
-                            {
-                              "node": "Number",
-                              "value": 1
-                            },
-                            {
-                              "node": "Symbol",
-                              "id": "a"
-                            }
-                          ]
+                          "node": "Number",
+                          "value": 1
+                        },
+                        {
+                          "id": "a",
+                          "node": "Symbol"
                         }
-                      ]
-                    }
-                  ]
-                }
-              ]
+                      ],
+                      "node": "Add"
+                    },
+                    "exp": {
+                      "node": "Number",
+                      "value": 0.5
+                    },
+                    "node": "Pow"
+                  }
+                ],
+                "node": "Add"
+              },
+              "exp": {
+                "node": "Number",
+                "value": 0.5
+              },
+              "node": "Pow"
             }
-          ]
+          ],
+          "node": "Add"
         },
+        "node": "Eq",
         "rhs": {
           "node": "Number",
           "value": 6
@@ -116,40 +100,164 @@
       ]
     }
   ],
+  "concepts": [
+    {
+      "id": "nested_radicals",
+      "role": "pattern",
+      "trace": [
+        "s1"
+      ]
+    },
+    {
+      "id": "solve_for_variable",
+      "role": "candidate_tool",
+      "trace": [
+        "s2"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "a",
+      "kind": "variable",
+      "properties": [],
+      "trace": [
+        "s1",
+        "s2"
+      ],
+      "type": "Real"
+    }
+  ],
   "goal": {
-    "kind": "find",
     "expr": {
-      "node": "Bool",
-      "value": true
+      "lhs": {
+        "args": [
+          {
+            "base": {
+              "args": [
+                {
+                  "node": "Number",
+                  "value": 4
+                },
+                {
+                  "base": {
+                    "args": [
+                      {
+                        "node": "Number",
+                        "value": 16
+                      },
+                      {
+                        "args": [
+                          {
+                            "node": "Number",
+                            "value": 16
+                          },
+                          {
+                            "id": "a",
+                            "node": "Symbol"
+                          }
+                        ],
+                        "node": "Mul"
+                      }
+                    ],
+                    "node": "Add"
+                  },
+                  "exp": {
+                    "node": "Number",
+                    "value": 0.5
+                  },
+                  "node": "Pow"
+                }
+              ],
+              "node": "Add"
+            },
+            "exp": {
+              "node": "Number",
+              "value": 0.5
+            },
+            "node": "Pow"
+          },
+          {
+            "base": {
+              "args": [
+                {
+                  "node": "Number",
+                  "value": 1
+                },
+                {
+                  "base": {
+                    "args": [
+                      {
+                        "node": "Number",
+                        "value": 1
+                      },
+                      {
+                        "id": "a",
+                        "node": "Symbol"
+                      }
+                    ],
+                    "node": "Add"
+                  },
+                  "exp": {
+                    "node": "Number",
+                    "value": 0.5
+                  },
+                  "node": "Pow"
+                }
+              ],
+              "node": "Add"
+            },
+            "exp": {
+              "node": "Number",
+              "value": 0.5
+            },
+            "node": "Pow"
+          }
+        ],
+        "node": "Add"
+      },
+      "node": "Eq",
+      "rhs": {
+        "node": "Number",
+        "value": 6
+      }
+    },
+    "kind": "find",
+    "target": {
+      "id": "a",
+      "node": "Symbol"
     },
     "trace": [
+      "s1",
       "s2"
-    ],
-    "target": {
-      "node": "Symbol",
-      "id": "a"
-    }
+    ]
   },
-  "concepts": [],
-  "warnings": [],
+  "meta": {
+    "id": "mf2f_mathd_algebra_17",
+    "version": "0.1"
+  },
+  "source": {
+    "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
+  },
   "trace": [
     {
+      "end": 77,
       "span_id": "s0",
       "start": 0,
-      "end": 77,
       "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6. Find a.\n\r\n"
     },
     {
+      "end": 66,
       "span_id": "s1",
       "start": 0,
-      "end": 66,
       "text": "Solve for a: sqrt(4 + sqrt(16 + 16a)) + sqrt(1 + sqrt(1 + a)) = 6."
     },
     {
+      "end": 74,
       "span_id": "s2",
       "start": 66,
-      "end": 74,
       "text": " Find a."
     }
-  ]
+  ],
+  "warnings": []
 }
