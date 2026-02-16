@@ -19,7 +19,7 @@ def normalize_any(x):
     return x
 
 
-def normalize_expr_dict(data: dict) -> dict:
+def normalize_expr_dict(data: dict) -> dict | None:
     """Normalize a dict into a parse_expr-friendly Expr-like dict."""
 
     if not isinstance(data, dict):
@@ -28,62 +28,67 @@ def normalize_expr_dict(data: dict) -> dict:
     raw = deepcopy(data)
     node = raw.get("node")
     if not isinstance(node, str):
-        return {k: normalize_any(v) for k, v in raw.items()}
+        return None
 
     if node == "Symbol":
         out: dict = {"node": "Symbol"}
         symbol_id = raw.get("id")
         if not symbol_id and isinstance(raw.get("name"), str):
             symbol_id = raw.get("name")
-        if symbol_id is not None:
+        if isinstance(symbol_id, str) and symbol_id:
             out["id"] = symbol_id
-        return out
+            return out
+        return None
 
     if node in _REL_NODES:
         lhs = raw.get("lhs")
         rhs = raw.get("rhs")
-        args = raw.get("args")
+        args = _first_list(raw, "args", "operands", "children")
         if (lhs is None or rhs is None) and isinstance(args, list):
             if lhs is None and len(args) >= 1:
                 lhs = args[0]
             if rhs is None and len(args) >= 2:
                 rhs = args[1]
+        if lhs is None and "left" in raw:
+            lhs = raw.get("left")
+        if rhs is None and "right" in raw:
+            rhs = raw.get("right")
         out = {"node": node}
         if lhs is not None:
             out["lhs"] = normalize_any(lhs)
         if rhs is not None:
             out["rhs"] = normalize_any(rhs)
+        if "lhs" not in out or "rhs" not in out:
+            return None
         return out
 
     if node in {"Add", "Mul"}:
-        args = raw.get("args")
-        if not isinstance(args, list):
-            if node == "Add":
-                terms = raw.get("terms")
-                if isinstance(terms, list):
-                    args = terms
-            if node == "Mul":
-                factors = raw.get("factors")
-                terms = raw.get("terms")
-                if isinstance(factors, list):
-                    args = factors
-                elif isinstance(terms, list):
-                    args = terms
+        args = _first_list(raw, "args", "terms", "factors", "operands", "children")
         if not isinstance(args, list):
             lhs = raw.get("lhs")
             rhs = raw.get("rhs")
+            if lhs is None and "left" in raw:
+                lhs = raw.get("left")
+            if rhs is None and "right" in raw:
+                rhs = raw.get("right")
             if lhs is not None and rhs is not None:
                 args = [lhs, rhs]
         out = {"node": node}
         if isinstance(args, list):
             norm_args = [normalize_any(a) for a in args]
             out["args"] = _flatten_same_op(node, norm_args)
+        if not isinstance(out.get("args"), list):
+            return None
         return out
 
     if node == "Pow":
         base = raw.get("base")
         exp = raw.get("exp")
-        args = raw.get("args")
+        if base is None and "left" in raw:
+            base = raw.get("left")
+        if exp is None and "right" in raw:
+            exp = raw.get("right")
+        args = _first_list(raw, "args", "operands", "children")
         if (base is None or exp is None) and isinstance(args, list):
             if base is None and len(args) >= 1:
                 base = args[0]
@@ -94,6 +99,8 @@ def normalize_expr_dict(data: dict) -> dict:
             out["base"] = normalize_any(base)
         if exp is not None:
             out["exp"] = normalize_any(exp)
+        if "base" not in out or "exp" not in out:
+            return None
         return out
 
     if node == "Div":
@@ -103,7 +110,11 @@ def normalize_expr_dict(data: dict) -> dict:
             num = raw.get("left")
         if den is None and "right" in raw:
             den = raw.get("right")
-        args = raw.get("args")
+        if num is None and "lhs" in raw:
+            num = raw.get("lhs")
+        if den is None and "rhs" in raw:
+            den = raw.get("rhs")
+        args = _first_list(raw, "args", "operands", "children")
         if (num is None or den is None) and isinstance(args, list):
             if num is None and len(args) >= 1:
                 num = args[0]
@@ -114,17 +125,22 @@ def normalize_expr_dict(data: dict) -> dict:
             out["num"] = normalize_any(num)
         if den is not None:
             out["den"] = normalize_any(den)
+        if "num" not in out or "den" not in out:
+            return None
         return out
 
     if node == "Neg":
         arg = raw.get("arg")
-        args = raw.get("args")
+        if arg is None and "value" in raw:
+            arg = raw.get("value")
+        args = _first_list(raw, "args", "operands", "children")
         if arg is None and isinstance(args, list) and len(args) >= 1:
             arg = args[0]
         out = {"node": "Neg"}
         if arg is not None:
             out["arg"] = normalize_any(arg)
-        return out
+            return out
+        return None
 
     if node == "Number":
         out = {"node": "Number"}
@@ -134,7 +150,8 @@ def normalize_expr_dict(data: dict) -> dict:
         value = _parse_numeric(value)
         if value is not None:
             out["value"] = value
-        return out
+            return out
+        return None
 
     if node in {"Bool", "True", "False"}:
         out = {"node": "Bool"}
@@ -148,7 +165,8 @@ def normalize_expr_dict(data: dict) -> dict:
         coerced = _coerce_bool(value)
         if coerced is not None:
             out["value"] = coerced
-        return out
+            return out
+        return None
 
     if node == "Call":
         out = {"node": "Call"}
@@ -157,11 +175,15 @@ def normalize_expr_dict(data: dict) -> dict:
             name = raw.get("name")
             if isinstance(name, str):
                 fn = name
-        if isinstance(fn, str):
+        if isinstance(fn, str) and fn:
             out["fn"] = fn
-        args = raw.get("args")
+        args = _first_list(raw, "args", "operands", "children")
         if isinstance(args, list):
             out["args"] = [normalize_any(a) for a in args]
+        if not isinstance(out.get("args"), list) or not out.get("args"):
+            return None
+        if "fn" not in out:
+            return None
         return out
 
     if node == "Sum":
@@ -180,10 +202,14 @@ def normalize_expr_dict(data: dict) -> dict:
             out["to"] = normalize_any(to)
         if body is not None:
             out["body"] = normalize_any(body)
+        if not isinstance(out.get("var"), str) or not out.get("var"):
+            return None
+        if "from" not in out or "to" not in out or "body" not in out:
+            return None
         return out
 
     # Unknown node: recurse values but keep shape.
-    return {k: normalize_any(v) for k, v in raw.items()}
+    return None
 
 
 def normalize_expr(obj: dict) -> dict:
@@ -197,9 +223,17 @@ def _flatten_same_op(node: str, args: list) -> list:
     for arg in args:
         if isinstance(arg, dict) and arg.get("node") == node and isinstance(arg.get("args"), list):
             flat.extend(arg["args"])
-        else:
+        elif isinstance(arg, dict):
             flat.append(arg)
     return flat
+
+
+def _first_list(raw: dict, *keys: str):
+    for key in keys:
+        value = raw.get(key)
+        if isinstance(value, list):
+            return value
+    return None
 
 
 def _parse_numeric(value):

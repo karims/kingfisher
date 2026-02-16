@@ -359,7 +359,7 @@ def _normalize_payload_expr_fields(
                 warnings.append(
                     {
                         "code": "invalid_assumption_expr_dropped",
-                        "message": "Dropped assumption: expression is not an object.",
+                        "message": "dropped invalid expr subtree: non-object expression",
                         "trace": _trace_ids(item),
                         "details": {
                             "reason": "non_object_expr",
@@ -370,6 +370,19 @@ def _normalize_payload_expr_fields(
                 continue
             raw_expr = deepcopy(expr)
             expr = normalize_expr_dict(expr)
+            if not isinstance(expr, dict):
+                warnings.append(
+                    {
+                        "code": "invalid_assumption_expr_dropped",
+                        "message": "dropped invalid expr subtree: normalization missing required fields",
+                        "trace": _trace_ids(item),
+                        "details": {
+                            "reason": "normalize_missing_required_fields",
+                            "raw_expr": raw_expr,
+                        },
+                    }
+                )
+                continue
             expr = repair_expr(
                 expr,
                 span_text=_first_trace_text(item, span_texts),
@@ -380,7 +393,7 @@ def _normalize_payload_expr_fields(
                 warnings.append(
                     {
                         "code": "invalid_assumption_expr_dropped",
-                        "message": "Dropped assumption: expression missing required AST fields.",
+                        "message": "dropped invalid expr subtree: expression missing required AST fields",
                         "trace": _trace_ids(item),
                         "details": {
                             "reason": "incomplete_expr",
@@ -401,25 +414,44 @@ def _normalize_payload_expr_fields(
 
     if isinstance(goal, dict) and isinstance(goal.get("expr"), dict):
         normalized_expr = normalize_expr_dict(goal["expr"])
-        normalized_expr = repair_expr(
-            normalized_expr,
-            span_text=_first_trace_text(goal, span_texts),
-            entities=entities,
-        )
-        sanitized_expr = sanitize_expr_dict(normalized_expr)
+        if isinstance(normalized_expr, dict):
+            normalized_expr = repair_expr(
+                normalized_expr,
+                span_text=_first_trace_text(goal, span_texts),
+                entities=entities,
+            )
+            sanitized_expr = sanitize_expr_dict(normalized_expr)
+        else:
+            sanitized_expr = None
         if sanitized_expr is not None:
             goal["expr"] = sanitized_expr
-        elif degrade_on_invalid_goal_expr:
+        else:
             _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
-    elif isinstance(goal, dict) and degrade_on_invalid_goal_expr:
+    elif isinstance(goal, dict):
         _replace_invalid_goal_expr(payload, goal, raw_goal_expr)
     if isinstance(goal, dict) and isinstance(goal.get("target"), dict):
+        raw_target = deepcopy(goal.get("target"))
         normalized_target = normalize_expr_dict(goal["target"])
-        sanitized_target = sanitize_expr_dict(normalized_target)
+        sanitized_target = (
+            sanitize_expr_dict(normalized_target)
+            if isinstance(normalized_target, dict)
+            else None
+        )
         if sanitized_target is not None:
             goal["target"] = sanitized_target
         else:
             goal.pop("target", None)
+            warnings.append(
+                {
+                    "code": "invalid_goal_target_expr_dropped",
+                    "message": "dropped invalid expr subtree: goal.target missing required AST fields",
+                    "trace": _trace_ids(goal),
+                    "details": {
+                        "reason": "goal_target_incomplete_expr",
+                        "raw_expr": raw_target,
+                    },
+                }
+            )
 
     _repair_find_goal_without_target(payload)
 
@@ -436,7 +468,7 @@ def _replace_invalid_goal_expr(payload: dict, goal: dict, raw_goal_expr) -> None
     warnings.append(
         {
             "code": "invalid_goal_expr_replaced",
-            "message": "Replaced invalid goal expression with a safe fallback Bool(true).",
+            "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
             "trace": _trace_ids(goal),
             "details": {
                 "reason": "goal_expr_not_parseable",

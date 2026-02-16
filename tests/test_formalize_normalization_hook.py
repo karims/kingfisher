@@ -130,6 +130,7 @@ def test_formalize_normalization_hook_drops_incomplete_sum_assumption_without_nu
     assert mvir.assumptions == []
     warning = next((w for w in mvir.warnings if w.code == "invalid_assumption_expr_dropped"), None)
     assert warning is not None
+    assert warning.message.startswith("dropped invalid expr subtree:")
     assert warning.details is not None
     assert warning.details.get("reason") == "incomplete_expr"
     assert isinstance(warning.details.get("raw_expr"), dict)
@@ -272,5 +273,34 @@ def test_formalize_normalization_hook_replaces_invalid_goal_expr_when_degrade_en
     assert mvir.goal.expr.node == "Bool"
     warning = next((w for w in mvir.warnings if w.code == "invalid_goal_expr_replaced"), None)
     assert warning is not None
+    assert warning.message.startswith("dropped invalid expr subtree:")
     assert warning.details is not None
     assert warning.details.get("reason") == "goal_expr_not_parseable"
+
+
+def test_formalize_normalization_hook_normalizes_goal_add_terms_to_args() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_goal_add_terms", "generator": "test"},
+        "source": {"text": "Compute x+1."},
+        "entities": [{"id": "x", "kind": "variable", "type": "real", "properties": [], "trace": ["s1"]}],
+        "assumptions": [],
+        "goal": {
+            "kind": "compute",
+            "expr": {
+                "node": "Add",
+                "terms": [{"node": "Symbol", "name": "x"}, {"node": "Number", "value": 1}],
+            },
+            "trace": ["s1"],
+        },
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 12, "text": "Compute x+1."},
+            {"span_id": "s1", "start": 0, "end": 12, "text": "Compute x+1."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload)
+    mvir = MVIR.model_validate(normalized)
+    assert mvir.goal.expr.node == "Add"
+    assert len(mvir.goal.expr.args) == 2
