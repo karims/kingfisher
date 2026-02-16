@@ -16,6 +16,7 @@ from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.provider_base import LLMProvider, ProviderError
 from mvir.extract.providers.mock import MockProvider
 from mvir.extract.providers.openai_provider import OpenAIProvider
+from mvir.render.markdown import render_mvir_markdown
 
 
 def _configure_provider_sampling(provider: object) -> None:
@@ -80,6 +81,36 @@ def format_cli_exception(exc: Exception) -> str:
     return str(exc)
 
 
+def _default_md_out_path(json_out_path: str) -> Path:
+    """Return the default Markdown output path for a JSON output path."""
+
+    return Path(json_out_path).with_suffix(".md")
+
+
+def _resolve_md_out_path(
+    *,
+    render_md: bool,
+    json_out: str | None,
+    md_out: str | None,
+) -> Path | None:
+    """Resolve Markdown output path when markdown rendering is enabled."""
+
+    if not render_md:
+        return None
+    if not json_out:
+        raise ValueError("--render-md requires --out (Markdown is emitted in addition to JSON).")
+    if md_out:
+        return Path(md_out)
+    return _default_md_out_path(json_out)
+
+
+def _write_markdown_report(mvir, md_path: Path) -> None:
+    """Write a Markdown report for an MVIR object."""
+
+    md_path.parent.mkdir(parents=True, exist_ok=True)
+    md_path.write_text(render_mvir_markdown(mvir), encoding="utf-8")
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the formalization CLI."""
 
@@ -95,6 +126,15 @@ def main(argv: list[str] | None = None) -> int:
         "--mock-path", help="Path to mock provider response mapping JSON."
     )
     parser.add_argument("--out", help="Output path for MVIR JSON.")
+    parser.add_argument(
+        "--render-md",
+        action="store_true",
+        help="Also render a Markdown report from the validated MVIR output.",
+    )
+    parser.add_argument(
+        "--md-out",
+        help="Markdown output path (default: same as --out but .md extension).",
+    )
     parser.add_argument(
         "--print",
         dest="print_json",
@@ -182,11 +222,18 @@ def main(argv: list[str] | None = None) -> int:
                 print("WARNING: Grounding contract failed: " + "; ".join(grounding_errors))
 
         payload = mvir.model_dump(by_alias=False, exclude_none=True)
+        md_path = _resolve_md_out_path(
+            render_md=args.render_md,
+            json_out=args.out,
+            md_out=args.md_out,
+        )
 
         if args.out:
             Path(args.out).write_text(
                 json.dumps(payload, indent=2), encoding="utf-8"
             )
+        if md_path is not None:
+            _write_markdown_report(mvir, md_path)
         if args.print_json:
             print(json.dumps(payload, ensure_ascii=False))
 
