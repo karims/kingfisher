@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant"
+    "generator": "mvir_generator_v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -11,7 +11,6 @@
     {
       "id": "x",
       "kind": "variable",
-      "type": "Real",
       "trace": [
         "s1",
         "s2",
@@ -19,17 +18,15 @@
       ]
     },
     {
-      "id": "n",
+      "id": "k",
       "kind": "variable",
-      "type": "Integer",
       "trace": [
         "s4"
       ]
     },
     {
-      "id": "k",
+      "id": "n",
       "kind": "variable",
-      "type": "Integer",
       "trace": [
         "s4"
       ]
@@ -50,6 +47,55 @@
       },
       "trace": [
         "s2"
+      ]
+    }
+  ],
+  "goal": {
+    "kind": "compute",
+    "target": {
+      "node": "Add",
+      "lhs": {
+        "node": "Pow",
+        "base": {
+          "node": "Symbol",
+          "id": "x"
+        },
+        "exp": {
+          "node": "Number",
+          "value": 2
+        }
+      },
+      "rhs": {
+        "node": "Number",
+        "value": 1
+      }
+    },
+    "trace": [
+      "s1"
+    ]
+  },
+  "concepts": [
+    {
+      "expr": {
+        "node": "Ge",
+        "lhs": {
+          "node": "Pow",
+          "base": {
+            "node": "Symbol",
+            "id": "x"
+          },
+          "exp": {
+            "node": "Number",
+            "value": 2
+          }
+        },
+        "rhs": {
+          "node": "Number",
+          "value": 0
+        }
+      },
+      "trace": [
+        "s3"
       ]
     },
     {
@@ -105,60 +151,10 @@
       ]
     }
   ],
-  "goal": {
-    "kind": "compute",
-    "target": {
-      "node": "Add",
-      "lhs": {
-        "node": "Pow",
-        "base": {
-          "node": "Symbol",
-          "id": "x"
-        },
-        "exp": {
-          "node": "Number",
-          "value": 2
-        }
-      },
-      "rhs": {
-        "node": "Number",
-        "value": 1
-      }
-    },
-    "trace": [
-      "s1"
-    ]
-  },
-  "concepts": [
-    {
-      "id": "c1",
-      "name": "compute_polynomial_expression",
-      "description": "Compute the value or expression x^2 + 1.",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "id": "c2",
-      "name": "positivity_of_square",
-      "description": "Squares of real numbers are nonnegative; x^2 >= 0.",
-      "trace": [
-        "s3"
-      ]
-    },
-    {
-      "id": "c3",
-      "name": "arithmetic_series_formula",
-      "description": "Closed form for the sum of the first n integers: sum_{k=1}^n k = n(n+1)/2.",
-      "trace": [
-        "s4"
-      ]
-    }
-  ],
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Multiple tasks appear in the input. Primary goal selected: compute x^2 + 1. Secondary tasks: show x^2 >= 0; the summation equality is stated.",
+      "message": "Input contains multiple tasks. Primary task chosen: compute x^2 + 1 (s1). Secondary tasks left for reference: show x^2 >= 0 (s3); present sum formula (s4).",
       "trace": [
         "s3",
         "s4"

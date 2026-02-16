@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant_v1"
+    "generator": "mvir_generator_v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -11,7 +11,7 @@
     {
       "id": "x",
       "kind": "variable",
-      "type": "Unknown",
+      "type": "Real",
       "properties": [],
       "trace": [
         "s1",
@@ -20,18 +20,18 @@
       ]
     },
     {
-      "id": "n",
+      "id": "k",
       "kind": "variable",
-      "type": "Unknown",
+      "type": "Integer",
       "properties": [],
       "trace": [
         "s4"
       ]
     },
     {
-      "id": "k",
+      "id": "n",
       "kind": "variable",
-      "type": "Unknown",
+      "type": "Integer",
       "properties": [],
       "trace": [
         "s4"
@@ -89,22 +89,15 @@
   },
   "concepts": [
     {
-      "id": "compute_expression",
-      "role": "definition",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "id": "nonnegativity_of_square",
+      "id": "c1",
       "role": "definition",
       "trace": [
         "s3"
       ]
     },
     {
-      "id": "sum_formula",
-      "role": "definition",
+      "id": "c2",
+      "role": "pattern",
       "trace": [
         "s4"
       ]
@@ -113,7 +106,7 @@
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Additional tasks present in the input: 'Show that x^2 >= 0' (s3) and the summation formula (s4) are secondary to the primary compute request.",
+      "message": "Input contains multiple tasks. Primary task chosen: compute x^2 + 1 (s1). Secondary tasks left for reference: show x^2 >= 0 (s3); present sum formula (s4).",
       "trace": [
         "s3",
         "s4"
@@ -127,7 +120,12 @@
       ],
       "details": {
         "reason": "goal_expr_not_parseable",
-        "raw_expr": null
+        "raw_expr": null,
+        "path": [
+          "goal",
+          "expr"
+        ],
+        "node_type": null
       }
     }
   ],

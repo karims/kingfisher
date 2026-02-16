@@ -29,7 +29,7 @@ class OpenAIProvider(LLMProvider):
         api_key: str | None = None,
         model: str | None = None,
         base_url: str | None = None,
-        timeout_s: float = 30.0,
+        timeout_s: float = 180.0,
         format_mode: Literal["json_schema", "json_object"] = "json_schema",
         allow_fallback: bool = False,
         top_p: float | None = None,
@@ -231,7 +231,7 @@ class OpenAIProvider(LLMProvider):
         self.last_request_json = deepcopy(payload)
         self.last_response_json = None
         try:
-            response = _requests_post(url, headers=headers, json=payload, timeout=self.timeout_s)
+            response = _requests_post(url, headers=headers, json=payload, timeout=(10, self.timeout_s))
         except Exception as exc:  # requests may be unavailable
             if exc.__class__.__name__ == "Timeout":
                 raise ProviderError(
