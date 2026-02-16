@@ -25,11 +25,18 @@ def test_repair_prompt_contains_required_constraints() -> None:
     assert 'Symbol must be {"node":"Symbol","id":"x"} not name' in prompt
     assert "Gt/Ge/etc must use lhs/rhs (args only allowed in input but output must be lhs/rhs)" in prompt
     assert "Pow must be base/exp" in prompt
+    assert "DO NOT output placeholder partial nodes like lhs:{\"node\":\"Symbol\"} (missing id) or rhs:{\"node\":\"Number\"} (missing value)." in prompt
     assert 'Never output placeholder Expr nodes. If node=="Sum", you MUST provide var, from, to, body.' in prompt
     assert "Never include unrelated keys filled with null to satisfy schemas." in prompt
+    assert "AST node checklist (required fields):" in prompt
+    assert "- Add/Mul: args (>=1)" in prompt
+    assert "- Div: num, den" in prompt
+    assert "- Sum: var, from, to, body" in prompt
     assert "If an assumption expression cannot be constructed with all required fields of its AST node, DO NOT insert placeholder null fields." in prompt
     assert '"code": "invalid_assumption_expr_dropped"' in prompt
     assert '"details": {"reason": "...", "raw_expr": {...}}' in prompt
+    assert 'warning code="invalid_goal_expr_replaced"' in prompt
+    assert 'warning code="goal_kind_downgraded"' in prompt
     assert "FORBIDDEN: id:null, value:null, args:null, lhs:null, rhs:null, base:null, exp:null, num:null, den:null, from:null, to:null, body:null." in prompt
     assert "If a secondary task expression cannot be represented correctly with available AST nodes, DO NOT put it in assumptions." in prompt
     assert 'add a warning with code="unparsed_math" and trace=[span_id]' in prompt
