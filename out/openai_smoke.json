@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "mvir_generator_v1"
+    "generator": "assistant-v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -20,7 +20,7 @@
       ]
     },
     {
-      "id": "k",
+      "id": "n",
       "kind": "variable",
       "type": "Integer",
       "properties": [],
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "id": "n",
+      "id": "k",
       "kind": "variable",
       "type": "Integer",
       "properties": [],
@@ -89,14 +89,14 @@
   },
   "concepts": [
     {
-      "id": "c1",
-      "role": "definition",
+      "id": "nonnegativity_of_square",
+      "role": "pattern",
       "trace": [
         "s3"
       ]
     },
     {
-      "id": "c2",
+      "id": "sum_of_first_n_integers",
       "role": "pattern",
       "trace": [
         "s4"
@@ -106,7 +106,7 @@
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Input contains multiple tasks. Primary task chosen: compute x^2 + 1 (s1). Secondary tasks left for reference: show x^2 >= 0 (s3); present sum formula (s4).",
+      "message": "Input contains multiple tasks. Primary selected: 'Compute x^2 + 1' (s1). Secondary tasks preserved as warnings: 'Show that x^2 >= 0' (s3) and the summation identity (s4).",
       "trace": [
         "s3",
         "s4"

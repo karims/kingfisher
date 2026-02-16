@@ -208,4 +208,9 @@ def render_mvir_markdown(mvir: MVIR) -> str:
             f"(trace: {_render_trace_ids(warning.trace)})"
         )
 
+    lines.append("")
+    lines.append("## Solver Trace")
+    lines.append("- status: not_started")
+    lines.append("- steps: (placeholder)")
+
     return "\n".join(lines) + "\n"

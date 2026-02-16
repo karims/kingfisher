@@ -1,9 +1,9 @@
 kind: schema_validation
 message: MVIR validation failed: 2 validation errors for MVIR
 concepts.0.id
-  Field required [type=missing, input_value={'expr': {'node': 'Ge', '...ce': None, 'name': None}, input_type=dict]
+  Field required [type=missing, input_value={'name': 'nonnegativity_o...one, 'confidence': None}, input_type=dict]
     For further information visit https://errors.pydantic....
-exception: ValueError("MVIR validation failed: 2 validation errors for MVIR\nconcepts.0.id\n  Field required [type=missing, input_value={'expr': {'node': 'Ge', '...ce': None, 'name': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.1.id\n  Field required [type=missing, input_value={'expr': {'node': 'Eq', '...ce': None, 'name': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing")
+exception: ValueError("MVIR validation failed: 2 validation errors for MVIR\nconcepts.0.id\n  Field required [type=missing, input_value={'name': 'nonnegativity_o...one, 'confidence': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.1.id\n  Field required [type=missing, input_value={'name': 'sum_of_first_n_...one, 'confidence': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing")
 
 traceback:
 Traceback (most recent call last):
@@ -15,8 +15,8 @@ Traceback (most recent call last):
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 pydantic_core._pydantic_core.ValidationError: 2 validation errors for MVIR
 concepts.0.id
-  Field required [type=missing, input_value={'expr': {'node': 'Ge', '...ce': None, 'name': None}, input_type=dict]
+  Field required [type=missing, input_value={'name': 'nonnegativity_o...one, 'confidence': None}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.12/v/missing
 concepts.1.id
-  Field required [type=missing, input_value={'expr': {'node': 'Eq', '...ce': None, 'name': None}, input_type=dict]
+  Field required [type=missing, input_value={'name': 'sum_of_first_n_...one, 'confidence': None}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.12/v/missing

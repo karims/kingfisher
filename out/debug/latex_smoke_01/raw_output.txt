@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "mvir_generator_v1"
+    "generator": "assistant-v1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -11,6 +11,7 @@
     {
       "id": "x",
       "kind": "variable",
+      "type": "Real",
       "trace": [
         "s1",
         "s2",
@@ -18,15 +19,17 @@
       ]
     },
     {
-      "id": "k",
+      "id": "n",
       "kind": "variable",
+      "type": "Integer",
       "trace": [
         "s4"
       ]
     },
     {
-      "id": "n",
+      "id": "k",
       "kind": "variable",
+      "type": "Integer",
       "trace": [
         "s4"
       ]
@@ -51,24 +54,26 @@
     }
   ],
   "goal": {
-    "kind": "compute",
+    "kind": "find",
     "target": {
       "node": "Add",
-      "lhs": {
-        "node": "Pow",
-        "base": {
-          "node": "Symbol",
-          "id": "x"
+      "terms": [
+        {
+          "node": "Pow",
+          "base": {
+            "node": "Symbol",
+            "id": "x"
+          },
+          "exp": {
+            "node": "Number",
+            "value": 2
+          }
         },
-        "exp": {
+        {
           "node": "Number",
-          "value": 2
+          "value": 1
         }
-      },
-      "rhs": {
-        "node": "Number",
-        "value": 1
-      }
+      ]
     },
     "trace": [
       "s1"
@@ -76,6 +81,7 @@
   },
   "concepts": [
     {
+      "name": "nonnegativity_of_square",
       "expr": {
         "node": "Ge",
         "lhs": {
@@ -99,6 +105,7 @@
       ]
     },
     {
+      "name": "sum_of_first_n_integers",
       "expr": {
         "node": "Eq",
         "lhs": {
@@ -122,25 +129,29 @@
         },
         "rhs": {
           "node": "Div",
-          "lhs": {
+          "num": {
             "node": "Mul",
-            "lhs": {
-              "node": "Symbol",
-              "id": "n"
-            },
-            "rhs": {
-              "node": "Add",
-              "lhs": {
+            "factors": [
+              {
                 "node": "Symbol",
                 "id": "n"
               },
-              "rhs": {
-                "node": "Number",
-                "value": 1
+              {
+                "node": "Add",
+                "terms": [
+                  {
+                    "node": "Symbol",
+                    "id": "n"
+                  },
+                  {
+                    "node": "Number",
+                    "value": 1
+                  }
+                ]
               }
-            }
+            ]
           },
-          "rhs": {
+          "den": {
             "node": "Number",
             "value": 2
           }
@@ -154,7 +165,7 @@
   "warnings": [
     {
       "code": "multiple_tasks",
-      "message": "Input contains multiple tasks. Primary task chosen: compute x^2 + 1 (s1). Secondary tasks left for reference: show x^2 >= 0 (s3); present sum formula (s4).",
+      "message": "Input contains multiple tasks. Primary selected: 'Compute x^2 + 1' (s1). Secondary tasks preserved as warnings: 'Show that x^2 >= 0' (s3) and the summation identity (s4).",
       "trace": [
         "s3",
         "s4"

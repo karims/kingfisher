@@ -73,6 +73,7 @@ def test_render_mvir_markdown_contains_required_sections_and_goal_pow() -> None:
     assert "## Goal" in report
     assert "## Concepts" in report
     assert "## Warnings" in report
+    assert "## Solver Trace" in report
     assert "x^2" in report
 
 
