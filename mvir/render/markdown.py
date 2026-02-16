@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 from mvir.core.ast import (
     Add,
     Bool,
@@ -210,7 +212,24 @@ def render_mvir_markdown(mvir: MVIR) -> str:
 
     lines.append("")
     lines.append("## Solver Trace")
-    lines.append("- status: not_started")
-    lines.append("- steps: (placeholder)")
+    if mvir.solver_trace is None:
+        lines.append("- (no solver trace recorded yet)")
+        lines.append(
+            "- expected event kinds: "
+            "plan, claim, transform, tool_call, tool_result, branch, backtrack, final, note, error"
+        )
+    else:
+        lines.append("| # | ts | kind | message |")
+        lines.append("| --- | --- | --- | --- |")
+        for idx, event in enumerate(mvir.solver_trace.events, start=1):
+            ts = _escape_cell(event.ts or "")
+            kind = _escape_cell(event.kind.value)
+            message = _escape_cell(event.message)
+            lines.append(f"| {idx} | {ts} | {kind} | {message} |")
+            if event.data is not None:
+                data_json = json.dumps(event.data, ensure_ascii=False, sort_keys=True)
+                lines.append(f"- event {idx} data: `{data_json}`")
+            if event.refs:
+                lines.append(f"- event {idx} refs: {', '.join(event.refs)}")
 
     return "\n".join(lines) + "\n"
