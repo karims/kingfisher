@@ -235,6 +235,51 @@ When in doubt: **this document overrides convenience fixes.**
 
 ---
 
+## 14. Phase 7 - Human-readable Explain Layer (Markdown + bundle)
+
+**Decision**
+- Phase 7 adds deterministic, human-readable explain outputs derived from MVIR.
+- JSON remains the source of truth; explain outputs are views/artifacts.
+
+**What Phase 7 adds**
+- `mvir/render/markdown.py`
+  - `render_mvir_markdown(mvir)`
+  - `render_expr(expr)`
+- `mvir/cli/render.py`
+  - Render MVIR JSON -> Markdown from CLI.
+- Optional formalize CLI flags (when present):
+  - `--render-md`
+  - `--md-out`
+- Optional formalize explain bundle output (when present):
+  - `--bundle-dir`
+- Markdown includes a required placeholder section:
+  - `## Solver Trace`
+  - `- status: not_started`
+  - `- steps: (placeholder)`
+
+**How to run**
+
+1. Formalize text into MVIR JSON:
+```bash
+python -m mvir.cli.formalize examples/problems/latex_smoke_01.txt --provider openai --openai-allow-fallback --out out/mvir/latex_smoke_01.json
+```
+
+2. Render Markdown from MVIR JSON:
+```bash
+python -m mvir.cli.render out/mvir/latex_smoke_01.json --out out/mvir/latex_smoke_01.md
+```
+
+3. Write explain bundle from formalize:
+```bash
+python -m mvir.cli.formalize examples/problems/latex_smoke_01.txt --provider openai --openai-allow-fallback --out out/mvir/latex_smoke_01.json --render-md --bundle-dir out/bundles
+```
+
+**Artifact notes**
+- `out/` is gitignored for generated artifacts.
+- `out/mvir/` contains golden regression artifacts used by the golden runner.
+
+---
+
 ## Closing Note
 
 Kingfisher is infrastructure.
