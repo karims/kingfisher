@@ -16,6 +16,7 @@ from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.provider_base import LLMProvider, ProviderError
 from mvir.extract.providers.mock import MockProvider
 from mvir.extract.providers.openai_provider import OpenAIProvider
+from mvir.render.bundle import write_explain_bundle
 from mvir.render.markdown import render_mvir_markdown
 
 
@@ -136,6 +137,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Markdown output path (default: same as --out but .md extension).",
     )
     parser.add_argument(
+        "--bundle-dir",
+        help=(
+            "Optional directory to write explain bundle on success "
+            "(writes to <bundle-dir>/<meta.id>/)."
+        ),
+    )
+    parser.add_argument(
         "--print",
         dest="print_json",
         action="store_true",
@@ -234,6 +242,9 @@ def main(argv: list[str] | None = None) -> int:
             )
         if md_path is not None:
             _write_markdown_report(mvir, md_path)
+        if args.bundle_dir:
+            bundle_path = Path(args.bundle_dir) / mvir.meta.id
+            write_explain_bundle(mvir, bundle_path)
         if args.print_json:
             print(json.dumps(payload, ensure_ascii=False))
 
