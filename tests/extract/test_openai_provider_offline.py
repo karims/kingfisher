@@ -26,7 +26,7 @@ def test_openai_provider_complete_offline_success(monkeypatch: pytest.MonkeyPatc
         assert headers["Authorization"] == "Bearer test-key"
         assert json["model"] == "test-model"
         assert json["input"] == "hello"
-        assert timeout == provider.timeout_s
+        assert timeout == (10, provider.timeout_s)
         return _FakeResponse(
             200,
             {
