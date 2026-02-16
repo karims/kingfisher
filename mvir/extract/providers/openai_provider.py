@@ -32,6 +32,8 @@ class OpenAIProvider(LLMProvider):
         timeout_s: float = 30.0,
         format_mode: Literal["json_schema", "json_object"] = "json_schema",
         allow_fallback: bool = False,
+        top_p: float | None = None,
+        seed: int | None = None,
     ) -> None:
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.model = model or os.getenv("OPENAI_MODEL") or "gpt-4.1-mini"
@@ -39,6 +41,8 @@ class OpenAIProvider(LLMProvider):
         self.timeout_s = timeout_s
         self.format_mode = format_mode
         self.allow_fallback = allow_fallback
+        self.top_p = top_p
+        self.seed = seed
         self.last_request_json: dict | None = None
         self.last_response_json: dict | None = None
 
@@ -92,6 +96,10 @@ class OpenAIProvider(LLMProvider):
                 )
         if temperature != 0.0:
             payload["temperature"] = temperature
+        if self.top_p is not None:
+            payload["top_p"] = self.top_p
+        if self.seed is not None:
+            payload["seed"] = self.seed
 
         retried_temperature = False
         retried_max_tokens = False

@@ -117,6 +117,23 @@ def _is_baseline_file(path: Path) -> bool:
     )
 
 
+def _configure_provider_for_golden(provider: object) -> None:
+    """Best-effort deterministic provider config for golden runs."""
+
+    # Golden should be deterministic across reruns; this is safe no-op for non-openai providers.
+    if getattr(provider, "name", None) != "openai":
+        return
+    try:
+        setattr(provider, "top_p", 1.0)
+    except Exception:
+        pass
+    try:
+        # Stable seed where supported by backend/model.
+        setattr(provider, "seed", 0)
+    except Exception:
+        pass
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run golden regression over JSON files in out/mvir."""
 
@@ -186,6 +203,7 @@ def main(argv: list[str] | None = None) -> int:
             openai_format=args.openai_format,
             openai_allow_fallback=args.openai_allow_fallback,
         )
+        _configure_provider_for_golden(provider)
     except Exception as exc:  # noqa: BLE001 - CLI boundary
         print(f"ERROR: {format_cli_exception(exc)}")
         return 1
@@ -220,7 +238,7 @@ def main(argv: list[str] | None = None) -> int:
                 source["text"],
                 provider,
                 problem_id=problem_id,
-                temperature=args.temperature,
+                temperature=0.0,
                 strict=args.strict,
                 degrade_on_validation_failure=True,
             )
