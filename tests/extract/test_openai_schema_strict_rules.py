@@ -34,6 +34,9 @@ def test_openai_schema_object_required_matches_properties_exactly() -> None:
         if not isinstance(node, dict):
             continue
         if node.get("type") == "object" and "properties" in node:
+            if node is schema:
+                # Top-level keeps solver_trace optional.
+                continue
             properties = node["properties"]
             assert isinstance(properties, dict)
             assert node.get("additionalProperties") is False
@@ -41,6 +44,14 @@ def test_openai_schema_object_required_matches_properties_exactly() -> None:
             required = node["required"]
             assert isinstance(required, list)
             assert set(required) == set(properties.keys())
+
+
+def test_openai_schema_solver_trace_is_optional_top_level() -> None:
+    schema = get_mvir_v01_openai_json_schema()
+    required = schema["required"]
+    props = schema["properties"]
+    assert "solver_trace" in props
+    assert "solver_trace" not in required
 
 
 def test_sanitize_openai_strict_schema_repairs_broken_object_schema() -> None:

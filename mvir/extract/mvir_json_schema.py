@@ -163,6 +163,64 @@ def get_mvir_v01_json_schema() -> dict:
                     },
                 },
             },
+            "solver_trace": {
+                "type": ["object", "null"],
+                "additionalProperties": False,
+                "required": ["schema_version", "events", "summary", "metrics", "artifacts"],
+                "properties": {
+                    "schema_version": {"type": "string", "const": "0.1"},
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "required": [
+                                "event_id",
+                                "ts",
+                                "kind",
+                                "message",
+                                "data",
+                                "trace",
+                                "refs",
+                            ],
+                            "properties": {
+                                "event_id": {"type": "string"},
+                                "ts": {"type": ["string", "null"]},
+                                "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                        "plan",
+                                        "claim",
+                                        "transform",
+                                        "tool_call",
+                                        "tool_result",
+                                        "branch",
+                                        "backtrack",
+                                        "final",
+                                        "note",
+                                        "error",
+                                    ],
+                                },
+                                "message": {"type": "string"},
+                                "data": {"type": ["object", "null"]},
+                                "trace": {"type": ["array", "null"], "items": {"type": "string"}},
+                                "refs": {"type": ["array", "null"], "items": {"type": "string"}},
+                            },
+                        },
+                    },
+                    "summary": {"type": ["string", "null"]},
+                    "metrics": {
+                        "type": ["object", "null"],
+                        "additionalProperties": {
+                            "type": ["number", "string", "boolean"],
+                        },
+                    },
+                    "artifacts": {
+                        "type": ["object", "null"],
+                        "additionalProperties": {"type": "string"},
+                    },
+                },
+            },
         },
     }
 

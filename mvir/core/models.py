@@ -9,6 +9,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, model_validator
 
 from mvir.core.ast import Expr
+from mvir.core.solver_trace import SolverTrace
 
 
 class EntityKind(str, Enum):
@@ -157,6 +158,7 @@ class MVIR(BaseModel):
     concepts: list[Concept] = Field(default_factory=list)
     warnings: list[Warning] = Field(default_factory=list)
     trace: list[TraceSpan] = Field(default_factory=list)
+    solver_trace: SolverTrace | None = None
 
     @model_validator(mode="after")
     def _validate_entity_ids(self) -> "MVIR":
@@ -178,6 +180,10 @@ class MVIR(BaseModel):
             referenced.update(concept.trace)
         for warning in self.warnings:
             referenced.update(warning.trace)
+        if self.solver_trace is not None:
+            for event in self.solver_trace.events:
+                if event.trace:
+                    referenced.update(event.trace)
 
         missing = sorted(ref_id for ref_id in referenced if ref_id not in trace_ids)
         if missing:

@@ -87,6 +87,73 @@ def _span_ref_array_schema() -> dict:
     }
 
 
+def _solver_event_schema() -> dict:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "event_id": {"type": "string"},
+            "ts": {"type": ["string", "null"]},
+            "kind": {
+                "type": "string",
+                "enum": [
+                    "plan",
+                    "claim",
+                    "transform",
+                    "tool_call",
+                    "tool_result",
+                    "branch",
+                    "backtrack",
+                    "final",
+                    "note",
+                    "error",
+                ],
+            },
+            "message": {"type": "string"},
+            "data": {
+                "type": ["object", "null"],
+                "additionalProperties": False,
+                "properties": {},
+                "required": [],
+            },
+            "trace": {
+                "type": ["array", "null"],
+                "items": {"type": "string"},
+            },
+            "refs": {
+                "type": ["array", "null"],
+                "items": {"type": "string"},
+            },
+        },
+        "required": ["event_id", "ts", "kind", "message", "data", "trace", "refs"],
+    }
+
+
+def _solver_trace_schema() -> dict:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": {
+            "schema_version": {"type": "string", "const": "0.1"},
+            "events": {"type": "array", "items": _solver_event_schema()},
+            "summary": {"type": ["string", "null"]},
+            "metrics": {
+                "type": ["object", "null"],
+                "additionalProperties": False,
+                "properties": {},
+                "required": [],
+            },
+            "artifacts": {
+                "type": ["object", "null"],
+                "additionalProperties": False,
+                "properties": {},
+                "required": [],
+            },
+        },
+        "required": ["schema_version", "events", "summary", "metrics", "artifacts"],
+    }
+
+
 def sanitize_openai_strict_schema(schema: dict) -> dict:
     """Force OpenAI strict object-schema rules recursively.
 
@@ -297,6 +364,16 @@ def get_mvir_v01_openai_json_schema() -> dict:
                     },
                 },
             },
+            "solver_trace": {
+                "type": ["object", "null"],
+                "additionalProperties": False,
+                "properties": _solver_trace_schema()["properties"],
+                "required": _solver_trace_schema()["required"],
+            },
         },
     }
-    return sanitize_openai_strict_schema(schema)
+    out = sanitize_openai_strict_schema(schema)
+    required = out.get("required")
+    if isinstance(required, list):
+        out["required"] = [key for key in required if key != "solver_trace"]
+    return out
