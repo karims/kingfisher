@@ -254,3 +254,50 @@ def test_cli_golden_forces_deterministic_sampling_for_openai(
     assert rc == 0
     assert captured["temperature"] == 0.0
     assert captured["provider_top_p"] == 1.0
+
+
+def test_cli_golden_normalize_for_compare_stable_ordering() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "x", "generator": "g", "created_at": "2026-01-01"},
+        "source": {"text": "x"},
+        "entities": [
+            {"id": "z", "kind": "variable", "type": "real", "trace": ["s2"], "properties": []},
+            {"id": "a", "kind": "variable", "type": "real", "trace": ["s1"], "properties": []},
+        ],
+        "assumptions": [
+            {
+                "kind": "given",
+                "expr": {"node": "Eq", "lhs": {"node": "Symbol", "id": "x"}, "rhs": {"node": "Number", "value": 2}},
+                "trace": ["s2"],
+            },
+            {
+                "kind": "given",
+                "expr": {"node": "Eq", "lhs": {"node": "Symbol", "id": "x"}, "rhs": {"node": "Number", "value": 1}},
+                "trace": ["s1"],
+            },
+        ],
+        "goal": {"kind": "prove", "expr": {"node": "Bool", "value": True}, "trace": ["s0"]},
+        "concepts": [
+            {"id": "c2", "role": "pattern", "trace": ["s1"]},
+            {"id": "c1", "role": "domain", "trace": ["s1"]},
+        ],
+        "warnings": [
+            {"code": "b", "message": "m2", "trace": ["s2"]},
+            {"code": "a", "message": "m1", "trace": ["s1"]},
+        ],
+        "trace": [
+            {"span_id": "s2", "start": 10, "end": 11, "text": "x"},
+            {"span_id": "s1", "start": 1, "end": 2, "text": "x"},
+            {"span_id": "s0", "start": 0, "end": 1, "text": "x"},
+        ],
+    }
+
+    normalized = cli_golden._normalize_for_compare(payload)
+
+    assert "created_at" not in normalized["meta"]
+    assert "generator" not in normalized["meta"]
+    assert [e["id"] for e in normalized["entities"]] == ["a", "z"]
+    assert normalized["assumptions"][0]["trace"] == ["s1"]
+    assert [c["id"] for c in normalized["concepts"]] == ["c1", "c2"]
+    assert [w["code"] for w in normalized["warnings"]] == ["a", "b"]
+    assert [t["span_id"] for t in normalized["trace"]] == ["s0", "s1", "s2"]

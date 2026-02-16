@@ -37,6 +37,30 @@ def _trace_key(trace: Any) -> str:
     return ",".join(item for item in trace if isinstance(item, str))
 
 
+def _trace_start_map(data: dict[str, Any]) -> dict[str, int]:
+    out: dict[str, int] = {}
+    trace = data.get("trace")
+    if not isinstance(trace, list):
+        return out
+    for item in trace:
+        if not isinstance(item, dict):
+            continue
+        span_id = item.get("span_id")
+        start = item.get("start")
+        if isinstance(span_id, str) and isinstance(start, int):
+            out[span_id] = start
+    return out
+
+
+def _first_trace_start(trace: Any, starts: dict[str, int]) -> int:
+    if not isinstance(trace, list):
+        return 10**9
+    for item in trace:
+        if isinstance(item, str) and item in starts:
+            return starts[item]
+    return 10**9
+
+
 def _normalize_for_compare(payload: dict[str, Any], *, drop_generator: bool = True) -> dict[str, Any]:
     data = json.loads(json.dumps(payload))
     meta = data.get("meta")
@@ -54,6 +78,7 @@ def _normalize_for_compare(payload: dict[str, Any], *, drop_generator: bool = Tr
 
     assumptions = data.get("assumptions")
     if isinstance(assumptions, list):
+        starts = _trace_start_map(data)
         canonical_assumptions: list[dict[str, Any]] = []
         for item in assumptions:
             if not isinstance(item, dict):
@@ -66,8 +91,9 @@ def _normalize_for_compare(payload: dict[str, Any], *, drop_generator: bool = Tr
             canonical_assumptions,
             key=lambda item: (
                 item.get("kind", ""),
-                _trace_key(item.get("trace")),
+                _first_trace_start(item.get("trace"), starts),
                 json.dumps(item.get("expr"), sort_keys=True, ensure_ascii=False),
+                _trace_key(item.get("trace")),
             ),
         )
 
@@ -85,7 +111,6 @@ def _normalize_for_compare(payload: dict[str, Any], *, drop_generator: bool = Tr
             key=lambda item: (
                 item.get("code", "") if isinstance(item, dict) else "",
                 _trace_key(item.get("trace")) if isinstance(item, dict) else "",
-                item.get("message", "") if isinstance(item, dict) else "",
             ),
         )
 
