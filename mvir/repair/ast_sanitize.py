@@ -6,6 +6,7 @@ from copy import deepcopy
 
 
 _BINARY_NODES = {"Eq", "Gt", "Ge", "Lt", "Le", "Neq", "Divides"}
+_NARY_NODES = {"Add", "Mul"}
 
 
 def sanitize_expr_dict(data: dict) -> dict | None:
@@ -19,7 +20,7 @@ def sanitize_expr_dict(data: dict) -> dict | None:
 
     node = cleaned.get("node")
     if not isinstance(node, str):
-        return cleaned
+        return None
 
     out: dict = {"node": node}
 
@@ -34,6 +35,22 @@ def sanitize_expr_dict(data: dict) -> dict | None:
         if "value" not in cleaned:
             return None
         out["value"] = cleaned["value"]
+        return out
+
+    if node == "Bool":
+        if "value" not in cleaned:
+            return None
+        out["value"] = cleaned["value"]
+        return out
+
+    if node in _NARY_NODES:
+        args = cleaned.get("args")
+        if not isinstance(args, list):
+            return None
+        sanitized_args = _sanitize_expr_list(args)
+        if not sanitized_args:
+            return None
+        out["args"] = sanitized_args
         return out
 
     if node in _BINARY_NODES:
@@ -90,29 +107,14 @@ def sanitize_expr_dict(data: dict) -> dict | None:
         args = cleaned.get("args")
         if not isinstance(fn, str) or not fn or not isinstance(args, list):
             return None
-        sanitized_args: list[dict] = []
-        for arg in args:
-            sanitized = _sanitize_required_expr_field(arg)
-            if sanitized is None:
-                return None
-            sanitized_args.append(sanitized)
+        sanitized_args = _sanitize_expr_list(args)
+        if not sanitized_args:
+            return None
         out["fn"] = fn
         out["args"] = sanitized_args
         return out
 
-    for key, value in cleaned.items():
-        if key == "node":
-            continue
-        if isinstance(value, dict):
-            sanitized = sanitize_expr_dict(value)
-            if sanitized is None:
-                return None
-            out[key] = sanitized
-        elif isinstance(value, list):
-            out[key] = _sanitize_list(value)
-        else:
-            out[key] = value
-    return out
+    return None
 
 
 def _drop_none_values(value):
@@ -134,16 +136,11 @@ def _sanitize_required_expr_field(value) -> dict | None:
     return sanitize_expr_dict(value)
 
 
-def _sanitize_list(values: list) -> list:
-    out: list = []
+def _sanitize_expr_list(values: list) -> list[dict]:
+    out: list[dict] = []
     for value in values:
-        if isinstance(value, dict):
-            sanitized = sanitize_expr_dict(value)
-            if sanitized is None:
-                return []
-            out.append(sanitized)
-        elif isinstance(value, list):
-            out.append(_sanitize_list(value))
-        else:
-            out.append(value)
+        sanitized = _sanitize_required_expr_field(value)
+        if sanitized is None:
+            continue
+        out.append(sanitized)
     return out

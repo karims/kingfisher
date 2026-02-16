@@ -162,3 +162,84 @@ def test_formalize_normalization_hook_downgrades_find_without_target() -> None:
     assert warning is not None
     assert warning.details is not None
     assert warning.details.get("old_kind") == "find"
+
+
+def test_formalize_normalization_hook_sanitizes_nested_invalid_mul_in_assumption_expr() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_nested_mul", "generator": "test"},
+        "source": {"text": "Assume (1 + 2) = 3."},
+        "entities": [],
+        "assumptions": [
+            {
+                "expr": {
+                    "node": "Eq",
+                    "lhs": {
+                        "node": "Add",
+                        "args": [
+                            {"node": "Number", "value": 1},
+                            {"node": "Mul"},
+                            {"node": "Number", "value": 2},
+                        ],
+                    },
+                    "rhs": {"node": "Number", "value": 3},
+                },
+                "kind": "given",
+                "trace": ["s1"],
+            }
+        ],
+        "goal": {
+            "kind": "prove",
+            "expr": {"node": "Bool", "value": True},
+            "trace": ["s0"],
+        },
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 19, "text": "Assume (1 + 2) = 3."},
+            {"span_id": "s1", "start": 0, "end": 19, "text": "Assume (1 + 2) = 3."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload)
+    mvir = MVIR.model_validate(normalized)
+
+    assert len(mvir.assumptions) == 1
+    lhs = mvir.assumptions[0].expr.lhs
+    assert lhs.node == "Add"
+    assert len(lhs.args) == 2
+
+
+def test_formalize_normalization_hook_drops_assumption_when_nested_add_args_all_invalid() -> None:
+    payload = {
+        "meta": {"version": "0.1", "id": "norm_hook_nested_mul_all_bad", "generator": "test"},
+        "source": {"text": "Assume bad sum."},
+        "entities": [],
+        "assumptions": [
+            {
+                "expr": {
+                    "node": "Eq",
+                    "lhs": {"node": "Add", "args": [{"node": "Mul"}]},
+                    "rhs": {"node": "Number", "value": 3},
+                },
+                "kind": "given",
+                "trace": ["s1"],
+            }
+        ],
+        "goal": {
+            "kind": "prove",
+            "expr": {"node": "Bool", "value": True},
+            "trace": ["s0"],
+        },
+        "concepts": [],
+        "warnings": [],
+        "trace": [
+            {"span_id": "s0", "start": 0, "end": 14, "text": "Assume bad sum."},
+            {"span_id": "s1", "start": 0, "end": 14, "text": "Assume bad sum."},
+        ],
+    }
+
+    normalized = _normalize_payload_expr_fields(payload)
+    mvir = MVIR.model_validate(normalized)
+
+    assert mvir.assumptions == []
+    assert any(w.code == "dropped_assumption" for w in mvir.warnings)
