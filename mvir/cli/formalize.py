@@ -11,6 +11,7 @@ import argparse
 import json
 from pathlib import Path
 
+from mvir.core.models import MVIR
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.provider_base import LLMProvider, ProviderError
@@ -325,7 +326,8 @@ def main(argv: list[str] | None = None) -> int:
             if grounding_errors:
                 print("WARNING: Grounding contract failed: " + "; ".join(grounding_errors))
 
-        mvir = canonicalize_mvir(mvir)
+        if isinstance(mvir, MVIR):
+            mvir = canonicalize_mvir(mvir)
         payload = mvir.model_dump(by_alias=False, exclude_none=True)
         md_path = _resolve_md_out_path(
             render_md=args.render_md,
