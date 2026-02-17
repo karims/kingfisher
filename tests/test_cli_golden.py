@@ -301,3 +301,51 @@ def test_cli_golden_normalize_for_compare_stable_ordering() -> None:
     assert [c["id"] for c in normalized["concepts"]] == ["c1", "c2"]
     assert [w["code"] for w in normalized["warnings"]] == ["a", "b"]
     assert [t["span_id"] for t in normalized["trace"]] == ["s0", "s1", "s2"]
+
+
+def test_iter_baseline_paths_only_includes_root_level_real_baselines(tmp_path: Path) -> None:
+    root = tmp_path / "out" / "mvir"
+    root.mkdir(parents=True, exist_ok=True)
+
+    (root / "latex_smoke_01.json").write_text("{}", encoding="utf-8")
+    (root / "latex_smoke_01.json_object.json").write_text("{}", encoding="utf-8")
+    (root / "latex_smoke_01.json_schema.json").write_text("{}", encoding="utf-8")
+
+    debug_dir = root / ".debug"
+    debug_dir.mkdir(parents=True, exist_ok=True)
+    (debug_dir / "latex_smoke_01.failed.json").write_text("{}", encoding="utf-8")
+
+    new_dir = root / ".new"
+    new_dir.mkdir(parents=True, exist_ok=True)
+    (new_dir / "latex_smoke_01.json").write_text("{}", encoding="utf-8")
+
+    baselines = cli_golden.iter_baseline_paths(root)
+
+    assert baselines == [root / "latex_smoke_01.json"]
+
+
+def test_cli_golden_skips_invalid_baseline_and_continues(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    invalid_baseline = tmp_path / "bad.json"
+    invalid_baseline.write_text("{}", encoding="utf-8")
+
+    valid_baseline = tmp_path / "ok.json"
+    valid_payload = _mvir_payload("ok", "x")
+    valid_baseline.write_text(json.dumps(valid_payload), encoding="utf-8")
+
+    monkeypatch.setattr(cli_golden, "build_provider", lambda *args, **kwargs: object())
+    monkeypatch.setattr(
+        cli_golden,
+        "formalize_text_to_mvir",
+        lambda *args, **kwargs: _DummyMVIR(_mvir_payload("ok", "x")),
+    )
+
+    rc = cli_golden.main(["--input-dir", str(tmp_path), "--provider", "openai"])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    assert f"SKIP_BASELINE: {invalid_baseline} (baseline_invalid:" in out
+    assert f"OK: {valid_baseline}" in out

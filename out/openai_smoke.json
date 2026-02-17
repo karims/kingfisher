@@ -1,51 +1,12 @@
 {
-  "meta": {
-    "version": "0.1",
-    "id": "latex_smoke_01",
-    "generator": "assistant-0.1"
-  },
-  "source": {
-    "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
-  },
-  "entities": [
-    {
-      "id": "x",
-      "kind": "variable",
-      "type": "Real",
-      "properties": [],
-      "trace": [
-        "s1",
-        "s2",
-        "s3"
-      ]
-    },
-    {
-      "id": "k",
-      "kind": "variable",
-      "type": "Unknown",
-      "properties": [],
-      "trace": [
-        "s4"
-      ]
-    },
-    {
-      "id": "n",
-      "kind": "variable",
-      "type": "Unknown",
-      "properties": [],
-      "trace": [
-        "s4"
-      ]
-    }
-  ],
   "assumptions": [
     {
       "expr": {
-        "node": "Gt",
         "lhs": {
-          "node": "Symbol",
-          "id": "x"
+          "id": "x",
+          "node": "Symbol"
         },
+        "node": "Gt",
         "rhs": {
           "node": "Number",
           "value": 0
@@ -57,108 +18,155 @@
       ]
     }
   ],
-  "goal": {
-    "kind": "prove",
-    "expr": {
-      "node": "Bool",
-      "value": true
-    },
-    "trace": [
-      "s1"
-    ],
-    "target": {
-      "node": "Add",
-      "args": [
-        {
-          "node": "Pow",
-          "base": {
-            "node": "Symbol",
-            "id": "x"
-          },
-          "exp": {
-            "node": "Number",
-            "value": 2
-          }
-        },
-        {
-          "node": "Number",
-          "value": 1
-        }
-      ]
-    }
-  },
   "concepts": [
     {
-      "id": "square_nonnegativity",
-      "role": "definition",
+      "id": "arithmetic_series",
+      "role": "candidate_tool",
+      "trace": [
+        "s4"
+      ]
+    },
+    {
+      "id": "nonnegativity",
+      "role": "pattern",
       "trace": [
         "s3"
       ]
     },
     {
-      "id": "arithmetic_series_formula",
+      "id": "square",
       "role": "definition",
       "trace": [
-        "s4"
+        "s1",
+        "s3"
       ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "k",
+      "kind": "variable",
+      "properties": [],
+      "trace": [
+        "s4"
+      ],
+      "type": "Integer"
+    },
+    {
+      "id": "n",
+      "kind": "variable",
+      "properties": [],
+      "trace": [
+        "s4"
+      ],
+      "type": "Integer"
+    },
+    {
+      "id": "x",
+      "kind": "variable",
+      "properties": [],
+      "trace": [
+        "s1",
+        "s2",
+        "s3"
+      ],
+      "type": "Real"
+    }
+  ],
+  "goal": {
+    "expr": {
+      "node": "Bool",
+      "value": true
+    },
+    "kind": "prove",
+    "target": {
+      "args": [
+        {
+          "node": "Number",
+          "value": 1
+        },
+        {
+          "base": {
+            "id": "x",
+            "node": "Symbol"
+          },
+          "exp": {
+            "node": "Number",
+            "value": 2
+          },
+          "node": "Pow"
+        }
+      ],
+      "node": "Add"
+    },
+    "trace": [
+      "s1"
+    ]
+  },
+  "meta": {
+    "generator": "mv-annotator-0.1",
+    "id": "latex_smoke_01",
+    "version": "0.1"
+  },
+  "source": {
+    "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
+  },
+  "trace": [
+    {
+      "end": 103,
+      "span_id": "s0",
+      "start": 0,
+      "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
+    },
+    {
+      "end": 18,
+      "span_id": "s1",
+      "start": 0,
+      "text": "Compute $x^2 + 1$."
+    },
+    {
+      "end": 33,
+      "span_id": "s2",
+      "start": 18,
+      "text": "\nLet \\(x > 0\\)."
+    },
+    {
+      "end": 58,
+      "span_id": "s3",
+      "start": 33,
+      "text": " Show that \\[x^2 \\ge 0\\]."
+    },
+    {
+      "end": 102,
+      "span_id": "s4",
+      "start": 58,
+      "text": "\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
     }
   ],
   "warnings": [
     {
-      "code": "secondary_task",
-      "message": "There are additional tasks in the input: prove x^2 >= 0 (show) and state/verify the sum formula. Only the first sentence was chosen as the primary goal (compute x^2 + 1).",
-      "trace": [
-        "s3",
-        "s4"
-      ]
-    },
-    {
       "code": "invalid_goal_expr_replaced",
-      "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
-      "trace": [
-        "s1"
-      ],
       "details": {
-        "reason": "goal_expr_not_parseable",
-        "raw_expr": null,
+        "node_type": null,
         "path": [
           "goal",
           "expr"
         ],
-        "node_type": null
-      }
-    }
-  ],
-  "trace": [
-    {
-      "span_id": "s0",
-      "start": 0,
-      "end": 103,
-      "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
+        "raw_expr": null,
+        "reason": "goal_expr_not_parseable"
+      },
+      "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
+      "trace": [
+        "s1"
+      ]
     },
     {
-      "span_id": "s1",
-      "start": 0,
-      "end": 18,
-      "text": "Compute $x^2 + 1$."
-    },
-    {
-      "span_id": "s2",
-      "start": 18,
-      "end": 33,
-      "text": "\nLet \\(x > 0\\)."
-    },
-    {
-      "span_id": "s3",
-      "start": 33,
-      "end": 58,
-      "text": " Show that \\[x^2 \\ge 0\\]."
-    },
-    {
-      "span_id": "s4",
-      "start": 58,
-      "end": 102,
-      "text": "\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
+      "code": "multiple_tasks",
+      "message": "Input contains multiple tasks. Primary chosen: compute x^2 + 1. Secondary task present: show x^2 >= 0.",
+      "trace": [
+        "s1",
+        "s3"
+      ]
     }
   ]
 }

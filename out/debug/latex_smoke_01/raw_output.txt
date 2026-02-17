@@ -2,9 +2,11 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assist-2026-02-16"
+    "generator": "mv-annotator-0.1"
   },
-  "source": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n",
+  "source": {
+    "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
+  },
   "entities": [
     {
       "id": "x",
@@ -31,14 +33,6 @@
       "trace": [
         "s4"
       ]
-    },
-    {
-      "id": "sum",
-      "kind": "function",
-      "type": "Arithmetic",
-      "trace": [
-        "s4"
-      ]
     }
   ],
   "assumptions": [
@@ -60,9 +54,9 @@
     }
   ],
   "goal": {
-    "kind": "prove",
-    "expr": {
-      "node": "Ge",
+    "kind": "compute",
+    "target": {
+      "node": "Add",
       "lhs": {
         "node": "Pow",
         "base": {
@@ -76,30 +70,41 @@
       },
       "rhs": {
         "node": "Number",
-        "value": 0
+        "value": 1
       }
     },
     "trace": [
-      "s3"
+      "s1"
     ]
   },
   "concepts": [
     {
-      "id": "square_nonnegative",
-      "name": "Square of a real is nonnegative",
-      "description": "For a real number x, x^2 is greater than or equal to 0.",
+      "name": "square",
       "trace": [
-        "s2",
+        "s1",
         "s3"
+      ]
+    },
+    {
+      "name": "nonnegativity of a square",
+      "trace": [
+        "s3"
+      ]
+    },
+    {
+      "name": "arithmetic series / sum of first n integers",
+      "trace": [
+        "s4"
       ]
     }
   ],
   "warnings": [
     {
-      "code": "secondary_tasks",
-      "message": "The sentence 'Compute x^2 + 1.' (s1) is a separate computation request; the primary goal selected is proving x^2 ≥ 0 (s3).",
+      "code": "multiple_tasks",
+      "message": "Input contains multiple tasks. Primary chosen: compute x^2 + 1. Secondary task present: show x^2 >= 0.",
       "trace": [
-        "s1"
+        "s1",
+        "s3"
       ]
     }
   ],

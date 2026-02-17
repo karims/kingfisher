@@ -135,13 +135,30 @@ def _normalize_for_compare(payload: dict[str, Any], *, drop_generator: bool = Tr
     return _canonicalize(data)
 
 
-def _is_baseline_file(path: Path) -> bool:
+def is_baseline_file(path: Path, root: Path) -> bool:
+    if not path.is_file():
+        return False
+    try:
+        rel = path.relative_to(root)
+    except ValueError:
+        return False
+    # Only direct children of root are considered baselines.
+    if len(rel.parts) != 1:
+        return False
     name = path.name
+    if name.endswith(".failed.json"):
+        return False
     return (
         name.endswith(".json")
         and not name.endswith(".json_object.json")
         and not name.endswith(".json_schema.json")
     )
+
+
+def iter_baseline_paths(root: Path) -> list[Path]:
+    if not root.exists():
+        return []
+    return sorted(path for path in root.iterdir() if is_baseline_file(path, root))
 
 
 def _configure_provider_for_golden(provider: object) -> None:
@@ -251,7 +268,7 @@ def main(argv: list[str] | None = None) -> int:
     new_dir.mkdir(parents=True, exist_ok=True)
     debug_dir.mkdir(parents=True, exist_ok=True)
 
-    files = sorted(path for path in input_dir.rglob("*.json") if _is_baseline_file(path))
+    files = iter_baseline_paths(input_dir)
     if not files:
         print(f"ERROR: no JSON files found under {input_dir}")
         return 1
@@ -259,6 +276,7 @@ def main(argv: list[str] | None = None) -> int:
     mismatches: list[str] = []
     failures: list[str] = []
     degraded: list[str] = []
+    skipped_baselines: list[str] = []
     variant = (
         f"{args.openai_format}{'+fallback' if args.openai_allow_fallback else ''}"
         if args.provider == "openai"
@@ -267,18 +285,24 @@ def main(argv: list[str] | None = None) -> int:
 
     for path in files:
         try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-            source = payload.get("source")
-            meta = payload.get("meta")
-            if not isinstance(source, dict) or not isinstance(source.get("text"), str):
-                raise ValueError("Missing source.text in baseline JSON.")
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+                baseline_mvir = MVIR.model_validate(payload)
+            except Exception as baseline_exc:  # noqa: BLE001 - per-baseline validation boundary
+                reason = format_cli_exception(baseline_exc)
+                skipped_baselines.append(f"{path} (baseline_invalid: {reason})")
+                print(f"SKIP_BASELINE: {path} (baseline_invalid: {reason})")
+                continue
+
+            source_text = baseline_mvir.source.text
+            meta = baseline_mvir.meta.model_dump(by_alias=False, exclude_none=True)
             problem_id = (
                 meta.get("id")
                 if isinstance(meta, dict) and isinstance(meta.get("id"), str)
                 else path.stem
             )
             rerun_mvir = formalize_text_to_mvir(
-                source["text"],
+                source_text,
                 provider,
                 problem_id=problem_id,
                 temperature=0.0 if args.deterministic else args.temperature,
@@ -308,7 +332,9 @@ def main(argv: list[str] | None = None) -> int:
             }:
                 degraded.append(str(path))
 
-            left = _normalize_for_compare(payload)
+            left = _normalize_for_compare(
+                baseline_mvir.model_dump(by_alias=False, exclude_none=True)
+            )
             right = _normalize_for_compare(rerun_payload)
             if left != right:
                 mismatches.append(str(path))
@@ -370,6 +396,10 @@ def main(argv: list[str] | None = None) -> int:
     if degraded:
         print("degraded files:")
         for item in degraded:
+            print(item)
+    if skipped_baselines:
+        print("skipped baselines:")
+        for item in skipped_baselines:
             print(item)
 
     if failures:
