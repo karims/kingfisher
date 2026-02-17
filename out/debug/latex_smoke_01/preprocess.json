@@ -45,5 +45,31 @@
       "text": "\\sum_{k=1}^n k = \\frac{n(n+1)}{2}",
       "kind": "inline_math"
     }
+  ],
+  "spans": [
+    {
+      "span_id": "s1",
+      "start": 0,
+      "end": 18,
+      "text": "Compute $x^2 + 1$."
+    },
+    {
+      "span_id": "s2",
+      "start": 18,
+      "end": 33,
+      "text": "\nLet \\(x > 0\\)."
+    },
+    {
+      "span_id": "s3",
+      "start": 33,
+      "end": 58,
+      "text": " Show that \\[x^2 \\ge 0\\]."
+    },
+    {
+      "span_id": "s4",
+      "start": 58,
+      "end": 102,
+      "text": "\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$."
+    }
   ]
 }

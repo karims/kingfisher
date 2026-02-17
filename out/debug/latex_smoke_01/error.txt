@@ -1,22 +1,19 @@
 kind: schema_validation
-message: MVIR validation failed: 2 validation errors for MVIR
-concepts.0.id
-  Field required [type=missing, input_value={'name': 'nonnegativity_o...one, 'confidence': None}, input_type=dict]
-    For further information visit https://errors.pydantic....
-exception: ValueError("MVIR validation failed: 2 validation errors for MVIR\nconcepts.0.id\n  Field required [type=missing, input_value={'name': 'nonnegativity_o...one, 'confidence': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nconcepts.1.id\n  Field required [type=missing, input_value={'name': 'sum_of_first_n_...one, 'confidence': None}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing")
+message: MVIR validation failed: 1 validation error for MVIR
+source
+  Input should be a valid dictionary or instance of Source [type=model_type, input_value='Compute $x^2 + 1$.\nLet ... \\frac{n(n+1)}{2}$$.\n', input_type=str]
+    For further inform...
+exception: ValueError("MVIR validation failed: 1 validation error for MVIR\nsource\n  Input should be a valid dictionary or instance of Source [type=model_type, input_value='Compute $x^2 + 1$.\\nLet ... \\\\frac{n(n+1)}{2}$$.\\n', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/model_type")
 
 traceback:
 Traceback (most recent call last):
-  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 237, in formalize_text_to_mvir
+  File "C:\Users\karim\studioprojects\kingfisher\mvir\extract\formalize.py", line 238, in formalize_text_to_mvir
     mvir = MVIR.model_validate(payload)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\karim\studioprojects\sydes\.venv\Lib\site-packages\pydantic\main.py", line 716, in model_validate
     return cls.__pydantic_validator__.validate_python(
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 2 validation errors for MVIR
-concepts.0.id
-  Field required [type=missing, input_value={'name': 'nonnegativity_o...one, 'confidence': None}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
-concepts.1.id
-  Field required [type=missing, input_value={'name': 'sum_of_first_n_...one, 'confidence': None}, input_type=dict]
-    For further information visit https://errors.pydantic.dev/2.12/v/missing
+pydantic_core._pydantic_core.ValidationError: 1 validation error for MVIR
+source
+  Input should be a valid dictionary or instance of Source [type=model_type, input_value='Compute $x^2 + 1$.\nLet ... \\frac{n(n+1)}{2}$$.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/model_type

@@ -2,7 +2,7 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant-v1"
+    "generator": "assistant-0.1"
   },
   "source": {
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
@@ -20,18 +20,18 @@
       ]
     },
     {
-      "id": "n",
+      "id": "k",
       "kind": "variable",
-      "type": "Integer",
+      "type": "Unknown",
       "properties": [],
       "trace": [
         "s4"
       ]
     },
     {
-      "id": "k",
+      "id": "n",
       "kind": "variable",
-      "type": "Integer",
+      "type": "Unknown",
       "properties": [],
       "trace": [
         "s4"
@@ -89,15 +89,15 @@
   },
   "concepts": [
     {
-      "id": "nonnegativity_of_square",
-      "role": "pattern",
+      "id": "square_nonnegativity",
+      "role": "definition",
       "trace": [
         "s3"
       ]
     },
     {
-      "id": "sum_of_first_n_integers",
-      "role": "pattern",
+      "id": "arithmetic_series_formula",
+      "role": "definition",
       "trace": [
         "s4"
       ]
@@ -105,8 +105,8 @@
   ],
   "warnings": [
     {
-      "code": "multiple_tasks",
-      "message": "Input contains multiple tasks. Primary selected: 'Compute x^2 + 1' (s1). Secondary tasks preserved as warnings: 'Show that x^2 >= 0' (s3) and the summation identity (s4).",
+      "code": "secondary_task",
+      "message": "There are additional tasks in the input: prove x^2 >= 0 (show) and state/verify the sum formula. Only the first sentence was chosen as the primary goal (compute x^2 + 1).",
       "trace": [
         "s3",
         "s4"

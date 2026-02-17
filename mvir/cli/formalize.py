@@ -20,6 +20,7 @@ from mvir.preprocess.context import build_preprocess_output
 from mvir.render.bundle import write_explain_bundle
 from mvir.render.markdown import render_mvir_markdown
 from mvir.trace import TraceLogger, new_event
+from mvir.utils.canonicalize import canonicalize_mvir
 
 
 def _configure_provider_sampling(provider: object) -> None:
@@ -324,6 +325,7 @@ def main(argv: list[str] | None = None) -> int:
             if grounding_errors:
                 print("WARNING: Grounding contract failed: " + "; ".join(grounding_errors))
 
+        mvir = canonicalize_mvir(mvir)
         payload = mvir.model_dump(by_alias=False, exclude_none=True)
         md_path = _resolve_md_out_path(
             render_md=args.render_md,

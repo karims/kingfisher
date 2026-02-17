@@ -2,11 +2,9 @@
   "meta": {
     "version": "0.1",
     "id": "latex_smoke_01",
-    "generator": "assistant-v1"
+    "generator": "assist-2026-02-16"
   },
-  "source": {
-    "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
-  },
+  "source": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n",
   "entities": [
     {
       "id": "x",
@@ -33,6 +31,14 @@
       "trace": [
         "s4"
       ]
+    },
+    {
+      "id": "sum",
+      "kind": "function",
+      "type": "Arithmetic",
+      "trace": [
+        "s4"
+      ]
     }
   ],
   "assumptions": [
@@ -54,121 +60,46 @@
     }
   ],
   "goal": {
-    "kind": "find",
-    "target": {
-      "node": "Add",
-      "terms": [
-        {
-          "node": "Pow",
-          "base": {
-            "node": "Symbol",
-            "id": "x"
-          },
-          "exp": {
-            "node": "Number",
-            "value": 2
-          }
+    "kind": "prove",
+    "expr": {
+      "node": "Ge",
+      "lhs": {
+        "node": "Pow",
+        "base": {
+          "node": "Symbol",
+          "id": "x"
         },
-        {
+        "exp": {
           "node": "Number",
-          "value": 1
+          "value": 2
         }
-      ]
+      },
+      "rhs": {
+        "node": "Number",
+        "value": 0
+      }
     },
     "trace": [
-      "s1"
+      "s3"
     ]
   },
   "concepts": [
     {
-      "name": "nonnegativity_of_square",
-      "expr": {
-        "node": "Ge",
-        "lhs": {
-          "node": "Pow",
-          "base": {
-            "node": "Symbol",
-            "id": "x"
-          },
-          "exp": {
-            "node": "Number",
-            "value": 2
-          }
-        },
-        "rhs": {
-          "node": "Number",
-          "value": 0
-        }
-      },
+      "id": "square_nonnegative",
+      "name": "Square of a real is nonnegative",
+      "description": "For a real number x, x^2 is greater than or equal to 0.",
       "trace": [
+        "s2",
         "s3"
-      ]
-    },
-    {
-      "name": "sum_of_first_n_integers",
-      "expr": {
-        "node": "Eq",
-        "lhs": {
-          "node": "Sum",
-          "index": {
-            "node": "Symbol",
-            "id": "k"
-          },
-          "lower": {
-            "node": "Number",
-            "value": 1
-          },
-          "upper": {
-            "node": "Symbol",
-            "id": "n"
-          },
-          "body": {
-            "node": "Symbol",
-            "id": "k"
-          }
-        },
-        "rhs": {
-          "node": "Div",
-          "num": {
-            "node": "Mul",
-            "factors": [
-              {
-                "node": "Symbol",
-                "id": "n"
-              },
-              {
-                "node": "Add",
-                "terms": [
-                  {
-                    "node": "Symbol",
-                    "id": "n"
-                  },
-                  {
-                    "node": "Number",
-                    "value": 1
-                  }
-                ]
-              }
-            ]
-          },
-          "den": {
-            "node": "Number",
-            "value": 2
-          }
-        }
-      },
-      "trace": [
-        "s4"
       ]
     }
   ],
   "warnings": [
     {
-      "code": "multiple_tasks",
-      "message": "Input contains multiple tasks. Primary selected: 'Compute x^2 + 1' (s1). Secondary tasks preserved as warnings: 'Show that x^2 >= 0' (s3) and the summation identity (s4).",
+      "code": "secondary_tasks",
+      "message": "The sentence 'Compute x^2 + 1.' (s1) is a separate computation request; the primary goal selected is proving x^2 ≥ 0 (s3).",
       "trace": [
-        "s3",
-        "s4"
+        "s1"
       ]
     }
   ],
