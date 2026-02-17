@@ -299,6 +299,42 @@ python -m mvir.cli.formalize examples/problems/latex_smoke_01.txt --provider ope
 
 ---
 
+## 16. Phase 10 - Deterministic Concepts + Trace Graph
+
+**Decision**
+- Phase 10 adds deterministic analysis outputs derived from validated MVIR.
+- These outputs are reproducible and auditable from AST + trace refs.
+
+**What Phase 10 adds**
+- Deterministic concept tagging from obvious AST patterns.
+- Deterministic trace graph export:
+  - nodes: `entity`, `concept`, `assumption`, `goal`, `trace_event`
+  - edges derived from symbol mentions, trace overlap, and trace-event refs.
+- Markdown report graph summary section:
+  - `## Debug Graph (Summary)`
+  - node counts by type
+  - edge counts by type
+  - top concepts by degree
+
+**How to run**
+
+1. Formalize text into MVIR JSON:
+```bash
+python -m mvir.cli.formalize examples/problems/latex_smoke_01.txt --provider openai --openai-allow-fallback --out out/mvir/latex_smoke_01.json
+```
+
+2. Render Markdown from MVIR JSON (optional trace JSONL for graph summary enrichment):
+```bash
+python -m mvir.cli.render out/mvir/latex_smoke_01.json --out out/mvir/latex_smoke_01.md --trace out/debug/latex_smoke_01.solver_trace.jsonl
+```
+
+3. Export deterministic graph JSON:
+```bash
+python -m mvir.cli.graph out/mvir/latex_smoke_01.json --out out/mvir/latex_smoke_01.graph.json --trace out/debug/latex_smoke_01.solver_trace.jsonl
+```
+
+---
+
 ## Closing Note
 
 Kingfisher is infrastructure.

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+from collections import Counter
 
+from mvir.analysis.trace_graph import build_trace_graph
 from mvir.core.ast import (
     Add,
     Bool,
@@ -116,7 +118,55 @@ def _render_trace_ids(trace_ids: list[str]) -> str:
     return ", ".join(trace_ids)
 
 
-def render_mvir_markdown(mvir: MVIR) -> str:
+def _render_debug_graph_summary(
+    mvir: MVIR, *, solver_trace: list[dict] | None = None
+) -> list[str]:
+    graph = build_trace_graph(mvir, solver_trace=solver_trace)
+    node_counts = Counter(node["type"] for node in graph["nodes"])
+    edge_counts = Counter(edge["type"] for edge in graph["edges"])
+
+    degree: dict[str, int] = {}
+    for edge in graph["edges"]:
+        src = edge["src"]
+        dst = edge["dst"]
+        degree[src] = degree.get(src, 0) + 1
+        degree[dst] = degree.get(dst, 0) + 1
+
+    concept_degree_rows: list[tuple[str, int]] = []
+    for node in graph["nodes"]:
+        if node["type"] != "concept":
+            continue
+        concept_degree_rows.append((node["id"], degree.get(node["id"], 0)))
+    concept_degree_rows.sort(key=lambda item: (-item[1], item[0]))
+
+    lines: list[str] = []
+    lines.append("## Debug Graph (Summary)")
+    lines.append("- nodes by type:")
+    if node_counts:
+        for node_type, count in sorted(node_counts.items()):
+            lines.append(f"  - {node_type}: {count}")
+    else:
+        lines.append("  - (none)")
+
+    lines.append("- edges by type:")
+    if edge_counts:
+        for edge_type, count in sorted(edge_counts.items()):
+            lines.append(f"  - {edge_type}: {count}")
+    else:
+        lines.append("  - (none)")
+
+    lines.append("- top concepts by degree:")
+    if concept_degree_rows:
+        for concept_id, deg in concept_degree_rows[:10]:
+            label = concept_id.split("concept:", 1)[1] if concept_id.startswith("concept:") else concept_id
+            lines.append(f"  - {label}: {deg}")
+    else:
+        lines.append("  - (none)")
+
+    return lines
+
+
+def render_mvir_markdown(mvir: MVIR, *, solver_trace: list[dict] | None = None) -> str:
     """Render an MVIR document as a deterministic Markdown report."""
 
     lines: list[str] = []
@@ -231,5 +281,8 @@ def render_mvir_markdown(mvir: MVIR) -> str:
                 lines.append(f"- event {idx} data: `{data_json}`")
             if event.refs:
                 lines.append(f"- event {idx} refs: {', '.join(event.refs)}")
+
+    lines.append("")
+    lines.extend(_render_debug_graph_summary(mvir, solver_trace=solver_trace))
 
     return "\n".join(lines) + "\n"

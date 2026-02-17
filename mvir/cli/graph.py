@@ -1,4 +1,4 @@
-﻿"""Render an MVIR JSON file into a deterministic Markdown report."""
+"""Export deterministic MVIR debug graph JSON."""
 
 from __future__ import annotations
 
@@ -6,12 +6,12 @@ import argparse
 import json
 from pathlib import Path
 
+from mvir.analysis.trace_graph import build_trace_graph
 from mvir.core.models import load_mvir
-from mvir.render.markdown import render_mvir_markdown
 
 
-def _default_out_path(input_path: str) -> Path:
-    return Path(input_path + ".md")
+def _default_trace_path(mvir_json_path: Path) -> Path:
+    return mvir_json_path.with_suffix(".trace.jsonl")
 
 
 def _load_trace_jsonl(path: Path) -> list[dict]:
@@ -33,37 +33,34 @@ def _load_trace_jsonl(path: Path) -> list[dict]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run the MVIR Markdown render CLI."""
+    """Run the graph export CLI."""
 
-    parser = argparse.ArgumentParser(description="Render MVIR JSON into Markdown.")
+    parser = argparse.ArgumentParser(description="Export deterministic MVIR debug graph JSON.")
     parser.add_argument("path", help="Path to MVIR JSON file.")
-    parser.add_argument(
-        "--out",
-        help="Output Markdown path (default: <input>.md).",
-    )
+    parser.add_argument("--out", required=True, help="Output graph JSON path.")
     parser.add_argument(
         "--trace",
-        help="Optional trace JSONL path to enrich Debug Graph summary.",
+        help="Optional trace JSONL path. If omitted, tries <mvir_json_path with .trace.jsonl>.",
     )
     args = parser.parse_args(argv)
 
     try:
-        input_path = Path(args.path)
-        out_path = Path(args.out) if args.out else _default_out_path(args.path)
+        mvir_path = Path(args.path)
+        out_path = Path(args.out)
+        trace_path = Path(args.trace) if args.trace else _default_trace_path(mvir_path)
 
-        mvir = load_mvir(str(input_path))
+        mvir = load_mvir(str(mvir_path))
         trace_events: list[dict] | None = None
-        if args.trace:
-            trace_path = Path(args.trace)
-            if trace_path.exists():
-                trace_events = _load_trace_jsonl(trace_path)
-            else:
-                print(f"WARNING: trace file not found: {trace_path}")
-        markdown = render_mvir_markdown(mvir, solver_trace=trace_events)
+        if trace_path.exists():
+            trace_events = _load_trace_jsonl(trace_path)
+
+        graph = build_trace_graph(mvir, solver_trace=trace_events)
 
         out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(markdown, encoding="utf-8")
-
+        out_path.write_text(
+            json.dumps(graph, ensure_ascii=False, sort_keys=True, indent=2),
+            encoding="utf-8",
+        )
         print(f"OK: {mvir.meta.id} -> {out_path}")
         return 0
     except Exception as exc:  # noqa: BLE001 - CLI boundary
@@ -73,3 +70,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

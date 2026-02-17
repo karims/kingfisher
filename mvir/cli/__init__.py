@@ -3,6 +3,7 @@
 __all__ = [
     "formalize",
     "formalize_dir",
+    "graph",
     "golden",
     "preprocess",
     "render",
