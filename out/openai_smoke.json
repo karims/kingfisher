@@ -20,26 +20,13 @@
   ],
   "concepts": [
     {
-      "id": "arithmetic_series",
-      "role": "candidate_tool",
+      "id": "positivity:x",
+      "name": "Positive variable x",
+      "role": "domain",
       "trace": [
-        "s4"
-      ]
-    },
-    {
-      "id": "nonnegativity",
-      "role": "pattern",
-      "trace": [
-        "s3"
-      ]
-    },
-    {
-      "id": "square",
-      "role": "definition",
-      "trace": [
-        "s1",
-        "s3"
-      ]
+        "s2"
+      ],
+      "trigger": "assumption[0]:Gt(Symbol(x), Number(0))"
     }
   ],
   "entities": [
@@ -80,31 +67,29 @@
     },
     "kind": "prove",
     "target": {
-      "args": [
-        {
-          "node": "Number",
-          "value": 1
+      "lhs": {
+        "base": {
+          "id": "x",
+          "node": "Symbol"
         },
-        {
-          "base": {
-            "id": "x",
-            "node": "Symbol"
-          },
-          "exp": {
-            "node": "Number",
-            "value": 2
-          },
-          "node": "Pow"
-        }
-      ],
-      "node": "Add"
+        "exp": {
+          "node": "Number",
+          "value": 2
+        },
+        "node": "Pow"
+      },
+      "node": "Ge",
+      "rhs": {
+        "node": "Number",
+        "value": 0
+      }
     },
     "trace": [
-      "s1"
+      "s3"
     ]
   },
   "meta": {
-    "generator": "mv-annotator-0.1",
+    "generator": "assistant",
     "id": "latex_smoke_01",
     "version": "0.1"
   },
@@ -145,6 +130,73 @@
   ],
   "warnings": [
     {
+      "code": "invalid_assumption_expr_dropped",
+      "details": {
+        "node_type": "Eq",
+        "path": [
+          "assumptions",
+          1,
+          "expr"
+        ],
+        "raw_expr": {
+          "lhs": {
+            "body": {
+              "id": "k",
+              "node": "Symbol"
+            },
+            "index": {
+              "id": "k",
+              "node": "Symbol"
+            },
+            "lower": {
+              "node": "Number",
+              "value": 1
+            },
+            "node": "Sum",
+            "upper": {
+              "id": "n",
+              "node": "Symbol"
+            }
+          },
+          "node": "Eq",
+          "rhs": {
+            "lhs": {
+              "factors": [
+                {
+                  "id": "n",
+                  "node": "Symbol"
+                },
+                {
+                  "node": "Add",
+                  "terms": [
+                    {
+                      "id": "n",
+                      "node": "Symbol"
+                    },
+                    {
+                      "node": "Number",
+                      "value": 1
+                    }
+                  ]
+                }
+              ],
+              "node": "Mul"
+            },
+            "node": "Div",
+            "rhs": {
+              "node": "Number",
+              "value": 2
+            }
+          }
+        },
+        "reason": "incomplete_expr"
+      },
+      "message": "dropped invalid expr subtree: expression missing required AST fields",
+      "trace": [
+        "s4"
+      ]
+    },
+    {
       "code": "invalid_goal_expr_replaced",
       "details": {
         "node_type": null,
@@ -157,15 +209,15 @@
       },
       "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
       "trace": [
-        "s1"
+        "s3"
       ]
     },
     {
       "code": "multiple_tasks",
-      "message": "Input contains multiple tasks. Primary chosen: compute x^2 + 1. Secondary task present: show x^2 >= 0.",
+      "message": "Source contains multiple tasks. Primary task chosen: prove x^2 >= 0 (s3). Secondary tasks preserved: compute x^2 + 1 (s1) and state/supply sum formula (s4).",
       "trace": [
         "s1",
-        "s3"
+        "s4"
       ]
     }
   ]

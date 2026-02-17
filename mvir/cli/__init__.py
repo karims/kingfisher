@@ -6,6 +6,7 @@ __all__ = [
     "graph",
     "golden",
     "preprocess",
+    "report",
     "render",
     "validate",
 ]
