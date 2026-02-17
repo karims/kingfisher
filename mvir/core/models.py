@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from enum import Enum
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -70,6 +71,20 @@ class Source(BaseModel):
     text: str
     normalized_text: str | None = None
     spans: list[dict] | None = None
+    math_surface: list["MathSurfaceSpan"] | None = None
+
+
+class MathSurfaceSpan(BaseModel):
+    """Best-effort deterministic LaTeX surface parse for a math span."""
+
+    span_id: str = Field(min_length=1)
+    start: int = Field(ge=0)
+    end: int = Field(ge=0)
+    raw_latex: str
+    tokens: list[str] = Field(default_factory=list)
+    sexpr: str | None = None
+    status: Literal["ok", "partial", "raw"]
+    warnings: list[str] = Field(default_factory=list)
 
 
 class TraceSpan(BaseModel):

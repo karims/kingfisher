@@ -11,13 +11,14 @@ import argparse
 import json
 from pathlib import Path
 
-from mvir.core.models import MVIR
+from mvir.core.models import MVIR, Warning
 from mvir.extract.contract import validate_grounding_contract
 from mvir.extract.formalize import formalize_text_to_mvir
 from mvir.extract.provider_base import LLMProvider, ProviderError
+from mvir.latex.enrich import enrich_mvir_with_math_surface
 from mvir.extract.providers.mock import MockProvider
 from mvir.extract.providers.openai_provider import OpenAIProvider
-from mvir.preprocess.context import build_preprocess_output
+from mvir.preprocess.context import build_preprocess_output, build_prompt_context
 from mvir.render.bundle import write_explain_bundle
 from mvir.render.markdown import render_mvir_markdown
 from mvir.trace import TraceLogger, new_event
@@ -244,6 +245,8 @@ def main(argv: list[str] | None = None) -> int:
         text_path = Path(args.path)
         text = text_path.read_text(encoding="utf-8")
         problem_id = text_path.stem
+        preprocess_out = build_preprocess_output(text)
+        prompt_context = build_prompt_context(preprocess_out.to_dict())
         if args.debug_dir:
             trace_path = Path(args.debug_dir) / f"{problem_id}.solver_trace.jsonl"
             trace_logger = _SafeTraceLogger(trace_path)
@@ -255,7 +258,6 @@ def main(argv: list[str] | None = None) -> int:
                     data={"problem_id": problem_id, "source_path": str(text_path)},
                 )
             )
-            preprocess_out = build_preprocess_output(text)
             trace_logger.append(
                 new_event(
                     "transform",
@@ -329,6 +331,21 @@ def main(argv: list[str] | None = None) -> int:
         if isinstance(mvir, MVIR):
             mvir = canonicalize_mvir(mvir)
         payload = mvir.model_dump(by_alias=False, exclude_none=True)
+        enriched_payload = enrich_mvir_with_math_surface(payload, prompt_context)
+        try:
+            mvir = MVIR.model_validate(enriched_payload)
+            payload = mvir.model_dump(by_alias=False, exclude_none=True)
+        except Exception as exc:  # noqa: BLE001 - best effort safety
+            fallback_trace = [mvir.trace[0].span_id] if mvir.trace else []
+            mvir.warnings.append(
+                Warning(
+                    code="math_surface_enrichment_failed",
+                    message="Failed to attach source.math_surface in CLI output path.",
+                    trace=fallback_trace,
+                    details={"reason": str(exc)},
+                )
+            )
+            payload = mvir.model_dump(by_alias=False, exclude_none=True)
         md_path = _resolve_md_out_path(
             render_md=args.render_md,
             json_out=args.out,
