@@ -21,6 +21,7 @@ from mvir.extract.providers.openai_provider import OpenAIProvider
 from mvir.preprocess.context import build_preprocess_output, build_prompt_context
 from mvir.render.bundle import write_explain_bundle
 from mvir.render.markdown import render_mvir_markdown
+from mvir.solve.bundle import build_solver_bundle
 from mvir.trace import TraceLogger, new_event
 from mvir.utils.canonicalize import canonicalize_mvir, mvir_to_stable_json
 
@@ -186,6 +187,14 @@ def main(argv: list[str] | None = None) -> int:
             "Optional directory to write explain bundle on success "
             "(writes to <bundle-dir>/<meta.id>/)."
         ),
+    )
+    parser.add_argument(
+        "--surface-out",
+        help="Optional path to write only source.math_surface JSON.",
+    )
+    parser.add_argument(
+        "--bundle-out",
+        help="Optional path to write solver bundle JSON.",
     )
     parser.add_argument(
         "--print",
@@ -360,6 +369,25 @@ def main(argv: list[str] | None = None) -> int:
                     json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2),
                     encoding="utf-8",
                 )
+        if args.surface_out:
+            surface_path = Path(args.surface_out)
+            surface_path.parent.mkdir(parents=True, exist_ok=True)
+            source = payload.get("source") if isinstance(payload, dict) else {}
+            math_surface = source.get("math_surface", []) if isinstance(source, dict) else []
+            if not isinstance(math_surface, list):
+                math_surface = []
+            surface_path.write_text(
+                json.dumps(math_surface, ensure_ascii=False, sort_keys=True, indent=2),
+                encoding="utf-8",
+            )
+        if args.bundle_out:
+            bundle_path = Path(args.bundle_out)
+            bundle_path.parent.mkdir(parents=True, exist_ok=True)
+            bundle = build_solver_bundle(payload if isinstance(payload, dict) else {})
+            bundle_path.write_text(
+                json.dumps(bundle, ensure_ascii=False, sort_keys=True, indent=2),
+                encoding="utf-8",
+            )
         if md_path is not None:
             _write_markdown_report(mvir, md_path)
         if args.bundle_dir:

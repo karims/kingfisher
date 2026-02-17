@@ -27,6 +27,7 @@ from mvir.core.ast import (
     Symbol,
 )
 from mvir.core.models import MVIR
+from mvir.solve.bundle import build_solver_bundle
 
 
 _BINARY_OP_SYMBOLS = {
@@ -166,6 +167,37 @@ def _render_debug_graph_summary(
     return lines
 
 
+def _render_math_surface_summary(mvir: MVIR) -> list[str]:
+    lines: list[str] = []
+    lines.append("## Math Surface Summary")
+    math_surface = mvir.source.math_surface
+    if not isinstance(math_surface, list):
+        lines.append("- count: 0")
+        lines.append("- statuses: (none)")
+        return lines
+
+    lines.append(f"- count: {len(math_surface)}")
+    status_counts = Counter(item.status for item in math_surface)
+    if status_counts:
+        status_text = ", ".join(f"{status}:{count}" for status, count in sorted(status_counts.items()))
+        lines.append(f"- statuses: {status_text}")
+    else:
+        lines.append("- statuses: (none)")
+    return lines
+
+
+def _render_solver_bundle_summary(mvir: MVIR) -> list[str]:
+    lines: list[str] = []
+    lines.append("## Solver Bundle Summary")
+    bundle = build_solver_bundle(mvir.model_dump(by_alias=False, exclude_none=True))
+    stats = bundle.get("stats", {}) if isinstance(bundle, dict) else {}
+    had_sympy = stats.get("had_sympy")
+    failures = stats.get("sympy_failures")
+    lines.append(f"- had_sympy: {had_sympy}")
+    lines.append(f"- sympy_failures: {failures}")
+    return lines
+
+
 def render_mvir_markdown(mvir: MVIR, *, solver_trace: list[dict] | None = None) -> str:
     """Render an MVIR document as a deterministic Markdown report."""
 
@@ -284,5 +316,9 @@ def render_mvir_markdown(mvir: MVIR, *, solver_trace: list[dict] | None = None) 
 
     lines.append("")
     lines.extend(_render_debug_graph_summary(mvir, solver_trace=solver_trace))
+    lines.append("")
+    lines.extend(_render_math_surface_summary(mvir))
+    lines.append("")
+    lines.extend(_render_solver_bundle_summary(mvir))
 
     return "\n".join(lines) + "\n"

@@ -73,3 +73,17 @@ Useful flags:
 - `--provider mock --mock-path examples/mock_llm/mock_responses.json` for offline/mock runs
 - `--openai-format json_object` or `--openai-format json_schema`
 
+## Phase 10 Artifacts
+
+Formalize with optional solver bundle export:
+
+```bash
+python -m mvir.cli.formalize examples/problems/latex_smoke_01.txt --provider openai --out out/mvir/latex_smoke_01.json --bundle-out out/mvir/latex_smoke_01.bundle.json
+```
+
+Build a solver bundle from an existing MVIR JSON:
+
+```bash
+python -m mvir.cli.bundle out/mvir/latex_smoke_01.json --out out/mvir/latex_smoke_01.bundle.json
+```
+
