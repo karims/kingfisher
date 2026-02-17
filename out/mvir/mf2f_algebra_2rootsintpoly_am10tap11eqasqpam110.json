@@ -1,24 +1,33 @@
 {
   "assumptions": [],
-  "concepts": [
-    {
-      "id": "distributive_law",
-      "name": "Distributive property / FOIL for binomials",
-      "role": "definition",
-      "trace": [
-        "s1"
-      ]
-    }
-  ],
+  "concepts": [],
   "entities": [
     {
-      "id": "Complex",
-      "kind": "set",
+      "id": "10",
+      "kind": "constant",
       "properties": [],
       "trace": [
         "s1"
       ],
-      "type": "Unknown"
+      "type": "Integer"
+    },
+    {
+      "id": "11",
+      "kind": "constant",
+      "properties": [],
+      "trace": [
+        "s1"
+      ],
+      "type": "Integer"
+    },
+    {
+      "id": "110",
+      "kind": "constant",
+      "properties": [],
+      "trace": [
+        "s1"
+      ],
+      "type": "Integer"
     },
     {
       "id": "a",
@@ -41,6 +50,7 @@
     ]
   },
   "meta": {
+    "generator": "assistant.mv_0.1",
     "id": "mf2f_algebra_2rootsintpoly_am10tap11eqasqpam110",
     "version": "0.1"
   },
@@ -63,29 +73,13 @@
   ],
   "warnings": [
     {
-      "code": "invalid_assumption_expr_dropped",
-      "details": {
-        "raw_expr": {
-          "lhs": {
-            "id": "a",
-            "node": "Symbol"
-          },
-          "node": "In",
-          "rhs": {
-            "id": "Complex",
-            "node": "Symbol"
-          }
-        },
-        "reason": "normalize_missing_required_fields"
-      },
-      "message": "dropped invalid expr subtree: normalization missing required fields",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
       "code": "invalid_goal_expr_replaced",
       "details": {
+        "node_type": "Eq",
+        "path": [
+          "goal",
+          "expr"
+        ],
         "raw_expr": {
           "lhs": {
             "lhs": {

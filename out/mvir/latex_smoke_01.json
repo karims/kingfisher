@@ -1,36 +1,20 @@
 {
-  "assumptions": [
-    {
-      "expr": {
-        "lhs": {
-          "id": "x",
-          "node": "Symbol"
-        },
-        "node": "Gt",
-        "rhs": {
-          "node": "Number",
-          "value": 0
-        }
-      },
-      "kind": "given",
-      "trace": [
-        "s2"
-      ]
-    }
-  ],
+  "assumptions": [],
   "concepts": [
     {
-      "id": "nonnegativity_of_squares",
-      "role": "definition",
-      "trace": [
-        "s3"
-      ]
-    },
-    {
-      "id": "sum_first_n_integers",
+      "id": "arithmetic_series_formula",
+      "name": "Sum of first n integers",
       "role": "definition",
       "trace": [
         "s4"
+      ]
+    },
+    {
+      "id": "square_nonnegativity",
+      "name": "Squares are nonnegative",
+      "role": "definition",
+      "trace": [
+        "s3"
       ]
     }
   ],
@@ -47,6 +31,15 @@
     {
       "id": "n",
       "kind": "variable",
+      "properties": [],
+      "trace": [
+        "s4"
+      ],
+      "type": "Unknown"
+    },
+    {
+      "id": "sum",
+      "kind": "function",
       "properties": [],
       "trace": [
         "s4"
@@ -90,6 +83,7 @@
     ]
   },
   "meta": {
+    "generator": "assistant-llm",
     "id": "latex_smoke_01",
     "version": "0.1"
   },
@@ -130,18 +124,25 @@
   ],
   "warnings": [
     {
-      "code": "dropped_assumption",
+      "code": "invalid_assumption_expr_dropped",
       "details": {
-        "reason": "incomplete_expr"
+        "node_type": null,
+        "path": [
+          "assumptions",
+          0,
+          "expr"
+        ],
+        "raw_expr": null,
+        "reason": "non_object_expr"
       },
-      "message": "Dropped assumption: expression missing required AST fields.",
+      "message": "dropped invalid expr subtree: non-object expression",
       "trace": [
-        "s4"
+        "s2"
       ]
     },
     {
       "code": "multiple_tasks",
-      "message": "Input contains multiple tasks; primary goal selected is to prove x^2 >= 0. Other tasks (compute x^2 + 1, state/provide sum formula) are listed as secondary.",
+      "message": "Multiple tasks present: 'Compute x^2 + 1' (s1) and the summation identity (s4) are treated as secondary to the primary goal 'Show that x^2 \\u2265 0' (s3).",
       "trace": [
         "s1",
         "s4"

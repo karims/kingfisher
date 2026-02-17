@@ -5,55 +5,93 @@
         "lhs": {
           "args": [
             {
-              "node": "Number",
-              "value": 16
+              "base": {
+                "args": [
+                  {
+                    "node": "Number",
+                    "value": 1
+                  },
+                  {
+                    "base": {
+                      "args": [
+                        {
+                          "node": "Number",
+                          "value": 1
+                        },
+                        {
+                          "id": "a",
+                          "node": "Symbol"
+                        }
+                      ],
+                      "node": "Add"
+                    },
+                    "exp": {
+                      "node": "Number",
+                      "value": 0.5
+                    },
+                    "node": "Pow"
+                  }
+                ],
+                "node": "Add"
+              },
+              "exp": {
+                "node": "Number",
+                "value": 0.5
+              },
+              "node": "Pow"
             },
             {
-              "args": [
-                {
-                  "node": "Number",
-                  "value": 16
-                },
-                {
-                  "id": "a",
-                  "node": "Symbol"
-                }
-              ],
-              "node": "Mul"
+              "base": {
+                "args": [
+                  {
+                    "node": "Number",
+                    "value": 4
+                  },
+                  {
+                    "base": {
+                      "args": [
+                        {
+                          "args": [
+                            {
+                              "node": "Number",
+                              "value": 16
+                            },
+                            {
+                              "id": "a",
+                              "node": "Symbol"
+                            }
+                          ],
+                          "node": "Mul"
+                        },
+                        {
+                          "node": "Number",
+                          "value": 16
+                        }
+                      ],
+                      "node": "Add"
+                    },
+                    "exp": {
+                      "node": "Number",
+                      "value": 0.5
+                    },
+                    "node": "Pow"
+                  }
+                ],
+                "node": "Add"
+              },
+              "exp": {
+                "node": "Number",
+                "value": 0.5
+              },
+              "node": "Pow"
             }
           ],
           "node": "Add"
         },
-        "node": "Ge",
+        "node": "Eq",
         "rhs": {
           "node": "Number",
-          "value": 0
-        }
-      },
-      "kind": "given",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "expr": {
-        "lhs": {
-          "args": [
-            {
-              "node": "Number",
-              "value": 1
-            },
-            {
-              "id": "a",
-              "node": "Symbol"
-            }
-          ],
-          "node": "Add"
-        },
-        "node": "Ge",
-        "rhs": {
-          "node": "Number",
-          "value": 0
+          "value": 6
         }
       },
       "kind": "given",
@@ -65,16 +103,8 @@
   "concepts": [
     {
       "id": "c1",
-      "name": "radical equation with nested square roots",
-      "role": "pattern",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "id": "c2",
-      "name": "apply domain constraints from square roots (radicands >= 0)",
-      "role": "domain",
+      "name": "equation with nested square roots",
+      "role": "definition",
       "trace": [
         "s1"
       ]
@@ -90,15 +120,6 @@
         "s2"
       ],
       "type": "Real"
-    },
-    {
-      "id": "sqrt",
-      "kind": "function",
-      "properties": [],
-      "trace": [
-        "s1"
-      ],
-      "type": "Real->Real"
     }
   ],
   "goal": {
@@ -112,11 +133,11 @@
       "node": "Symbol"
     },
     "trace": [
-      "s1",
       "s2"
     ]
   },
   "meta": {
+    "generator": "assistant-1.0",
     "id": "mf2f_mathd_algebra_17",
     "version": "0.1"
   },
@@ -147,88 +168,16 @@
     {
       "code": "invalid_goal_expr_replaced",
       "details": {
-        "raw_expr": {
-          "lhs": {
-            "node": "Add",
-            "terms": [
-              {
-                "arg": {
-                  "node": "Add",
-                  "terms": [
-                    {
-                      "node": "Number",
-                      "value": 4
-                    },
-                    {
-                      "arg": {
-                        "node": "Add",
-                        "terms": [
-                          {
-                            "node": "Number",
-                            "value": 16
-                          },
-                          {
-                            "factors": [
-                              {
-                                "node": "Number",
-                                "value": 16
-                              },
-                              {
-                                "id": "a",
-                                "node": "Symbol"
-                              }
-                            ],
-                            "node": "Mul"
-                          }
-                        ]
-                      },
-                      "node": "Sqrt"
-                    }
-                  ]
-                },
-                "node": "Sqrt"
-              },
-              {
-                "arg": {
-                  "node": "Add",
-                  "terms": [
-                    {
-                      "node": "Number",
-                      "value": 1
-                    },
-                    {
-                      "arg": {
-                        "node": "Add",
-                        "terms": [
-                          {
-                            "node": "Number",
-                            "value": 1
-                          },
-                          {
-                            "id": "a",
-                            "node": "Symbol"
-                          }
-                        ]
-                      },
-                      "node": "Sqrt"
-                    }
-                  ]
-                },
-                "node": "Sqrt"
-              }
-            ]
-          },
-          "node": "Eq",
-          "rhs": {
-            "node": "Number",
-            "value": 6
-          }
-        },
+        "node_type": null,
+        "path": [
+          "goal",
+          "expr"
+        ],
+        "raw_expr": null,
         "reason": "goal_expr_not_parseable"
       },
       "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
       "trace": [
-        "s1",
         "s2"
       ]
     }

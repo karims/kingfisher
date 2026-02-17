@@ -14,6 +14,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from mvir.analysis.concepts import augment_mvir_with_concepts
 from mvir.core.ast_normalize import normalize_expr_dict_relaxed
 from mvir.core.models import MVIR, Warning
 from mvir.extract.cache import ResponseCache
@@ -27,6 +28,7 @@ from mvir.extract.report import classify_exception
 from mvir.extract.sanitize import sanitize_mvir_payload
 from mvir.preprocess.context import build_preprocess_output
 from mvir.repair.ast_sanitize import sanitize_expr_dict
+from mvir.utils.canonicalize import canonicalize_mvir
 
 
 def formalize(prompt_context: dict, provider: Provider) -> ProviderResult:
@@ -333,6 +335,8 @@ def formalize_text_to_mvir(
             else:
                 raise ValueError("Grounding contract failed: " + "; ".join(errors))
 
+        mvir = canonicalize_mvir(mvir)
+        mvir = augment_mvir_with_concepts(mvir)
         return mvir
     except Exception as exc:
         _write_debug_bundle(

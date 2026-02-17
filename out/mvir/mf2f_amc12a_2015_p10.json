@@ -5,14 +5,6 @@
         "lhs": {
           "args": [
             {
-              "id": "x",
-              "node": "Symbol"
-            },
-            {
-              "id": "y",
-              "node": "Symbol"
-            },
-            {
               "args": [
                 {
                   "id": "x",
@@ -24,6 +16,14 @@
                 }
               ],
               "node": "Mul"
+            },
+            {
+              "id": "x",
+              "node": "Symbol"
+            },
+            {
+              "id": "y",
+              "node": "Symbol"
             }
           ],
           "node": "Add"
@@ -74,46 +74,14 @@
       ]
     }
   ],
-  "concepts": [
-    {
-      "id": "integer_solutions",
-      "role": "domain",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "id": "positive_integers",
-      "role": "domain",
-      "trace": [
-        "s1"
-      ]
-    },
-    {
-      "id": "simon_favorite_factoring_trick",
-      "role": "pattern",
-      "trace": [
-        "s1"
-      ]
-    }
-  ],
+  "concepts": [],
   "entities": [
-    {
-      "id": "80",
-      "kind": "constant",
-      "properties": [],
-      "trace": [
-        "s1"
-      ],
-      "type": "Integer"
-    },
     {
       "id": "x",
       "kind": "variable",
       "properties": [],
       "trace": [
-        "s1",
-        "s2"
+        "s1"
       ],
       "type": "Integer"
     },
@@ -129,10 +97,10 @@
   ],
   "goal": {
     "expr": {
-      "id": "x",
-      "node": "Symbol"
+      "node": "Bool",
+      "value": true
     },
-    "kind": "find",
+    "kind": "prove",
     "target": {
       "id": "x",
       "node": "Symbol"
@@ -142,6 +110,7 @@
     ]
   },
   "meta": {
+    "generator": "mvire-gen-1.0",
     "id": "mf2f_amc12a_2015_p10",
     "version": "0.1"
   },
@@ -170,37 +139,19 @@
   ],
   "warnings": [
     {
-      "code": "invalid_assumption_expr_dropped",
+      "code": "invalid_goal_expr_replaced",
       "details": {
-        "raw_expr": {
-          "arg": {
-            "id": "x",
-            "node": "Symbol"
-          },
-          "node": "IsInteger"
-        },
-        "reason": "normalize_missing_required_fields"
+        "node_type": null,
+        "path": [
+          "goal",
+          "expr"
+        ],
+        "raw_expr": null,
+        "reason": "goal_expr_not_parseable"
       },
-      "message": "dropped invalid expr subtree: normalization missing required fields",
+      "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
       "trace": [
-        "s1"
-      ]
-    },
-    {
-      "code": "invalid_assumption_expr_dropped",
-      "details": {
-        "raw_expr": {
-          "arg": {
-            "id": "y",
-            "node": "Symbol"
-          },
-          "node": "IsInteger"
-        },
-        "reason": "normalize_missing_required_fields"
-      },
-      "message": "dropped invalid expr subtree: normalization missing required fields",
-      "trace": [
-        "s1"
+        "s2"
       ]
     }
   ]
