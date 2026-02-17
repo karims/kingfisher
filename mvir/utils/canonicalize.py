@@ -142,3 +142,11 @@ def canonicalize_mvir(mvir: MVIR) -> MVIR:
             "warnings": canonical_warnings,
         }
     )
+
+
+def mvir_to_stable_json(mvir: MVIR) -> str:
+    """Serialize MVIR to stable JSON (canonicalized, sorted keys, indented)."""
+
+    canonical = canonicalize_mvir(mvir)
+    payload = canonical.model_dump(by_alias=False, exclude_none=True)
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2)

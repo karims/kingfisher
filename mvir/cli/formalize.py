@@ -21,7 +21,7 @@ from mvir.preprocess.context import build_preprocess_output
 from mvir.render.bundle import write_explain_bundle
 from mvir.render.markdown import render_mvir_markdown
 from mvir.trace import TraceLogger, new_event
-from mvir.utils.canonicalize import canonicalize_mvir
+from mvir.utils.canonicalize import canonicalize_mvir, mvir_to_stable_json
 
 
 def _configure_provider_sampling(provider: object) -> None:
@@ -336,9 +336,13 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         if args.out:
-            Path(args.out).write_text(
-                json.dumps(payload, indent=2), encoding="utf-8"
-            )
+            if isinstance(mvir, MVIR):
+                Path(args.out).write_text(mvir_to_stable_json(mvir), encoding="utf-8")
+            else:
+                Path(args.out).write_text(
+                    json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2),
+                    encoding="utf-8",
+                )
         if md_path is not None:
             _write_markdown_report(mvir, md_path)
         if args.bundle_dir:

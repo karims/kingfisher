@@ -10,7 +10,9 @@ from typing import Any
 from mvir.cli.formalize import build_provider, format_cli_exception
 from mvir.core.ast import expr_to_dict, parse_expr
 from mvir.core.ast_normalize import normalize_expr_dict
+from mvir.core.models import MVIR
 from mvir.extract.formalize import formalize_text_to_mvir
+from mvir.utils.canonicalize import canonicalize_mvir, mvir_to_stable_json
 
 
 def _canonicalize(value: Any) -> Any:
@@ -285,6 +287,8 @@ def main(argv: list[str] | None = None) -> int:
                 deterministic=args.deterministic,
                 allow_degraded=args.allow_degraded,
             )
+            if isinstance(rerun_mvir, MVIR):
+                rerun_mvir = canonicalize_mvir(rerun_mvir)
             rerun_payload = rerun_mvir.model_dump(by_alias=False, exclude_none=True)
             warning_codes: set[str] = set()
             warnings = rerun_payload.get("warnings")
@@ -309,15 +313,21 @@ def main(argv: list[str] | None = None) -> int:
             if left != right:
                 mismatches.append(str(path))
                 new_path = new_dir / path.name
-                new_path.write_text(
-                    json.dumps(right, indent=2, ensure_ascii=False),
-                    encoding="utf-8",
-                )
-                if args.update:
-                    path.write_text(
-                        json.dumps(right, indent=2, ensure_ascii=False),
+                if isinstance(rerun_mvir, MVIR):
+                    new_path.write_text(mvir_to_stable_json(rerun_mvir), encoding="utf-8")
+                else:
+                    new_path.write_text(
+                        json.dumps(right, indent=2, ensure_ascii=False, sort_keys=True),
                         encoding="utf-8",
                     )
+                if args.update:
+                    if isinstance(rerun_mvir, MVIR):
+                        path.write_text(mvir_to_stable_json(rerun_mvir), encoding="utf-8")
+                    else:
+                        path.write_text(
+                            json.dumps(right, indent=2, ensure_ascii=False, sort_keys=True),
+                            encoding="utf-8",
+                        )
                     print(f"UPDATE: {path} (variant={variant}, new={new_path})")
                 else:
                     print(f"MISMATCH: {path} (variant={variant}, new={new_path})")
