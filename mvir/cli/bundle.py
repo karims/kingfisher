@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 from pathlib import Path
 
@@ -24,11 +25,11 @@ def main(argv: list[str] | None = None) -> int:
 
         payload = json.loads(in_path.read_text(encoding="utf-8"))
         mvir = MVIR.model_validate(payload)
-        bundle = build_solver_bundle(mvir.model_dump(by_alias=False, exclude_none=True))
+        bundle = build_solver_bundle(mvir)
 
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(
-            json.dumps(bundle, ensure_ascii=False, sort_keys=True, indent=2),
+            json.dumps(asdict(bundle), ensure_ascii=False, sort_keys=True, indent=2),
             encoding="utf-8",
         )
         print(f"OK: {mvir.meta.id} -> {out_path}")
@@ -40,4 +41,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

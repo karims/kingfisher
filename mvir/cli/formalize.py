@@ -8,6 +8,7 @@ Providers must not modify MVIR schema.
 from __future__ import annotations
 
 import argparse
+from dataclasses import asdict
 import json
 from pathlib import Path
 
@@ -383,9 +384,9 @@ def main(argv: list[str] | None = None) -> int:
         if args.bundle_out:
             bundle_path = Path(args.bundle_out)
             bundle_path.parent.mkdir(parents=True, exist_ok=True)
-            bundle = build_solver_bundle(payload if isinstance(payload, dict) else {})
+            bundle = build_solver_bundle(mvir)
             bundle_path.write_text(
-                json.dumps(bundle, ensure_ascii=False, sort_keys=True, indent=2),
+                json.dumps(asdict(bundle), ensure_ascii=False, sort_keys=True, indent=2),
                 encoding="utf-8",
             )
         if md_path is not None:

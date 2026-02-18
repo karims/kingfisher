@@ -57,5 +57,7 @@ def test_cli_formalize_writes_surface_and_bundle_artifacts(tmp_path: Path) -> No
     surface_payload = json.loads(surface_path.read_text(encoding="utf-8"))
     bundle_payload = json.loads(bundle_path.read_text(encoding="utf-8"))
     assert isinstance(surface_payload, list)
-    assert "goal" in bundle_payload
-    assert "stats" in bundle_payload
+    assert "problem_id" in bundle_payload
+    assert "goal_kind" in bundle_payload
+    assert "goal_sympy" in bundle_payload
+    assert "constraints_sympy" in bundle_payload

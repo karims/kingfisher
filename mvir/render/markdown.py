@@ -189,12 +189,12 @@ def _render_math_surface_summary(mvir: MVIR) -> list[str]:
 def _render_solver_bundle_summary(mvir: MVIR) -> list[str]:
     lines: list[str] = []
     lines.append("## Solver Bundle Summary")
-    bundle = build_solver_bundle(mvir.model_dump(by_alias=False, exclude_none=True))
-    stats = bundle.get("stats", {}) if isinstance(bundle, dict) else {}
-    had_sympy = stats.get("had_sympy")
-    failures = stats.get("sympy_failures")
-    lines.append(f"- had_sympy: {had_sympy}")
-    lines.append(f"- sympy_failures: {failures}")
+    bundle = build_solver_bundle(mvir)
+    lines.append(f"- goal_kind: {bundle.goal_kind}")
+    lines.append(f"- goal_sympy: {bundle.goal_sympy or ''}")
+    lines.append(f"- constraints: {len(bundle.constraints_sympy)}")
+    lines.append(f"- unknowns: {', '.join(bundle.unknowns) if bundle.unknowns else '(none)'}")
+    lines.append(f"- warnings: {len(bundle.warnings)}")
     return lines
 
 

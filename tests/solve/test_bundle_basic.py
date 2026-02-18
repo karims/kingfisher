@@ -2,31 +2,25 @@
 
 from __future__ import annotations
 
-import importlib.util
+from dataclasses import asdict
 import json
 from pathlib import Path
 
+from mvir.core.models import MVIR
 from mvir.solve.bundle import build_solver_bundle
 
 
-def test_build_solver_bundle_has_expected_shape_and_sorted_entities() -> None:
+def test_build_solver_bundle_has_expected_shape() -> None:
     payload = json.loads(Path("out/mvir/latex_smoke_01.json").read_text(encoding="utf-8"))
+    mvir = MVIR.model_validate(payload)
 
-    bundle = build_solver_bundle(payload)
+    bundle = build_solver_bundle(mvir)
+    bundle_payload = asdict(bundle)
 
-    assert "entities" in bundle
-    assert "goal" in bundle
-    assert "assumptions" in bundle
-
-    entity_ids = [item["id"] for item in bundle["entities"]]
-    assert entity_ids == sorted(entity_ids)
-
-    assert bundle["goal"]["expr_mvir"]
-    assert isinstance(bundle["assumptions"], list)
-
-    sympy_available = importlib.util.find_spec("sympy") is not None
-    if sympy_available:
-        assert bundle["goal"]["expr_sympy"] is not None
-    else:
-        assert bundle["goal"]["expr_sympy"] is None
-
+    assert bundle_payload["problem_id"] == mvir.meta.id
+    assert bundle_payload["goal_kind"] == mvir.goal.kind.value
+    assert isinstance(bundle_payload["constraints_sympy"], list)
+    assert isinstance(bundle_payload["unknowns"], list)
+    assert isinstance(bundle_payload["symbol_table"], list)
+    assert isinstance(bundle_payload["warnings"], list)
+    json.dumps(bundle_payload)
