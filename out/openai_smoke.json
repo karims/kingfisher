@@ -67,25 +67,27 @@
     },
     "kind": "prove",
     "target": {
-      "lhs": {
-        "base": {
-          "id": "x",
-          "node": "Symbol"
-        },
-        "exp": {
+      "args": [
+        {
           "node": "Number",
-          "value": 2
+          "value": 1
         },
-        "node": "Pow"
-      },
-      "node": "Ge",
-      "rhs": {
-        "node": "Number",
-        "value": 0
-      }
+        {
+          "base": {
+            "id": "x",
+            "node": "Symbol"
+          },
+          "exp": {
+            "node": "Number",
+            "value": 2
+          },
+          "node": "Pow"
+        }
+      ],
+      "node": "Add"
     },
     "trace": [
-      "s3"
+      "s1"
     ]
   },
   "meta": {
@@ -94,6 +96,90 @@
     "version": "0.1"
   },
   "source": {
+    "math_surface": [
+      {
+        "end": 16,
+        "raw_latex": "x^2 + 1",
+        "sexpr": "(Add (Pow x 2) 1)",
+        "span_id": "m1",
+        "start": 9,
+        "status": "ok",
+        "tokens": [
+          "+",
+          "1",
+          "2",
+          "^",
+          "x"
+        ],
+        "warnings": []
+      },
+      {
+        "end": 30,
+        "raw_latex": "x > 0",
+        "sexpr": "(Mul (Mul x >) 0)",
+        "span_id": "m2",
+        "start": 25,
+        "status": "ok",
+        "tokens": [
+          "0",
+          ">",
+          "x"
+        ],
+        "warnings": []
+      },
+      {
+        "end": 55,
+        "raw_latex": "x^2 \\ge 0",
+        "sexpr": "(Mul (Mul (Pow x 2) \\ge) 0)",
+        "span_id": "m3",
+        "start": 46,
+        "status": "partial",
+        "tokens": [
+          "0",
+          "2",
+          "\\ge",
+          "^",
+          "x"
+        ],
+        "warnings": [
+          "unsupported macro \\ge"
+        ]
+      },
+      {
+        "end": 99,
+        "raw_latex": "\\sum_{k=1}^n k = \\frac{n(n+1)}{2}",
+        "sexpr": "(Eq (Sum k 1 n k) (Div (Mul n (Add n 1)) 2))",
+        "span_id": "m4",
+        "start": 66,
+        "status": "ok",
+        "tokens": [
+          "(",
+          ")",
+          "+",
+          "1",
+          "1",
+          "2",
+          "=",
+          "=",
+          "\\frac",
+          "\\sum",
+          "^",
+          "_",
+          "k",
+          "k",
+          "n",
+          "n",
+          "n",
+          "{",
+          "{",
+          "{",
+          "}",
+          "}",
+          "}"
+        ],
+        "warnings": []
+      }
+    ],
     "text": "Compute $x^2 + 1$.\nLet \\(x > 0\\). Show that \\[x^2 \\ge 0\\].\nAlso $$\\sum_{k=1}^n k = \\frac{n(n+1)}{2}$$.\n"
   },
   "trace": [
@@ -130,73 +216,6 @@
   ],
   "warnings": [
     {
-      "code": "invalid_assumption_expr_dropped",
-      "details": {
-        "node_type": "Eq",
-        "path": [
-          "assumptions",
-          1,
-          "expr"
-        ],
-        "raw_expr": {
-          "lhs": {
-            "body": {
-              "id": "k",
-              "node": "Symbol"
-            },
-            "index": {
-              "id": "k",
-              "node": "Symbol"
-            },
-            "lower": {
-              "node": "Number",
-              "value": 1
-            },
-            "node": "Sum",
-            "upper": {
-              "id": "n",
-              "node": "Symbol"
-            }
-          },
-          "node": "Eq",
-          "rhs": {
-            "lhs": {
-              "factors": [
-                {
-                  "id": "n",
-                  "node": "Symbol"
-                },
-                {
-                  "node": "Add",
-                  "terms": [
-                    {
-                      "id": "n",
-                      "node": "Symbol"
-                    },
-                    {
-                      "node": "Number",
-                      "value": 1
-                    }
-                  ]
-                }
-              ],
-              "node": "Mul"
-            },
-            "node": "Div",
-            "rhs": {
-              "node": "Number",
-              "value": 2
-            }
-          }
-        },
-        "reason": "incomplete_expr"
-      },
-      "message": "dropped invalid expr subtree: expression missing required AST fields",
-      "trace": [
-        "s4"
-      ]
-    },
-    {
       "code": "invalid_goal_expr_replaced",
       "details": {
         "node_type": null,
@@ -209,14 +228,14 @@
       },
       "message": "dropped invalid expr subtree: goal.expr replaced with safe fallback Bool(true)",
       "trace": [
-        "s3"
+        "s1"
       ]
     },
     {
       "code": "multiple_tasks",
-      "message": "Source contains multiple tasks. Primary task chosen: prove x^2 >= 0 (s3). Secondary tasks preserved: compute x^2 + 1 (s1) and state/supply sum formula (s4).",
+      "message": "The input contains multiple tasks. Primary task selected: compute x^2 + 1. Secondary tasks left unselected: show x^2 >= 0; state the summation formula.",
       "trace": [
-        "s1",
+        "s3",
         "s4"
       ]
     }
